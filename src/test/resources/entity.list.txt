@@ -1,0 +1,1 @@
+nablarch.common.web.session.integration.SessionStoreIntegrationTest$UserSession

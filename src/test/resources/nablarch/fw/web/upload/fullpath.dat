@@ -1,0 +1,14 @@
+
+-----------------------------2394118477469
+Content-Disposition: form-data; name="uploadfile1"; filename="C:/path/to/upload.txt"
+Content-Type: text/plain
+
+あああ
+いいいいいい
+ううう
+
+-----------------------------2394118477469
+Content-Disposition: form-data; name="username"
+
+hoge
+-----------------------------2394118477469--

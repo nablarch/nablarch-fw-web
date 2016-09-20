@@ -1,0 +1,23 @@
+-----------------------------2394118477469
+Content-Disposition: form-data; name="uploadfile1"; filename="myFile1_ja.txt"
+Content-Type: text/plain
+
+こんにちは
+さようなら
+-----------------------------2394118477469
+Content-Disposition: form-data; name="uploadfile1"; filename="myFile2_ja.txt"
+Content-Type: text/plain
+
+こんばんわ
+またあした
+-----------------------------2394118477469
+Content-Disposition: form-data; name="uploadfile2"; filename="myFile_en.txt"
+Content-Type: text/plain
+
+Hello.
+Good Bye.
+-----------------------------2394118477469
+Content-Disposition: form-data; name="username"
+
+hoge
+-----------------------------2394118477469--

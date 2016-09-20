@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ../../../../../../Nablarch/resources/component-configuration.xsd">
+
+  <config-file file="db.config" />
+
+  <component name="initializer" class="nablarch.core.repository.initialization.BasicApplicationInitializer">
+    <property name="initializeList">
+      <list>
+        <component-ref name="formDefinitionCache" />
+        <component-ref name="validationManager" />
+        <component-ref name="domainValidator" />
+      </list>
+    </property>
+  </component>
+
+  <component name="stringResourceHolder" class="nablarch.test.support.message.MockStringResourceHolder" />
+
+  <component name="formDefinitionCache" class="nablarch.core.cache.BasicStaticDataCache">
+    <property name="loader">
+      <component class="nablarch.core.validation.FormValidationDefinitionLoader" />
+    </property>
+  </component>
+
+  <component name="domainValidationHelper" class="nablarch.core.validation.domain.DomainValidationHelper">
+    <property name="domainAnnotation" value="nablarch.common.web.interceptor.sample.form.Domain" />
+  </component>
+
+  <component name="validationManager" class="nablarch.core.validation.ValidationManager">
+    <property name="convertors">
+      <list>
+        <component-ref name="stringConvertor" />
+      </list>
+    </property>
+    <property name="validators">
+      <list>
+        <component-ref name="requiredValidator" />
+        <component-ref name="lengthValidator" />
+        <component-ref name="domainValidator" />
+      </list>
+    </property>
+    <property name="formDefinitionCache" ref="formDefinitionCache" />
+    <property name="domainValidationHelper" ref="domainValidationHelper" />
+  </component>
+
+  <!-- convertors end -->
+
+  <component name="stringConvertor" class="nablarch.core.validation.convertor.StringConvertor">
+    <property name="conversionFailedMessageId" value="M001" />
+    <property name="allowNullValue" value="false" />
+  </component>
+
+  <!-- convertors end -->
+
+  <!-- validators start -->
+
+  <component name="requiredValidator" class="nablarch.core.validation.validator.RequiredValidator">
+    <property name="messageId" value="M007" />
+  </component>
+
+  <component name="lengthValidator" class="nablarch.core.validation.validator.LengthValidator">
+    <property name="maxMessageId" value="M011" />
+    <property name="maxAndMinMessageId" value="M012" />
+    <property name="fixLengthMessageId" value="M013" />
+  </component>
+
+  <component name="domainValidator" class="nablarch.core.validation.domain.DomainValidator">
+    <property name="validators">
+      <list>
+        <component-ref name="requiredValidator" />
+        <component-ref name="lengthValidator" />
+      </list>
+    </property>
+    <property name="domainValidationHelper" ref="domainValidationHelper" />
+  </component>
+
+  <!-- validators end -->
+
+  <!-- ValidationStrategyを指定しないときの動作確認用の設定 -->
+  <!--
+  <component name="validationStrategy" class="nablarch.common.web.validator.NablarchValidationStrategy" />
+  -->
+
+</component-configuration>
