@@ -3,3 +3,4 @@
 
 # CSVはCRLFとLFが混在するのでバイナリ扱いにする
 *.csv    -text
+*.dat    -text
