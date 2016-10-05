@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 
 import nablarch.core.log.Logger;
 import nablarch.core.log.LoggerManager;
-import nablarch.core.util.Builder;
 import nablarch.core.util.annotation.Published;
 
 /**
@@ -88,6 +87,41 @@ public final class ResourceLocator {
 
     /** デフォルトスキーム */
     private static final String DEFAULT_SCHEME = "servlet";
+
+    /** 対応するスキーム名 */
+    public static final String SCHEMES = "file|classpath|forward|servlet|redirect|https|http";
+
+    /** 許可スキームパターン */
+    private static final Pattern ALLOWED_SCHEMES = Pattern.compile('^' + SCHEMES + '$');
+
+    /** スキームを抽出するための正規表現 */
+    private static final Pattern EXTRACT_SCHEME_PATTERN = Pattern.compile("^(?:(.+)://)");
+    
+    /** ホスト名を抽出するための正規表現 */
+    private static final Pattern EXTRACT_HOSTNAME_PATTERN = Pattern.compile("^[^/?#]+");
+
+    /**
+     * コンテンツパス中のディレクトリとして許容される文字列。
+     * <p/>
+     * <pre>
+     * "/", "~" はNG。
+     * 2以上連続する"."もNG。
+     * </pre>
+     */
+    public static final Pattern ALLOWED_CHAR = Pattern.compile("^([^./~]|\\.(?=[^.]))*/$");
+
+    /** コンテンツのパス */
+    private final String contentPath;
+
+    /** リソースパスのスキーム名 */
+    private final String scheme;
+
+    /** パス */
+    private final String path;
+
+    /** リソース名 */
+    private final String resourceName;
+
     /**
      * リソースの文字列表現から{@code ResourceLocator}オブジェクトを生成する。
      * <p/>
@@ -106,77 +140,47 @@ public final class ResourceLocator {
      *
      * @param path リソースの文字列表現
      */
-    private ResourceLocator(String path) {
-        Matcher m = SYNTAX.matcher(path);
-        if (!m.matches()) {
-            LOG.logInfo("malformed resource path. resource path = " + path);
-            throw new HttpErrorResponse(400);
+    private ResourceLocator(final String path) {
+
+        final Matcher matcher = EXTRACT_SCHEME_PATTERN.matcher(path);
+        final String pathWithoutScheme;
+        if (matcher.find()) {
+            scheme = matcher.group(1);
+            if (!ALLOWED_SCHEMES.matcher(scheme)
+                               .matches()) {
+                LOG.logInfo("malformed resource path. resource path = " + path);
+                throw new HttpErrorResponse(400);
+            }
+            pathWithoutScheme = path.substring(matcher.end());
+            contentPath = path;
+        } else {
+            pathWithoutScheme = path;
+            scheme = DEFAULT_SCHEME;
+            contentPath = DEFAULT_SCHEME + "://" + path;
         }
-        scheme       = (m.group(1) != null) ? m.group(1)
-                     : (m.group(2) != null) ? m.group(2)
-                     : DEFAULT_SCHEME;
 
-        hostname     = (m.group(3) == null) ? ""
-                                            : m.group(3);
-        directory    = (m.group(4) == null) ? ""
-                                            : m.group(4);
-        resourceName = m.group(5);
+        final Resource resource;
+        if (isHttpScheme()) {
+            final Matcher hostname = EXTRACT_HOSTNAME_PATTERN.matcher(pathWithoutScheme);
+            if (hostname.find()) {
+                resource = new Resource(pathWithoutScheme.substring(hostname.end()));
+            } else {
+                resource = new Resource("");
+            }
+        } else {
+            resource = new Resource(pathWithoutScheme);
+        }
+        this.path = resource.getDirectory() + resource.getResourceName();
+        resourceName = resource.getResourceName();
     }
 
     /**
-     * 渡された文字列が有効なリソースパスの書式であれば{@code true}を返す。
-     *
-     * @param path リソースパス文字列
-     * @return 渡された文字列が有効なリソースパスの書式であれば{@code true}
+     * 自身のスキームがhttp(https)スキームかどうかを返す。
+     * @return http(https)の場合は{@code true}
      */
-    public static boolean isValidPath(String path) {
-        return SYNTAX.matcher(path).matches();
+    private boolean isHttpScheme() {
+        return scheme.equals("https") || scheme.equals("http");
     }
-
-    /** 対応するスキーム名 */
-    public static final String SCHEMES = "file|classpath|forward|servlet|redirect";
-
-    /**
-     * コンテンツパス中のディレクトリ、リソース名として許容される文字列。
-     * <p/>
-     * <pre>
-     * "/", "~" はNG。
-     * 2以上連続する"."もNG。
-     * </pre>
-     */
-    public static final String ALLOWED_CHAR = Builder.linesf(
-      "(?:"
-    , "  [^./~]"
-    , "  |"
-    , "  \\.(?=[^.])"
-    , ")"
-    );
-
-    /** ホスト名 */
-    private static final String
-    HOSTNAME = "[-0-9a-zA-Z]{1,63}(?:\\.[-0-9a-zA-Z]{1,63}){0,10}(?:\\:\\d+)?(?:(?=[?/\\#])|$)";
-
-    /** リソースパスの書式 */
-    public static final Pattern SYNTAX = Pattern.compile(Builder.linesf(
-      "^                       "
-    , "(?:                     "
-    , "  (%s)\\://             ", SCHEMES  // キャプチャ#1: スキーム名
-    , "| (https?)\\://(%s)     ", HOSTNAME // キャプチャ#2 #3:
-    , ")?                      "           //       HTTP(S) + ホスト名
-    , "(                       "           // キャプチャ#4: ディレクトリ
-    , "  (?:[A-Z]\\:)?         "           // Drive Letter(for Windows/DOS)
-    , "  [\\\\/]?               "
-    , "  (?:%s+[\\\\/])*?      ", ALLOWED_CHAR
-    , ")?                      "
-    , "(                       "  // キャプチャ#5: リソース名(including query parameters)
-    , "  %s*                   ", ALLOWED_CHAR
-    , "  (                     "  // キャプチャ#6: query parameters
-    , "    \\?[^=]+=[^&]*      "
-    , "    (?:\\&[^=]+=[^&]*)* "
-    , "  )?                    "
-    , ")?                      "
-    , "$                       "
-    ), Pattern.COMMENTS);
 
     /**
      * このリソースパスのスキーム名を返す。
@@ -186,21 +190,6 @@ public final class ResourceLocator {
     public String getScheme() {
         return this.scheme;
     }
-
-    /** リソースパスのスキーム名 */
-    private final String scheme;
-
-    /**
-     * リソースパスのディレクトリ部分に相当する文字列を返す。
-     *
-     * @return リソースパスのディレクトリ部分
-     */
-    public String getDirectory() {
-        return this.directory;
-    }
-
-    /** リソースパスのディレクトリ部分 */
-    private final String directory;
 
     /**
      * 設定されたパスが相対パスかどうか。
@@ -212,7 +201,7 @@ public final class ResourceLocator {
         if (scheme.equals("classpath")) {
             return false;
         }
-        return !directory.startsWith("/");
+        return !path.startsWith("/");
     }
 
     /**
@@ -224,30 +213,16 @@ public final class ResourceLocator {
         return resourceName;
     }
 
-    /** リソース名 */
-    private final String resourceName;
-
-    /**
-     * ホスト名を返す。
-     *
-     * @return ホスト名
-     */
-    public String getHostname() {
-        return hostname;
-    }
-
-    /** ホスト名 */
-    private final String hostname;
-
-
-
     /**
      * パス文字列を返す。
      *
      * @return パス文字列
      */
     public String getPath() {
-        return directory + resourceName;
+        if (isHttpScheme()) {
+            throw new UnsupportedOperationException("unsupported http(https) scheme");
+        }
+        return path;
     }
 
     /**
@@ -256,7 +231,7 @@ public final class ResourceLocator {
      */
     @Override
     public String toString() {
-        return scheme + "://" + hostname + directory + resourceName;
+        return contentPath;
     }
 
     /**
@@ -349,5 +324,39 @@ public final class ResourceLocator {
      */
     public boolean isRedirect() {
         return scheme.matches("redirect|https?");
+    }
+
+    private static class Resource {
+
+        private final String directory;
+
+        private final String resourceName;
+
+        public Resource(final String path) {
+            final int last = path.lastIndexOf('/');
+            if (last != -1) {
+                directory = path.substring(0, last + 1);
+                resourceName = path.substring(last + 1);
+            } else {
+                directory = "";
+                resourceName = path;
+            }
+
+            for (final String s : directory.split("/")) {
+                if (!ALLOWED_CHAR.matcher(s + '/')
+                                 .matches()) {
+                    LOG.logInfo("malformed resource path. resource path = " + path);
+                    throw new HttpErrorResponse(400);
+                }
+            }
+        }
+
+        public String getDirectory() {
+            return directory;
+        }
+
+        public String getResourceName() {
+            return resourceName;
+        }
     }
 }
