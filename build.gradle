@@ -114,8 +114,6 @@ test {
     logger.lifecycle("Running test: " + descriptor)
   }
 
-  workingDir = file("${projectDir}/src/test")
-
   cobertura {
     coverageSourceDirs = ["${projectDir}/src/main/java/"]
     coverageIgnoreTrivial = true
