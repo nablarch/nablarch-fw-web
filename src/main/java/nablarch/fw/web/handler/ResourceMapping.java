@@ -2,7 +2,6 @@ package nablarch.fw.web.handler;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import nablarch.core.log.Logger;
@@ -90,18 +89,22 @@ public class ResourceMapping implements HttpRequestHandler {
      * @return このオブジェクト自体
      */
     public ResourceMapping setBasePath(String basePath) {
-        Matcher m = ResourceLocator.SYNTAX.matcher(basePath);
-        if (!m.matches()) {
-            throw new IllegalArgumentException("Invalid path: " + basePath);
+        final ResourceLocator locator;
+        try {
+            locator = ResourceLocator.valueOf(basePath);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid path: " + basePath, e);
         }
-        this.scheme = (m.group(1) != null) ? m.group(1)
-                    : (m.group(2) != null) ? m.group(2)
-                    : "servlet";
+        this.scheme = locator.getScheme();
         
         if (scheme.equals("file")) {
             throw new IllegalArgumentException("Invalid scheme: " + scheme);
         }
-        this.basePath = m.group(4);
+        try {
+            this.basePath = locator.getPath();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid path: " + basePath, e);
+        }
         return this;
     }
 

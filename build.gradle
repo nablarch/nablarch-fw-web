@@ -1,5 +1,5 @@
 group = 'com.nablarch.framework'
-version = '1.2.2'
+version = '1.2.3'
 description = '画面オンライン処理方式を実現する。'
 
 buildscript {
@@ -71,6 +71,10 @@ dependencies {
     exclude group: 'com.nablarch.profile', module: 'nablarch-all-in-one'
     exclude group: 'com.nablarch.framework', module: 'nablarch-testing'
   }
+  
+  testCompile('com.nablarch.dev:nablarch-test-support:0.0.5') {
+    exclude group:'*', module: 'nablarch-core'
+  }
 
   testRuntime files('src/test/java/')
   testRuntime 'org.hibernate:hibernate-validator:5.2.4.Final'
@@ -113,8 +117,6 @@ test {
   beforeTest { descriptor ->
     logger.lifecycle("Running test: " + descriptor)
   }
-
-  workingDir = file("${projectDir}/src/test")
 
   cobertura {
     coverageSourceDirs = ["${projectDir}/src/main/java/"]
