@@ -1,5 +1,5 @@
 group = 'com.nablarch.framework'
-version = '1.2.2'
+version = '1.2.3'
 description = '画面オンライン処理方式を実現する。'
 
 buildscript {
