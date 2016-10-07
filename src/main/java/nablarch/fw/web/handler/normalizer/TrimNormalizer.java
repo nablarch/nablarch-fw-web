@@ -1,7 +1,11 @@
 package nablarch.fw.web.handler.normalizer;
 
+import nablarch.core.util.StringUtil;
+
 /**
  * 前後のホワイトスペース({@link Character#isWhitespace(int)})を除去するノーマライザ実装クラス。
+ * 
+ * ホワイトスペースを除去した結果、空文字列となった場合には{@code null}に置き換える。
  *
  * @author Hisaaki Shioiri
  */
@@ -51,6 +55,7 @@ public class TrimNormalizer implements Normalizer {
                 break;
             }
         }
-        return value.substring(start, end);
+        final String trimmed = value.substring(start, end);
+        return StringUtil.isNullOrEmpty(trimmed) ? null : trimmed;
     }
 }
