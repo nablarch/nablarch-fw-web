@@ -26,6 +26,7 @@ import org.hamcrest.collection.IsIterableWithSize;
 import nablarch.common.web.interceptor.InjectForm;
 import nablarch.common.web.validator.bean.SampleBean;
 import nablarch.common.web.validator.bean.UserForm;
+import nablarch.common.web.validator.bean.WithArrayBean;
 import nablarch.core.ThreadContext;
 import nablarch.core.message.ApplicationException;
 import nablarch.core.message.Message;
@@ -38,6 +39,7 @@ import nablarch.fw.web.HttpMethodBinding;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.MockHttpRequest;
+import nablarch.fw.web.handler.NormalizationHandler;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 import nablarch.test.support.SystemRepositoryResource;
 
@@ -351,6 +353,29 @@ public class BeanValidationStrategyTest {
                     MessageMatcher.is("項目間のバリデーションエラー", "form.sub.multiItemValidation")
             ));
         }
+    }
+
+    /**
+     * 配列項目のコピーテスト
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testArrayItem() throws Exception {
+        Object action = new Object() {
+            @InjectForm(form = WithArrayBean.class, prefix = "form")
+            public HttpResponse getIndexHtml(HttpRequest req, ExecutionContext ctx) {
+                WithArrayBean bean = ctx.getRequestScopedVar("form");
+                assertThat(bean.getId(), is("100"));
+                assertThat(bean.getNumbers(), is(new String[] {"1", null, "3"}));
+                return new HttpResponse();
+            }
+        };
+        context.addHandler(new NormalizationHandler());
+        context.addHandler("//", new HttpMethodBinding(action));
+        context.handleNext(new MockHttpRequest("GET /index.html HTTP/1.1")
+                .setParam("form.id", "100")
+                .setParam("form.numbers", "1", "    ", "3"));
     }
 
     private static class MessageMatcher extends TypeSafeMatcher<Message> {
