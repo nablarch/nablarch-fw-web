@@ -198,7 +198,7 @@ public final class ResourceLocator {
      *          コンテキストクラスローダ上のリソースである場合、常に{@code false}
      */
     public boolean isRelative() {
-        if (scheme.equals("classpath")) {
+        if (scheme.equals("classpath") || isHttpScheme()) {
             return false;
         }
         return !path.startsWith("/");
