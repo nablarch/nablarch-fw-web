@@ -69,6 +69,31 @@ public class ResourceLocatorFunctionalTest {
     }
 
     /**
+     * コンテンツパスがhttpの場合で、形式が不正な場合のテスト
+     * @throws Exception
+     */
+    @Test
+    public void invalidHttpContent() throws Exception {
+        final ResourceLocator sut = ResourceLocator.valueOf("http://");
+
+        assertThat(sut, allOf(
+                hasProperty("scheme", is("http")),
+                hasProperty("resourceName", is("")),
+                hasProperty("redirect", is(true)),
+                hasProperty("relative", is(false))
+        ));
+
+        assertThat("httpでは存在チェックが無効(false)", sut.exists(), is(false));
+        assertThat(sut.toString(), is("http://"));
+        try {
+            sut.getPath();
+            fail();
+        } catch (UnsupportedOperationException ignored) {
+        }
+        invalidOperationWithoutClasspathAndFileScheme(sut);
+    }
+
+    /**
      * デフォルトのSchemeの場合のテスト
      *
      * @throws Exception
