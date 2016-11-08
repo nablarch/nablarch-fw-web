@@ -98,7 +98,7 @@ public final class ResourceLocator {
     private static final Pattern EXTRACT_SCHEME_PATTERN = Pattern.compile("^(?:(.+)://)");
     
     /** ホスト名を抽出するための正規表現 */
-    private static final Pattern EXTRACT_HOSTNAME_PATTERN = Pattern.compile("^[^/?#]+");
+    private static final Pattern EXTRACT_HOSTNAME_PATTERN = Pattern.compile("^([^/?#]+)");
 
     /**
      * コンテンツパス中のディレクトリとして許容される文字列。
@@ -121,6 +121,12 @@ public final class ResourceLocator {
 
     /** リソース名 */
     private final String resourceName;
+
+    /** ホスト名 */
+    private final String hostname;
+
+    /** ディレクトリ */
+    private final String directory;
 
     /**
      * リソースの文字列表現から{@code ResourceLocator}オブジェクトを生成する。
@@ -161,16 +167,20 @@ public final class ResourceLocator {
 
         final Resource resource;
         if (isHttpScheme()) {
-            final Matcher hostname = EXTRACT_HOSTNAME_PATTERN.matcher(pathWithoutScheme);
-            if (hostname.find()) {
-                resource = new Resource(pathWithoutScheme.substring(hostname.end()));
+            final Matcher hostnameMatcher = EXTRACT_HOSTNAME_PATTERN.matcher(pathWithoutScheme);
+            if (hostnameMatcher.find()) {
+                resource = new Resource(pathWithoutScheme.substring(hostnameMatcher.end()));
+                hostname = hostnameMatcher.group(1);
             } else {
                 resource = new Resource("");
+                hostname = "";
             }
         } else {
             resource = new Resource(pathWithoutScheme);
+            hostname = "";
         }
         this.path = resource.getDirectory() + resource.getResourceName();
+        directory = resource.getDirectory();
         resourceName = resource.getResourceName();
     }
 
@@ -215,13 +225,13 @@ public final class ResourceLocator {
 
     /**
      * パス文字列を返す。
+     * 
+     * パスにクエリーパラメータやフラグメントがある場合、
+     * これらを含んだ値をパスとして返す。
      *
      * @return パス文字列
      */
     public String getPath() {
-        if (isHttpScheme()) {
-            throw new UnsupportedOperationException("unsupported http(https) scheme");
-        }
         return path;
     }
 
@@ -324,6 +334,25 @@ public final class ResourceLocator {
      */
     public boolean isRedirect() {
         return scheme.matches("redirect|https?");
+    }
+
+    /**
+     * パスのホスト部を返す。
+     * 
+     * ポート番号が設定されている場合には、ポート番号を含んだ値を返す。
+     * 
+     * @return パスのホスト部
+     */
+    public String getHostname() {
+        return hostname;
+    }
+
+    /**
+     * パスからディレクトリを表す部分を返す。
+     * @return パスのディレクトリ部
+     */
+    public String getDirectory() {
+        return directory;
     }
 
     private static class Resource {

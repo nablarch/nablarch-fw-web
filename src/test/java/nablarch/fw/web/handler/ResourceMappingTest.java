@@ -152,11 +152,7 @@ public class ResourceMappingTest {
         scheme.setAccessible(true);
 
         ResourceMapping mapping = new ResourceMapping();
-        try {
-            mapping.setBasePath("http://hoge.com");
-            fail();
-        } catch (IllegalArgumentException ignore) {
-        }
+        mapping.setBasePath("http://hoge.com");
 
         mapping.setBasePath("hoge.com");
         assertThat((String) scheme.get(mapping), is("servlet"));
