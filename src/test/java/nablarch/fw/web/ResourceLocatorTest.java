@@ -1,6 +1,8 @@
 package nablarch.fw.web;
 
 import static nablarch.test.support.tool.Hereis.string;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -13,7 +15,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import nablarch.core.ThreadContext;
-import nablarch.core.repository.SystemRepository;
 import nablarch.core.util.Builder;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.handler.InternalMonitor;
@@ -37,8 +38,6 @@ public class ResourceLocatorTest {
     @Before
     public void setUp() throws Exception {
         ThreadContext.clear();
-        SystemRepository.clear();
-        new HttpServer().clearHandlers();
     }
 
     @Test
@@ -46,11 +45,23 @@ public class ResourceLocatorTest {
 
         ResourceLocator redirection = null;
 
+        redirection = new HttpResponse("http://localhost:8080/templates/index.html")
+                .getContentPath();
+
+        assertEquals("http://localhost:8080/templates/index.html", redirection.toString());
+        assertEquals("http",        redirection.getScheme());
+        assertEquals("localhost:8080", redirection.getHostname());
+        assertEquals("/templates/index.html", redirection.getPath());
+        assertEquals("/templates/",           redirection.getDirectory());
+        assertEquals("index.html",  redirection.getResourceName());
+        
         redirection = new HttpResponse("http://www.example.com/index.html")
                          .getContentPath();
 
         assertEquals("http://www.example.com/index.html", redirection.toString());
         assertEquals("http",        redirection.getScheme());
+        assertEquals("/index.html", redirection.getPath());
+        assertEquals("/",           redirection.getDirectory());
         assertEquals("index.html",  redirection.getResourceName());
 
         redirection = new HttpResponse("https://www.example.com/secure.html")
@@ -58,6 +69,8 @@ public class ResourceLocatorTest {
 
         assertEquals("https://www.example.com/secure.html", redirection.toString());
         assertEquals("https",        redirection.getScheme());
+        assertEquals("/secure.html", redirection.getPath());
+        assertEquals("/",            redirection.getDirectory());
         assertEquals("secure.html",  redirection.getResourceName());
 
 
@@ -66,6 +79,8 @@ public class ResourceLocatorTest {
 
         assertEquals("http://www.example.co.jp/test/index.html", redirection.toString());
         assertEquals("http",             redirection.getScheme());
+        assertEquals("/test/index.html", redirection.getPath());
+        assertEquals("/test/",           redirection.getDirectory());
         assertEquals("index.html",       redirection.getResourceName());
 
 
@@ -74,6 +89,8 @@ public class ResourceLocatorTest {
 
         assertEquals("http://www.example.co.jp/", redirection.toString());
         assertEquals("http",  redirection.getScheme());
+        assertEquals("/",     redirection.getPath());
+        assertEquals("/",     redirection.getDirectory());
         assertEquals("",      redirection.getResourceName());
 
 
@@ -82,6 +99,8 @@ public class ResourceLocatorTest {
 
         assertEquals("https://www.google.com/calendar", redirection.toString());
         assertEquals("https",     redirection.getScheme());
+        assertEquals("/calendar", redirection.getPath());
+        assertEquals("/",         redirection.getDirectory());
         assertEquals("calendar",  redirection.getResourceName());
 
         redirection = new HttpResponse("https://www.google.com/calendar/")
@@ -89,6 +108,8 @@ public class ResourceLocatorTest {
 
         assertEquals("https://www.google.com/calendar/", redirection.toString());
         assertEquals("https",      redirection.getScheme());
+        assertEquals("/calendar/", redirection.getPath());
+        assertEquals("/calendar/", redirection.getDirectory());
         assertEquals("",           redirection.getResourceName());
 
 
@@ -97,6 +118,8 @@ public class ResourceLocatorTest {
 
         assertEquals("http://www.example.co.jp", redirection.toString());
         assertEquals("http",                     redirection.getScheme());
+        assertEquals("",                         redirection.getPath());
+        assertEquals("",                         redirection.getDirectory());
         assertEquals("",                         redirection.getResourceName());
 
         redirection = new HttpResponse("http://www.example.org/index.html?hoge=fuga&piyo=poyo")
@@ -105,6 +128,9 @@ public class ResourceLocatorTest {
         assertEquals("http://www.example.org/index.html?hoge=fuga&piyo=poyo"
                    , redirection.toString());
         assertEquals("http", redirection.getScheme());
+        assertEquals("/index.html?hoge=fuga&piyo=poyo"
+                   , redirection.getPath());
+        assertEquals("/", redirection.getDirectory());
         assertEquals("index.html?hoge=fuga&piyo=poyo"
                    , redirection.getResourceName());
 
@@ -115,6 +141,9 @@ public class ResourceLocatorTest {
         assertEquals("http://www.example.org/index.html"
                    , redirection.toString());
         assertEquals("http", redirection.getScheme());
+        assertEquals("/index.html"
+                   , redirection.getPath());
+        assertEquals("/", redirection.getDirectory());
         assertEquals("index.html"
                    , redirection.getResourceName());
 
@@ -126,6 +155,9 @@ public class ResourceLocatorTest {
         assertEquals("http://www.example.org/index.html?hoge="
                    , redirection.toString());
         assertEquals("http", redirection.getScheme());
+        assertEquals("/index.html?hoge="
+                   , redirection.getPath());
+        assertEquals("/", redirection.getDirectory());
         assertEquals("index.html?hoge="
                    , redirection.getResourceName());
 
@@ -135,8 +167,12 @@ public class ResourceLocatorTest {
         assertEquals("http://www.example.org/index.html?hoge=="
                    , redirection.toString());
         assertEquals("http", redirection.getScheme());
+        assertEquals("/index.html?hoge=="
+                   , redirection.getPath());
+        assertEquals("/", redirection.getDirectory());
         assertEquals("index.html?hoge=="
                    , redirection.getResourceName());
+        assertEquals("www.example.org", redirection.getHostname());
 
         redirection = new HttpResponse("http://www.example.org/index.html#id1?hoge=fuga&piyo=poyo")
                          .getContentPath();
@@ -144,6 +180,9 @@ public class ResourceLocatorTest {
         assertEquals("http://www.example.org/index.html#id1?hoge=fuga&piyo=poyo"
                    , redirection.toString());
         assertEquals("http", redirection.getScheme());
+        assertEquals("/index.html#id1?hoge=fuga&piyo=poyo"
+                   , redirection.getPath());
+        assertEquals("/", redirection.getDirectory());
         assertEquals("index.html#id1?hoge=fuga&piyo=poyo"
                    , redirection.getResourceName());
 
@@ -153,6 +192,9 @@ public class ResourceLocatorTest {
         assertEquals("http://www.example.org/index.html?hoge=fuga"
                    , redirection.toString());
         assertEquals("http", redirection.getScheme());
+        assertEquals("/index.html?hoge=fuga"
+                   , redirection.getPath());
+        assertEquals("/", redirection.getDirectory());
         assertEquals("index.html?hoge=fuga"
                    , redirection.getResourceName());
 
@@ -163,6 +205,9 @@ public class ResourceLocatorTest {
                    , redirection.toString());
         assertEquals("http", redirection.getScheme());
         assertEquals("?hoge=fuga"
+                   , redirection.getPath());
+        assertEquals("", redirection.getDirectory());
+        assertEquals("?hoge=fuga"
                    , redirection.getResourceName());
 
         redirection = new HttpResponse("http://www.example.org#hoge?foo=fuga")
@@ -171,6 +216,9 @@ public class ResourceLocatorTest {
         assertEquals("http://www.example.org#hoge?foo=fuga"
                    , redirection.toString());
         assertEquals("http", redirection.getScheme());
+        assertEquals("#hoge?foo=fuga"
+                   , redirection.getPath());
+        assertEquals("", redirection.getDirectory());
         assertEquals("#hoge?foo=fuga"
                    , redirection.getResourceName());
 
@@ -181,6 +229,9 @@ public class ResourceLocatorTest {
                    , redirection.toString());
         assertEquals("http", redirection.getScheme());
         assertEquals("?foo=fuga"
+                   , redirection.getPath());
+        assertEquals("", redirection.getDirectory());
+        assertEquals("?foo=fuga"
                    , redirection.getResourceName());
 
         redirection = new HttpResponse("http://www.example.org/?foo=fuga")
@@ -189,6 +240,9 @@ public class ResourceLocatorTest {
         assertEquals("http://www.example.org/?foo=fuga"
           , redirection.toString());
         assertEquals("http", redirection.getScheme());
+        assertEquals("/?foo=fuga"
+          , redirection.getPath());
+        assertEquals("/", redirection.getDirectory());
         assertEquals("?foo=fuga"
           , redirection.getResourceName());
     }
@@ -218,6 +272,15 @@ public class ResourceLocatorTest {
             , ((HttpErrorResponse)e).getResponse().getStatusCode()
             );
         }
+
+        // ユーザ名、パスワード
+            ResourceLocator.valueOf("http://username@password@www.example.com/");
+
+
+        final ResourceLocator japaneseDomain = ResourceLocator.valueOf("http://総務省.jp/");
+        assertThat(japaneseDomain, allOf(
+                hasProperty("hostname", is("総務省.jp"))
+        ));
     }
 
     @Test
