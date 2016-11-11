@@ -54,7 +54,7 @@ public final class SessionUtil {
         if (value != null) {
             return value;
         } else {
-            throw new NoSuchElementException();
+            throw new SessionKeyNotFoundException(name);
         }
     }
     
