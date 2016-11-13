@@ -1,7 +1,5 @@
 package nablarch.common.web.session;
 
-import java.util.NoSuchElementException;
-
 import nablarch.core.repository.SystemRepository;
 import nablarch.core.util.annotation.Published;
 import nablarch.fw.ExecutionContext;
@@ -32,14 +30,14 @@ public final class SessionUtil {
      * 名称を指定してセッションからオブジェクトを取得する。
      * <p/>
      * セッションに指定した名称をもつオブジェクトが存在しない場合、
-     * {@link NoSuchElementException}を送出する。
+     * {@link SessionKeyNotFoundException}を送出する。
      * <pre>
      * {@code
      * // "userName"という名称のオブジェクトがセッションに登録済み。設定値は"Nabu Rakutaro"
      * SessionUtil.get(ctx, "userName"); // -> "Nabu Rakutaro"
      *
      * // セッションに存在しないオブジェクトを指定
-     * SessionUtil.get(ctx, "test"); // -> NoSuchElementExceptionを送出
+     * SessionUtil.get(ctx, "test"); // -> SessionKeyNotFoundExceptionを送出
      * }
      * </pre>
      *
@@ -47,7 +45,7 @@ public final class SessionUtil {
      * @param ctx 実行コンテキスト
      * @param name セッションに登録したオブジェクトの名称
      * @return セッションから取得したオブジェクト
-     * @throws NoSuchElementException 指定したオブジェクトの名称がセッションに存在しない場合
+     * @throws SessionKeyNotFoundException 指定したオブジェクトの名称がセッションに存在しない場合
      */
     public static <T> T get(ExecutionContext ctx, String name) {
         T value = getSessionValue(ctx, name);
