@@ -1,26 +1,15 @@
 package nablarch.common.web.session;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 
-import mockit.Capturing;
-import mockit.Mocked;
-import nablarch.common.web.session.SessionEntry;
-import nablarch.common.web.session.SessionManager;
-import nablarch.common.web.session.SessionStore;
-import nablarch.common.web.session.SessionStoreHandler;
-import nablarch.common.web.session.SessionUtil;
 import nablarch.common.web.session.store.HiddenStore;
 import nablarch.common.web.session.store.HttpSessionStore;
 import nablarch.core.repository.ObjectLoader;
@@ -32,7 +21,12 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import mockit.Capturing;
+import mockit.Mocked;
 
 /**
  * {@link SessionUtil}のテスト
@@ -46,6 +40,9 @@ public class SessionUtilTest {
 
     @Mocked
     private ServletContext servletContext;
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     
     private static final Map<String, Object> sessionContent = new HashMap<String, Object>();
     private static SessionStoreHandler handler;
@@ -95,8 +92,10 @@ public class SessionUtilTest {
         assertThat((String) SessionUtil.get(ctx, "test"), is("12345"));
     }
     
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void testGetForNotFound() {
+        expectedException.expect(SessionKeyNotFoundException.class);
+        expectedException.expectMessage("specified key was not found in session store. key: aaa");
         SessionUtil.get(ctx, "aaa");
     }
     
