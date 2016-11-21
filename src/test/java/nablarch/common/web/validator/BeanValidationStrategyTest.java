@@ -1,6 +1,7 @@
 package nablarch.common.web.validator;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.beans.HasPropertyWithValue.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -18,8 +19,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
+import org.hamcrest.beans.HasPropertyWithValue;
+import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.hamcrest.collection.IsIterableWithSize;
 
@@ -213,6 +217,30 @@ public class BeanValidationStrategyTest {
             assertThat(e.getMessages()
                         .get(0)
                         .formatMessage(), is("数字でないですよ。"));
+        }
+    }
+
+    /**
+     * [Bean Validation] プレフィックス指定あり(空文字列を指定)、初期化メソッド指定なし、バリデーションＮＧの場合、
+     * エラーメッセージ及びプレフィックスの付かないプロパティ名が設定されたアプリ例外が送出される。
+     */
+    @Test
+    public void testValidateWithInValidParametersAndUnusedPrefixUsingBeanValidator() {
+
+        Object action = new Object() {
+            @InjectForm(form = SampleBean.class)
+            public HttpResponse getIndexHtml(HttpRequest req, ExecutionContext ctx) {
+                return new HttpResponse();
+            }
+        };
+        context.addHandler("//", new HttpMethodBinding(action));
+        try {
+            context.handleNext(new MockHttpRequest("GET /index.html HTTP/1.1")
+                    .setParam("userId", "abcdef"));
+            fail("must be thrown ApplicationException");
+        } catch (ApplicationException e) {
+            assertThat(e, hasProperty(
+                    "messages", hasItems(hasProperty("propertyName", is("userId")))));
         }
     }
 
