@@ -1,5 +1,6 @@
 package nablarch.fw.web.handler;
 
+import static nablarch.fw.web.handler.HttpAccessLogFormatter.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -23,7 +24,7 @@ public class NormalizationHandlerTest {
     private final NormalizationHandler sut = new NormalizationHandler();
 
     /**
-     * デフォルト構成の場合、{@link nablarch.fw.web.handler.normalizer.TrimNormalizer}により、ノーマライズ処理が実行されること。
+     * デフォルト構成の場合、{@link TrimNormalizer}により、ノーマライズ処理が実行されること。
      *
      * @throws Exception
      */
@@ -39,6 +40,7 @@ public class NormalizationHandlerTest {
         });
         final MockHttpRequest request = new MockHttpRequest();
         request.setParam("spaceonly", " \t\r\n　");
+        request.setParam("someEmpty", "1", "  ", "3", "　　");
         request.setParam("trim1", " value ");
         request.setParam("trim2", "\t 　\r\naa\uD867\uDE3Dbb\t\r\n \t");         // サロゲートペア
         request.setParam("key", "v a l");
@@ -46,7 +48,8 @@ public class NormalizationHandlerTest {
 
         sut.handle(request, context);
 
-        assertThat("空文字列になること", request.getParam("spaceonly"), is(toArray("")));
+        assertThat("nullになること", request.getParam("spaceonly"), is(new String[] {null}));
+        assertThat("空文字列になった要素だけnullに置き換えれること", request.getParam("someEmpty"),is(toArray("1", null, "3", null)));
         assertThat("前後のスペースがトリムされること", request.getParam("trim1"), is(toArray("value")));
         assertThat("サロゲートペアがあっても問題なくトリムできること", request.getParam("trim2"), is(toArray("aa\uD867\uDE3Dbb")));
 
