@@ -28,7 +28,7 @@ public final class LanguageAttributeInHttpUtil {
     }
     
     /**
-     * 指定された言語の保持と{@link java.lang.ThreadLocal}への設定を行う。
+     * 指定された言語の保持と{@link ThreadContext}への設定を行う。
      * <p/>
      * 指定された言語がサポート対象外である場合は処理を行わない。
      * サポート対象言語とは、{@link HttpLanguageAttribute}で設定された言語である。

@@ -384,8 +384,8 @@ public class ResponseBody {
                 );
             }
         }
-        streams.clear();
-        tempFiles.clear();
+        STREAM_HOLDER.remove();
+        TEMP_FILE_HOLDER.remove();
     }
 
     /**
