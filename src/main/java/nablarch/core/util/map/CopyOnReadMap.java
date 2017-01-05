@@ -127,7 +127,7 @@ public class CopyOnReadMap<K, V> extends MapWrapper<K, V> {
      * 現在のスナップショットを破棄する。
      */
     public void refresh() {
-        snapshotOnCurrentThread.set(null);
+        snapshotOnCurrentThread.remove();
     }
 
     /**

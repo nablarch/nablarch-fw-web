@@ -90,67 +90,72 @@ public class SessionConcurrentAccessHandler implements Handler<Object, Object> {
      */
     @SuppressWarnings("unchecked")
     public Object handle(Object req, ExecutionContext ctx) {
-        // restore the flags on this request thread.
-        setThrowsErrorOnSessionWriteConflict(false);
-        
-        MapWrapper<String, Object> wrappedSession = null;
-        Map<String, Object> session = ctx.getSessionScopeMap();
-         
-        wrappedSession = new CopyOnReadMap<String, Object>(
-            new LockableMap<String, Object>(session)
-        ).setIgnoredEntries("/nablarch_session_token");
-      
-        HttpResponse res = null;
-        
         try {
-            ctx.setSessionScopeMap(wrappedSession);
-            res = ctx.handleNext(req);
+            // restore the flags on this request thread.
+            setThrowsErrorOnSessionWriteConflict(false);
             
-        } finally {
+            MapWrapper<String, Object> wrappedSession = null;
+            Map<String, Object> session = ctx.getSessionScopeMap();
+
+            wrappedSession = new CopyOnReadMap<String, Object>(
+                    new LockableMap<String, Object>(session)
+            ).setIgnoredEntries("/nablarch_session_token");
+
+            HttpResponse res = null;
+
             try {
-                wrappedSession.getDelegateMapOfType(CopyOnReadMap.class)
-                              .save();
+                ctx.setSessionScopeMap(wrappedSession);
+                res = ctx.handleNext(req);
 
-            } catch (ConcurrentModificationException e) {
-                // 並行する他のスレッドからこのセッションに対して先に
-                // 書込みが行われ、書き戻しができない場合。
-                if (LOGGER.isInfoEnabled()) {
-                    LOGGER.logInfo(
-                        "Could not apply modification of session scope variables "
-                      + "because another concurrent thread has already applied its modification."
-                      , e
-                    );
-                }
-                manageSessionRWConfliction(ctx, e);
+            } finally {
+                try {
+                    // CpyOnReadMapのThreadLocalはsave内でクリアされる
+                    wrappedSession.getDelegateMapOfType(CopyOnReadMap.class)
+                                  .save();
 
-            } catch (CopyOnReadMap.SnapshotCreationError e) {
-                // セッションスコープ内にシリアライズ不可能なオブジェクトが存在する
-                // などの理由で、セッション状態のスナップショットの作成に失敗した場合。
-                throw new IllegalStateException(
-                    "Could not apply modification of session scope variables "
-                  + "because could not take snapshot of current session scope."
-                  , e
-                );
-            } catch (IllegalStateException e) {
-                // 並行するスレッドにより、このセッションが invalidate()された場合。
-                if (LOGGER.isInfoEnabled()) {
-                    LOGGER.logInfo(
-                        "Could not apply modification of session scope variables "
-                      + "because the session scope is in invalid state."
-                      , e
+                } catch (ConcurrentModificationException e) {
+                    // 並行する他のスレッドからこのセッションに対して先に
+                    // 書込みが行われ、書き戻しができない場合。
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.logInfo(
+                                "Could not apply modification of session scope variables "
+                                        + "because another concurrent thread has already applied its modification."
+                                , e
+                        );
+                    }
+                    manageSessionRWConfliction(ctx, e);
+
+                } catch (CopyOnReadMap.SnapshotCreationError e) {
+                    // セッションスコープ内にシリアライズ不可能なオブジェクトが存在する
+                    // などの理由で、セッション状態のスナップショットの作成に失敗した場合。
+                    throw new IllegalStateException(
+                            "Could not apply modification of session scope variables "
+                                    + "because could not take snapshot of current session scope."
+                            , e
                     );
+                } catch (IllegalStateException e) {
+                    // 並行するスレッドにより、このセッションが invalidate()された場合。
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.logInfo(
+                                "Could not apply modification of session scope variables "
+                                        + "because the session scope is in invalid state."
+                                , e
+                        );
+                    }
+                    manageSessionRWConfliction(ctx, e);
                 }
-                manageSessionRWConfliction(ctx, e);
+                LockableMap<String, Object>
+                        lockable = wrappedSession.getDelegateMapOfType(LockableMap.class);
+
+                // ここで同期アクセス制御を終了させる。
+                if (lockable != null) {
+                    lockable.deactivate();
+                }
             }
-            LockableMap<String, Object>
-            lockable = wrappedSession.getDelegateMapOfType(LockableMap.class);
-            
-            // ここで同期アクセス制御を終了させる。
-            if (lockable != null) {
-                lockable.deactivate();
-            }
+            return res;
+        } finally {
+            THROWS_ON_SESSION_WRITE_CONFLICT.remove();
         }
-        return res;
     }
     
     /**
