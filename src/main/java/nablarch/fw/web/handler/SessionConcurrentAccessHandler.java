@@ -146,6 +146,10 @@ public class SessionConcurrentAccessHandler implements Handler<Object, Object> {
                 }
                 LockableMap<String, Object>
                         lockable = wrappedSession.getDelegateMapOfType(LockableMap.class);
+                
+                // CopyOnReadMapが保持するThreadLocalを明示的に削除する
+                wrappedSession.getDelegateMapOfType(CopyOnReadMap.class)
+                              .refresh();
 
                 // ここで同期アクセス制御を終了させる。
                 if (lockable != null) {
