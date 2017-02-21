@@ -13,6 +13,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import nablarch.core.util.annotation.Published;
 import nablarch.fw.Handler;
 import nablarch.fw.HandlerQueueManager;
 import nablarch.fw.web.HttpMethodBinding;
@@ -84,6 +85,7 @@ implements Filter {
      *      HTTPクライアントに対するレスポンス処理を行う。
      * </pre>
      */
+    @Published(tag = "architect")
     public void doFilter(ServletRequest  servletRequest,
                          ServletResponse servletResponse,
                          FilterChain     chain)
@@ -123,6 +125,7 @@ implements Filter {
      * サーブレットフィルタの設定情報を設定する.
      * @param config 設定情報
      */
+    @Published(tag = "architect")
     public void setServletFilterConfig(FilterConfig config) {
         this.config = config;
     }
@@ -144,6 +147,7 @@ implements Filter {
      * 本クラスのdestroy()メソッドでは何も行わない。
      * </pre>
      */
+    @Published(tag = "architect")
     public void destroy() {
         config = null;
     }
