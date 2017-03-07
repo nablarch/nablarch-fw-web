@@ -9,7 +9,7 @@ import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 
 /**
- * NablarcnのFormを使用する場合のリクエスト内容のバリデーション、オブジェクト(Form)生成ロジック.
+ * NablarchのFormを使用する場合のリクエスト内容のバリデーション、オブジェクト(Form)生成ロジック.
  *
  * @author sumida
  */
