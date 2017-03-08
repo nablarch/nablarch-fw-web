@@ -14,7 +14,7 @@ public interface Normalizer {
      * このパラメータをノーマライズするか否か。
      *
      * @param key パラメータのキー
-     * @return ノーマライズ対象の場合は {@code ture}
+     * @return ノーマライズ対象の場合は {@code true}
      */
     boolean canNormalize(String key);
 
