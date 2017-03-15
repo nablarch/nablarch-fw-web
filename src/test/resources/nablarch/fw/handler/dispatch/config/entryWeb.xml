@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ハンドラの設定ファイル
+-->
+<component-configuration
+    xmlns="http://tis.co.jp/nablarch/component-configuration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration  ../component-configuration.xsd">
+
+    <!-- ディスパッチ（オン）  -->
+    <component name="webEntry" class="nablarch.fw.RequestHandlerEntry">
+      <property name="requestPattern" value="//"/>
+      <property name="handler" >
+        <component class="nablarch.fw.web.handler.HttpRequestJavaPackageMapping">
+            <property name="optionalPackageMappingEntries">
+              <list> 
+                <component class="nablarch.fw.handler.JavaPackageMappingEntry">
+                  <property name="requestPattern" value="/action/ss00A001/W11AC001Action/R0001*" />
+                  <property name="basePackage" value="nablarch.fw.handler.dispatch.test1" />
+                </component>
+                <component class="nablarch.fw.handler.JavaPackageMappingEntry">
+                  <property name="requestPattern" value="/action/ss00A001/W11AC001Action//" />
+                  <property name="basePackage" value="nablarch.fw.handler.dispatch.test2" />
+                </component>
+                <component class="nablarch.fw.handler.JavaPackageMappingEntry">
+                  <property name="requestPattern" value="/action/ss00A001//" />
+                  <property name="basePackage" value="nablarch.fw.handler.dispatch.test3" />
+                </component>
+                <component class="nablarch.fw.handler.JavaPackageMappingEntry">
+                  <property name="requestPattern" value="/action/ss00A002/test4/W11AC001" />
+                  <property name="basePackage" value="nablarch.fw.handler.dispatch.test4.ss00A001.W11AC001Action" />
+                </component> 
+              </list>
+            </property>
+            <property name="basePackage" value="nablarch.fw.handler.dispatch.base" />
+            <property name="basePath" value="/action/" />
+        </component>
+      </property>
+    </component>       
+
+</component-configuration>

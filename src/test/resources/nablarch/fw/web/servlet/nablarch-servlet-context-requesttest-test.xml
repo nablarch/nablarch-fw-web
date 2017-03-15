@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <component name="httpTestConfiguration" class="nablarch.fw.web.servlet.NablarchServletContextListenerTest$Book">
+        <property name="name" value="Nablarch入門" />
+    </component>
+
+</component-configuration>

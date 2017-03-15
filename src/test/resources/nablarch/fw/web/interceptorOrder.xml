@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration
+    xmlns="http://tis.co.jp/nablarch/component-configuration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration /component-configuration.xsd">
+
+  <list name="interceptorsOrder">
+    <value>nablarch.fw.web.InterceptorTest$BraceDecorator</value>
+    <value>nablarch.fw.web.InterceptorTest$AsteriskDecorator</value>
+    <value>nablarch.fw.web.InterceptorTest$HyphenDecorator</value>
+    <value>nablarch.fw.web.InterceptorTest$CustomDecorator</value>
+  </list>
+
+</component-configuration>

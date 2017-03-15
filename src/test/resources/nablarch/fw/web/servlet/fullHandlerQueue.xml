@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration
+    xmlns="http://tis.co.jp/nablarch/component-configuration" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration  ./component-configuration.xsd">
+
+<component
+    name  = "webFrontController"
+    class = "nablarch.fw.web.servlet.WebFrontController">
+    <property name="servletFilterConfig">
+        <component class="nablarch.fw.web.servlet.MockServletFilterConfig" />
+    </property>
+    
+    <!-- ハンドラキュー構成 -->
+    <property name="handlerQueue">
+	    <list>
+	    
+	    <!-- 共通エラーハンドラー -->
+	    <component class="nablarch.fw.handler.GlobalErrorHandler" />
+	    
+        <!-- (テスト用) -->
+        <component class="nablarch.fw.web.handler.InternalMonitor" />	    
+	    
+	    <!-- サーブレットIOハンドラー -->
+	    <component class="nablarch.fw.web.handler.HttpResponseHandler" />
+	
+	    <!-- 内部フォーワードハンドラー -->
+	    <component class="nablarch.fw.web.handler.ForwardingHandler" />
+	    
+	    <!-- HTTPエラーハンドラ -->
+
+	            <component class="nablarch.fw.web.handler.HttpErrorHandler">
+	                <!-- ステータスコード毎のデフォルト遷移先JSPを設定する。-->
+	                <property name="defaultPages">
+	                    <map>
+	                    <entry key="404" value="/NOT_FOUND.jsp" />
+	                    <entry key="5.." value="/ERROR.jsp" />
+	                    <entry key="503" value="/NOT_IN_SERVICE.jsp" />
+	                    </map>
+	                </property>
+	            </component>
+
+	    <!-- スレッドコンテキスト初期化ハンドラ -->
+	    <component class="nablarch.fw.RequestHandlerEntry">
+	        <property name="requestPattern" value="/action//"/>
+	        <property name="handler">
+	            <component class="nablarch.common.handler.threadcontext.ThreadContextHandler" />
+	        </property>
+	    </component>
+
+	    <!-- トランザクション管理ハンドラ -->
+	    <component class="nablarch.fw.RequestHandlerEntry">
+	        <property name="requestPattern" value="/action//"/>
+	        <property name="handler">
+	            <component class="nablarch.common.handler.DbConnectionManagementHandler" />
+	        </property>
+	    </component>
+    
+	    <!-- 略 -->
+	    </list>
+    </property>
+</component>
+</component-configuration>

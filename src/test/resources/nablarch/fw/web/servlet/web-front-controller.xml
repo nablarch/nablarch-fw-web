@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration
+    xmlns="http://tis.co.jp/nablarch/component-configuration" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration  ./component-configuration.xsd">
+    
+<!-- Webフロントコントローラ -->
+<component
+    name  ="webFrontController"
+    class ="nablarch.fw.web.servlet.WebFrontController">
+    <!-- ハンドラーキュー構成定義 -->
+    <property name="handlerQueue">
+        <list>
+        <!-- 共通エラーハンドラー -->
+        <component class="nablarch.fw.handler.GlobalErrorHandler" />
+
+        <!-- レスポンス処理ハンドラー -->
+        <component class="nablarch.fw.web.handler.HttpResponseHandler" />
+
+        <!-- スレッドコンテキストに保持される共通属性を管理するハンドラ -->
+        <component class="nablarch.common.handler.threadcontext.ThreadContextHandler">
+            <property name="attributes">
+                <list>
+		        <!-- ユーザID -->
+		        <component class="nablarch.common.handler.threadcontext.UserIdAttribute">
+		            <property name="sessionKey" value="user.id" />
+		            <property name="anonymousId" value="9999999999" />
+		        </component>
+		        <!-- リクエストID -->
+		        <component class="nablarch.common.handler.threadcontext.RequestIdAttribute" />
+		        <!-- 内部リクエストID -->
+                <component class="nablarch.common.handler.threadcontext.InternalRequestIdAttribute" />
+		        <!-- 言語 -->
+		        <component class="nablarch.common.handler.threadcontext.LanguageAttribute">
+		            <property name="defaultLanguage" value="ja" />
+		        </component>
+                </list>
+            </property>
+        </component>
+
+        <!-- フォーワーディングハンドラ -->
+        <component class="nablarch.fw.web.handler.ForwardingHandler" />
+        
+        <!-- HTTPエラーハンドラー -->
+        <component class="nablarch.fw.web.handler.HttpErrorHandler">
+            <property name="defaultPages">
+                <map name="defaultPages">
+                <entry key="500" value="/ERROR.jsp" />
+                <entry key="404" value="/NOT_FOUND.jsp" />
+                </map>
+            </property>
+        </component>         
+
+        <!-- 
+            各業務アクションハンドラに対し、パッケージベースのディスパッチ機能を提供するハンドラ
+        -->
+        <component class="nablarch.fw.RequestHandlerEntry">
+            <property name="requestPattern" value="/action//"/>
+            <property name="handler">
+                <component class="nablarch.fw.web.handler.HttpRequestJavaPackageMapping">
+                    <property name="baseUri" value="/action/"/>
+                    <property name="basePackage" value="nablarch.sample"/>
+                </component>
+            </property>
+        </component>
+     
+        <!-- 静的リソースに対するマッピング -->
+        <!-- スタイルシート -->
+        <component class="nablarch.fw.RequestHandlerEntry">
+            <property name="requestPattern" value="//*.css"/>
+            <property name="handler">
+                <component class="nablarch.fw.web.handler.ResourceMapping">
+                    <property name="baseUri" value="/"/>
+                    <property name="basePath" value="servlet:///"/>
+                </component>
+            </property>
+        </component>
+     
+        <!-- JavaScript -->
+        <component class="nablarch.fw.RequestHandlerEntry">
+            <property name="requestPattern" value="//*.js"/>
+            <property name="handler">
+                <component class="nablarch.fw.web.handler.ResourceMapping">
+                    <property name="baseUri" value="/"/>
+                    <property name="basePath" value="servlet:///"/>
+                </component>
+            </property>
+        </component>
+     
+        <!-- 画像 -->
+        <component class="nablarch.fw.RequestHandlerEntry">
+            <property name="requestPattern" value="//*.jpg"/>
+            <property name="handler">
+                <component class="nablarch.fw.web.handler.ResourceMapping">
+                    <property name="baseUri" value="/"/>
+                    <property name="basePath" value="servlet:///"/>
+                </component>
+            </property>
+        </component>
+        </list>
+    </property>
+</component>
+    
+</component-configuration>
