@@ -1,9 +1,14 @@
 package nablarch.fw.web;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import nablarch.core.util.Builder;
 import nablarch.test.support.tool.Hereis;
+import org.junit.Test;
 
 import javax.servlet.http.Cookie;
 import java.io.ByteArrayInputStream;
@@ -12,8 +17,9 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
-public class HttpResponseTest extends TestCase {
+public class HttpResponseTest {
 
+    @Test
     public void testDefaultConstructorAndAccessorsWorkProperly() {
         HttpResponse res = new HttpResponse();
         
@@ -40,7 +46,8 @@ public class HttpResponseTest extends TestCase {
         res.setContentType("text/plain ; charset= \"utf-8\" ");
         assertEquals(Charset.forName("utf-8"), res.getCharset());
     }
-    
+
+    @Test
     public void testAccessorsToHtttpVersion() {
         HttpResponse res = new HttpResponse();
         assertEquals("HTTP/1.1", res.getHttpVersion());
@@ -54,7 +61,8 @@ public class HttpResponseTest extends TestCase {
             assertTrue(true);
         }
     }
-    
+
+    @Test
     public void testAccessorsToHttpStatus() {
         HttpResponse res = new HttpResponse();
         assertEquals(200, res.getStatusCode());
@@ -87,19 +95,22 @@ public class HttpResponseTest extends TestCase {
         assertEquals(302, res.getStatusCode());
 
     }
-    
+
+    @Test
     public void testGetMessage() {
         assertEquals("200: OK", new HttpResponse().getMessage());
         assertEquals("400: BAD_REQUEST", new HttpResponse(400).getMessage());
     }
-    
+
+    @Test
     public void testAccessorsToTransferEncoding() {
         HttpResponse res = new HttpResponse();
         assertNull(res.getTransferEncoding());
         res.setTransferEncoding("chunked");
         assertEquals("chunked", res.getTransferEncoding());
     }
-    
+
+    @Test
     public void testAccessorsToHttpCookie() {
 
         // 複数のクッキーが設定された場合
@@ -138,7 +149,8 @@ public class HttpResponseTest extends TestCase {
         assertTrue(res.getCookieList().isEmpty());
         assertNull(res.getCookie());
      }
-    
+
+    @Test
     public void testWritingToBodyBuffer() {
         
         HttpResponse res = new HttpResponse();
@@ -162,6 +174,7 @@ public class HttpResponseTest extends TestCase {
 
 
     /** ストリームにbyte配列を書き出し、toStringで内容を確認する。 */
+    @Test
     public void testWritingToBodyOutputStream() throws Exception {
         HttpResponse res = new HttpResponse();
         String expectedString = "Hello world!\n" + "Hello world2!\n" + "Hello world3!\n";
@@ -173,16 +186,16 @@ public class HttpResponseTest extends TestCase {
         InputStream input = res.getBodyStream();
         input.read(bytes);
         
-        Assert.assertEquals(expectedBytes.length, bytes.length);
+        assertEquals(expectedBytes.length, bytes.length);
         
         for(int i = 0; i < expectedBytes.length; i++){
-            if(expectedBytes[i] != bytes[i]) Assert.fail();
+            if(expectedBytes[i] != bytes[i]) fail();
         }
         
-        Assert.assertTrue(res.toString().contains(expectedString));
+        assertTrue(res.toString().contains(expectedString));
     }
-    
-    
+
+    @Test
     public void testParsingHttpResponseMessage() {
         HttpResponse res = HttpResponse.parse(Hereis.string());
         /***********************
@@ -207,7 +220,8 @@ public class HttpResponseTest extends TestCase {
         assertEquals("HTTP/1.1"      , res.getHttpVersion());
         assertEquals("Hello world!"  , res.getBodyString().trim());
     }
-    
+
+    @Test
     public void testParsingMultilineHeaders() {
         HttpResponse res = HttpResponse.parse(Hereis.string());
         /***********************************************
@@ -236,6 +250,7 @@ public class HttpResponseTest extends TestCase {
         assertEquals("person4@domain4.edu", customHeader[3]);
     }
 
+    @Test
     public void testThrowsErrorWhenItReadsIllegalResponseFormat() {
         try {
             HttpResponse res = HttpResponse.parse(Hereis.string());
@@ -263,31 +278,36 @@ public class HttpResponseTest extends TestCase {
         }
     }
 
+    @Test
     public void testSetContentPath() {
         HttpResponse res = new HttpResponse();
         res.setContentPath("servlet://test/hoge.jsp");
         assertEquals("servlet://test/hoge.jsp", res.getContentPath().toString());
     }
-    
+
+    @Test
     public void testSetContentType() {
         HttpResponse res = new HttpResponse();
         res.setHeader("Content-Type", null);
         res.setContentType("text/csv: charset=Shift_JIS");
         assertEquals("text/csv: charset=Shift_JIS", res.getHeader("Content-Type"));
     }
-    
+
+    @Test
     public void testGetContentType() {
         HttpResponse res = new HttpResponse();
         res.setHeader("Content-Type", "text/csv: charset=Shift_JIS");
        assertEquals("text/csv: charset=Shift_JIS", res.getContentType());
     }
-    
+
+    @Test
     public void testGetContentTypeSetContentTypeNull() {
         HttpResponse res = new HttpResponse();
         res.setHeader("Content-Type", null);
         assertEquals("text/plain;charset=UTF-8", res.getContentType());
     }
-    
+
+    @Test
     public void testSetContentDisposition() {
         HttpResponse res = new HttpResponse();
         res.setHeader("Content-Disposition", null);
@@ -299,6 +319,7 @@ public class HttpResponseTest extends TestCase {
         
     }
 
+    @Test
     public void testSetContentDispositionAttachment() {
         HttpResponse res = new HttpResponse();
         res.setHeader("Content-Disposition", null);
@@ -309,6 +330,7 @@ public class HttpResponseTest extends TestCase {
         assertEquals("text/css", res.getHeader("Content-Type"));
     }
 
+    @Test
     public void testSetContentDispositionInline() {
         HttpResponse res = new HttpResponse();
         res.setHeader("Content-Disposition", null);
@@ -319,6 +341,7 @@ public class HttpResponseTest extends TestCase {
         assertEquals("image/jpeg", res.getHeader("Content-Type"));
     }
 
+    @Test
     public void testSetContentDispositionAfterSetContentType() {
         HttpResponse res = new HttpResponse();
         res.setHeader("Content-Type", "text/csv: charset=Shift_JIS");
@@ -328,13 +351,14 @@ public class HttpResponseTest extends TestCase {
         assertEquals("attachment; filename=\"テストファイル①.csv\"", res.getHeader("Content-Disposition"));
         assertEquals("text/csv: charset=Shift_JIS", res.getHeader("Content-Type"));
     }
-    
+
+    @Test
     public void testSetBodyStream() {
         HttpResponse res = new HttpResponse();
         ByteArrayInputStream inputStream = new ByteArrayInputStream("テスト".getBytes());
         res.setBodyStream(inputStream);
 
-        Assert.assertSame(inputStream, res.getBodyStream());
+        assertSame(inputStream, res.getBodyStream());
     }
 
 }

@@ -25,7 +25,6 @@ configurations {
 }
 apply plugin: 'idea'
 apply plugin: 'eclipse'
-apply plugin: 'cobertura'
 
 // ビルド時のJavaバージョンを指定
 sourceCompatibility=JavaVersion.VERSION_1_6
@@ -44,37 +43,22 @@ dependencies {
 
   // integration test
   testRuntime "com.nablarch.framework:nablarch-core-jdbc:${nablarchCoreJdbcVersion}"
+  testRuntime "com.nablarch.framework:nablarch-common-jdbc:${nablarchCommonJdbcVersion}"
 
   // testFW
-  testCompile('com.nablarch.framework:nablarch-testing:1.0.6') {
-    exclude group: 'com.nablarch.framework', module: 'nablarch-all'
-  }
+  testCompile "com.nablarch.framework:nablarch-testing:${nablarchTestingVersion}"
 
   // Cobertura
   testCompile "net.saliman:gradle-cobertura-plugin:${coberturaPluginVersion}"
   cobertura ("net.sourceforge.cobertura:cobertura:1.9.4") {
     exclude group: 'log4j', module: 'log4j'
   }
+  cobertura 'log4j:log4j:1.2.17'
 
   // test api
   testCompile 'org.jmockit:jmockit:1.13'
   testCompile 'junit:junit:4.12'
   testCompile 'org.hamcrest:hamcrest-all:1.3'
-  testCompile 'com.nablarch.dev:nablarch-test-support:0.0.5'
-  testCompile 'com.oracle:ucp:11.2.0.3.0'
-  testCompile 'com.oracle:ojdbc6:11.2.0.2.0'
-
-  testRuntime 'org.slf4j:slf4j-nop:1.7.12' // for cobertura
-
-  // hereis
-  testCompile(group: 'com.nablarch.tool', name: 'nablarch-toolbox', version: '1.0.2') {
-    exclude group: 'com.nablarch.profile', module: 'nablarch-all-in-one'
-    exclude group: 'com.nablarch.framework', module: 'nablarch-testing'
-  }
-  
-  testCompile('com.nablarch.dev:nablarch-test-support:0.0.5') {
-    exclude group:'*', module: 'nablarch-core'
-  }
 
   testRuntime files('src/test/java/')
   testRuntime 'org.hibernate:hibernate-validator:5.2.4.Final'
@@ -119,8 +103,8 @@ test {
   }
 
   cobertura {
+    coberturaVersion = '1.9.4.1'
     coverageSourceDirs = ["${projectDir}/src/main/java/"]
-    coverageIgnoreTrivial = true
     coverageFormats = ['xml']
     coverageDirs = [project.sourceSets.main.output.classesDir]
     auxiliaryClasspath = files('src/main/resources') + configurations.testRuntime.asFileTree

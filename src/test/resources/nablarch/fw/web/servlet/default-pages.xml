@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ./component-configuration.xsd">
+
+    <map name="defaultPages">
+        <entry key="500" value="/ERROR.jsp" />
+        <entry key="404" value="/NOT_FOUND.jsp" />
+    </map>
+
+</component-configuration>
