@@ -2,12 +2,13 @@ package nablarch.fw.web.download.encode;
 
 import java.util.ArrayList;
 
-import junit.framework.Assert;
 import nablarch.fw.web.download.encorder.DownloadFileNameEncoder;
 import nablarch.fw.web.download.encorder.DownloadFileNameEncoderEntry;
 import nablarch.fw.web.download.encorder.DownloadFileNameEncoderFactory;
 import nablarch.fw.web.download.encorder.MimeBDownloadFileNameEncoder;
 import nablarch.fw.web.download.encorder.UrlDownloadFileNameEncoder;
+
+import org.junit.Assert;
 import org.junit.Test;
 
 public class DownloadFileNameEncoderFactoryTest {
