@@ -1,5 +1,21 @@
 package nablarch.fw.web.handler;
 
+import static nablarch.test.support.tool.Hereis.string;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Pattern;
+
 import nablarch.common.handler.threadcontext.ThreadContextHandler;
 import nablarch.common.web.handler.HttpAccessLogHandler;
 import nablarch.common.web.handler.threadcontext.LanguageAttributeInHttpCookie;
@@ -24,28 +40,10 @@ import nablarch.fw.web.i18n.DirectoryBasedResourcePathRule;
 import nablarch.fw.web.i18n.FilenameBasedResourcePathRule;
 import nablarch.fw.web.i18n.MockServletContextCreator;
 import nablarch.test.support.log.app.OnMemoryLogWriter;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import static nablarch.test.support.tool.Hereis.string;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.matchers.JUnitMatchers.containsString;
 
 /**
  * {@link HttpResponseHandlerTest}テスト。
