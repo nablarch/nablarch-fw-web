@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.util.regex.Matcher;
@@ -12,6 +13,7 @@ import java.util.regex.Pattern;
 
 import nablarch.core.log.Logger;
 import nablarch.core.log.LoggerManager;
+import nablarch.core.util.FileUtil;
 import nablarch.core.util.annotation.Published;
 
 /**
@@ -41,6 +43,7 @@ import nablarch.core.util.annotation.Published;
  *
  * 2. Javaコンテキストクラスローダ上のリソース
  *    コンテキストクラスローダ上のリソースの内容を出力する。
+ *    jarファイルといったアーカイブファイル内のリソースを指定することも可能である。
  *     (書式)
  *         classpath://(Javaリソース名)
  *     (例)
@@ -96,7 +99,7 @@ public final class ResourceLocator {
 
     /** スキームを抽出するための正規表現 */
     private static final Pattern EXTRACT_SCHEME_PATTERN = Pattern.compile("^(?:(.+)://)");
-    
+
     /** ホスト名を抽出するための正規表現 */
     private static final Pattern EXTRACT_HOSTNAME_PATTERN = Pattern.compile("^([^/?#]+)");
 
@@ -225,7 +228,7 @@ public final class ResourceLocator {
 
     /**
      * パス文字列を返す。
-     * 
+     *
      * パスにクエリーパラメータやフラグメントがある場合、
      * これらを含んだ値をパスとして返す。
      *
@@ -284,9 +287,11 @@ public final class ResourceLocator {
         if (path == null) {
             return false;
         }
-        File file = new File(path);
-        if (!file.exists() || !file.isFile()) {
-            return false;
+        if (!isPathInArchiveFile(path)) {
+            File file = new File(path);
+            if (!file.exists() || !file.isFile()) {
+                return false;
+            }
         }
         return true;
     }
@@ -304,7 +309,11 @@ public final class ResourceLocator {
             if (path == null) {
                 throw new FileNotFoundException(this.toString());
             }
-            return new FileReader(path);
+            if (isPathInArchiveFile(path)) {
+                return new InputStreamReader(getInputStreamOnClassLoader(getPath()));
+            } else {
+                return new FileReader(path);
+            }
         }
         throw new FileNotFoundException(this.toString());
     }
@@ -322,7 +331,11 @@ public final class ResourceLocator {
             if (path == null) {
                 throw new FileNotFoundException(this.toString());
             }
-            return new FileInputStream(path);
+            if (isPathInArchiveFile(path)) {
+                return getInputStreamOnClassLoader(getPath());
+            } else {
+                return new FileInputStream(path);
+            }
         }
         throw new FileNotFoundException(this.toString());
     }
@@ -338,9 +351,9 @@ public final class ResourceLocator {
 
     /**
      * パスのホスト部を返す。
-     * 
+     *
      * ポート番号が設定されている場合には、ポート番号を含んだ値を返す。
-     * 
+     *
      * @return パスのホスト部
      */
     public String getHostname() {
@@ -353,6 +366,24 @@ public final class ResourceLocator {
      */
     public String getDirectory() {
         return directory;
+    }
+
+    /**
+     * アーカイブファイル内のパスを指定しているかどうか判定する。
+     * @param realPath パス
+     * @return 指定していればture、そうでなければfalse
+     */
+    private boolean isPathInArchiveFile(String realPath) {
+        return !(realPath.lastIndexOf("!") == -1);
+    }
+
+    /**
+     * クラスローダ上にあるファイルのInputStreamを取得する
+     * @param path パス
+     * @return InputStream
+     */
+    private InputStream getInputStreamOnClassLoader(String path) {
+        return FileUtil.getClasspathResource(path);
     }
 
     private static class Resource {
