@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import nablarch.core.log.Logger;
 import nablarch.core.log.LoggerManager;
+import nablarch.core.util.FileUtil;
 import nablarch.core.util.annotation.Published;
 
 /**
@@ -286,9 +287,11 @@ public final class ResourceLocator {
         if (path == null) {
             return false;
         }
-        File file = new File(path);
-        if (!file.exists() || !file.isFile()) {
-            return false;
+        if (!isPathInArchiveFile(path)) {
+            File file = new File(path);
+            if (!file.exists() || !file.isFile()) {
+                return false;
+            }
         }
         return true;
     }
@@ -307,7 +310,7 @@ public final class ResourceLocator {
                 throw new FileNotFoundException(this.toString());
             }
             if (isPathInArchiveFile(path)) {
-                return new InputStreamReader(getInputStreamOnClassLoader());
+                return new InputStreamReader(getInputStreamOnClassLoader(getPath()));
             } else {
                 return new FileReader(path);
             }
@@ -329,7 +332,7 @@ public final class ResourceLocator {
                 throw new FileNotFoundException(this.toString());
             }
             if (isPathInArchiveFile(path)) {
-                return getInputStreamOnClassLoader();
+                return getInputStreamOnClassLoader(getPath());
             } else {
                 return new FileInputStream(path);
             }
@@ -367,20 +370,20 @@ public final class ResourceLocator {
 
     /**
      * アーカイブファイル内のパスを指定しているかどうか判定する。
-     * @param path パス
+     * @param realPath パス
      * @return 指定していればture、そうでなければfalse
      */
-    private boolean isPathInArchiveFile(String path) {
-        return path.startsWith("jar:");
+    private boolean isPathInArchiveFile(String realPath) {
+        return !(realPath.lastIndexOf("!") == -1);
     }
 
     /**
      * クラスローダ上にあるファイルのInputStreamを取得する
+     * @param path パス
      * @return InputStream
      */
-    private InputStream getInputStreamOnClassLoader() {
-        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        return loader.getResourceAsStream(getPath());
+    private InputStream getInputStreamOnClassLoader(String path) {
+        return FileUtil.getClasspathResource(path);
     }
 
     private static class Resource {

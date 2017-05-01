@@ -43,6 +43,7 @@ local.properties
 
 # Package Files #
 *.jar
+!libs/test-resourcelocator.jar
 *.war
 *.ear
 

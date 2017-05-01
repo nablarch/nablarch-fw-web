@@ -279,7 +279,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", isEmptyString())
         ));
-        assertThat("存在していないのでfalse", sut.exists(), is(false));
+        assertThat("存在しているのでtrue", sut.exists(), is(true));
         assertThat(sut.toString(), is("classpath://test.txt"));
 
         assertThat(readAll(sut.getReader()), is("TestText"));
@@ -303,11 +303,59 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("com/example/"))
         ));
-        assertThat("存在していないのでfalse", sut.exists(), is(false));
+        assertThat("存在しているのでtrue", sut.exists(), is(true));
         assertThat(sut.toString(), is("classpath://com/example/test-withDir.txt"));
 
         assertThat(readAll(sut.getReader()), is("DirTest"));
         assertThat(readAll(sut.getInputStream()), is("DirTest"));
+    }
+
+    /**
+     * classpath schemeでアーカイブファイルの中にある実在ファイルを指定する
+     */
+    @Test
+    public void classpathContentInZipFile() throws Exception {
+        ResourceLocator sut = ResourceLocator.valueOf("classpath://a.txt");
+
+        assertThat(sut, allOf(
+                hasProperty("scheme", is("classpath")),
+                hasProperty("resourceName", is("a.txt")),
+                hasProperty("path", is("a.txt")),
+                hasProperty("realPath", containsString("a.txt")),
+                hasProperty("redirect", is(false)),
+                hasProperty("relative", is(false)),
+                hasProperty("hostname", isEmptyString()),
+                hasProperty("directory", isEmptyString())
+        ));
+        assertThat("存在しているのでtrue", sut.exists(), is(true));
+        assertThat(sut.toString(), is("classpath://a.txt"));
+
+        assertThat(readAll(sut.getReader()), is("Atext."));
+        assertThat(readAll(sut.getInputStream()), is("Atext."));
+    }
+
+    /**
+     * classpath schemeでアーカイブファイルの中にある実在ファイルを指定する
+     */
+    @Test
+    public void classpathDirContentInZipFile() throws Exception {
+        ResourceLocator sut = ResourceLocator.valueOf("classpath://ex/b.txt");
+
+        assertThat(sut, allOf(
+                hasProperty("scheme", is("classpath")),
+                hasProperty("resourceName", is("b.txt")),
+                hasProperty("path", is("ex/b.txt")),
+                hasProperty("realPath", containsString("b.txt")),
+                hasProperty("redirect", is(false)),
+                hasProperty("relative", is(false)),
+                hasProperty("hostname", isEmptyString()),
+                hasProperty("directory", is("ex/"))
+        ));
+        assertThat("存在しているのでtrue", sut.exists(), is(true));
+        assertThat(sut.toString(), is("classpath://ex/b.txt"));
+
+        assertThat(readAll(sut.getReader()), is("bText."));
+        assertThat(readAll(sut.getInputStream()), is("bText."));
     }
 
     /**
