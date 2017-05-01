@@ -13,8 +13,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 
-import org.hamcrest.text.IsEmptyString;
-
 import org.junit.Test;
 
 /**
@@ -262,6 +260,54 @@ public class ResourceLocatorFunctionalTest {
             fail("");
         } catch (FileNotFoundException ignore) {
         }
+    }
+
+    /**
+     * classpath schemeでアーカイブファイルの中にある実在ファイルを指定する
+     */
+    @Test
+    public void classpathContentInArchivedFile() throws Exception {
+        ResourceLocator sut = ResourceLocator.valueOf("classpath://test.txt");
+
+        assertThat(sut, allOf(
+                hasProperty("scheme", is("classpath")),
+                hasProperty("resourceName", is("test.txt")),
+                hasProperty("path", is("test.txt")),
+                hasProperty("realPath", containsString("test.txt")),
+                hasProperty("redirect", is(false)),
+                hasProperty("relative", is(false)),
+                hasProperty("hostname", isEmptyString()),
+                hasProperty("directory", isEmptyString())
+        ));
+        assertThat("存在していないのでfalse", sut.exists(), is(false));
+        assertThat(sut.toString(), is("classpath://test.txt"));
+
+        assertThat(readAll(sut.getReader()), is("TestText"));
+        assertThat(readAll(sut.getInputStream()), is("TestText"));
+    }
+
+    /**
+     * classpath schemeでアーカイブファイルの中にある実在ファイルを指定する
+     */
+    @Test
+    public void classpathDirContentInArchivedFile() throws Exception {
+        ResourceLocator sut = ResourceLocator.valueOf("classpath://com/example/test-withDir.txt");
+
+        assertThat(sut, allOf(
+                hasProperty("scheme", is("classpath")),
+                hasProperty("resourceName", is("test-withDir.txt")),
+                hasProperty("path", is("com/example/test-withDir.txt")),
+                hasProperty("realPath", containsString("com/example/test-withDir.txt")),
+                hasProperty("redirect", is(false)),
+                hasProperty("relative", is(false)),
+                hasProperty("hostname", isEmptyString()),
+                hasProperty("directory", is("com/example/"))
+        ));
+        assertThat("存在していないのでfalse", sut.exists(), is(false));
+        assertThat(sut.toString(), is("classpath://com/example/test-withDir.txt"));
+
+        assertThat(readAll(sut.getReader()), is("DirTest"));
+        assertThat(readAll(sut.getInputStream()), is("DirTest"));
     }
 
     /**
