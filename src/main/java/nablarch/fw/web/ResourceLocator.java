@@ -46,7 +46,7 @@ import nablarch.core.util.annotation.Published;
  *     (例)
  *         classpath://nablarch/sample/webapp/common.css
  *         
- *   classpath指定は、フィルシステム上に存在しているファイルのみ指定できる。
+ *   classpath指定は、ファイルシステム上に存在しているファイルのみ指定できる。
  *   このため、jarなどでアーカイブされたファイルについてはclasspathを指定することは出来ない。
  *   また、バーチャルファイルシステムを用いてファイルを管理するようなWebアプリケーションサーバの場合、
  *   ファイルシステム上に存在しているファイルの場合でも、classpathの指定は出来ない。
