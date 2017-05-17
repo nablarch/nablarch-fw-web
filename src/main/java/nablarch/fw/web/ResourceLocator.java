@@ -45,6 +45,13 @@ import nablarch.core.util.annotation.Published;
  *         classpath://(Javaリソース名)
  *     (例)
  *         classpath://nablarch/sample/webapp/common.css
+ *         
+ *   classpath指定は、ファイルシステム上に存在しているファイルのみ指定できる。
+ *   このため、jarなどでアーカイブされたファイルについてはclasspathを指定することは出来ない。
+ *   また、バーチャルファイルシステムを用いてファイルを管理するようなWebアプリケーションサーバの場合、
+ *   ファイルシステム上に存在しているファイルの場合でも、classpathの指定は出来ない。
+ *   
+ *   このため、classpathではなく静的ファイル(file://)の使用を推奨する。
  *
  * 3. 内部フォーワード
  *    リクエストプロセッサに対して、指定したリクエストURIでの再処理を要求する。
