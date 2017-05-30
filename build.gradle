@@ -27,6 +27,12 @@ apply plugin: 'eclipse'
 sourceCompatibility=JavaVersion.VERSION_1_6
 targetCompatibility=JavaVersion.VERSION_1_6
 
+configurations.all {
+  resolutionStrategy {
+    force 'log4j:log4j:1.2.17'
+  }
+}
+
 dependencies {
   compile "com.nablarch.framework:nablarch-core-beans:${nablarchCoreBeansVersion}"
   compile "com.nablarch.framework:nablarch-fw:${nablarchFwVersion}"
