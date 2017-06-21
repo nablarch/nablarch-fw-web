@@ -161,7 +161,10 @@ public class SessionStoreHandler implements Handler<Object, Object> {
             return;
         }
         synchronized (session) {
-            session.invalidate();
+            try {
+                session.invalidate();
+            } catch (IllegalStateException ignore) {
+            }
         }
     }
 
