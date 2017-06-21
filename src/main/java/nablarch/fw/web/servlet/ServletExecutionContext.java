@@ -157,6 +157,7 @@ public class ServletExecutionContext extends ExecutionContext {
      * @return {@link HttpSession}
      * @see HttpServletRequest#getSession(boolean)
      */
+    @Published(tag = "architect")
     public HttpSession getNativeHttpSession(boolean create) {
         HttpSessionWrapper wrapper = servletReq.getSession(create);
         return wrapper == null ? null : wrapper.getDelegate();
