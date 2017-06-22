@@ -164,6 +164,7 @@ public class SessionStoreHandler implements Handler<Object, Object> {
             try {
                 session.invalidate();
             } catch (IllegalStateException ignore) {
+                // IllegalStateExceptionについては何もしない
             }
         }
     }
