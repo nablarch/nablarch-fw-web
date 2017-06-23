@@ -161,7 +161,12 @@ public class SessionStoreHandler implements Handler<Object, Object> {
             return;
         }
         synchronized (session) {
-            session.invalidate();
+            try {
+                session.invalidate();
+            } catch (IllegalStateException ignore) {
+                // HttpSessionが既に無効化されている状態で再度無効化した時にIllegalStateExcepitonが発生する。
+                // 不要な例外であるためここでキャッチして無視する。
+            }
         }
     }
 
