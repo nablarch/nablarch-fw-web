@@ -76,7 +76,7 @@ public class MultipartParserTest {
     public void testParse() throws IOException {
         MockServletInputStream in = new MockServletInputStream(
                 getClass().getResourceAsStream("req.dat"));
-        String contentType = "multipart/form-data; boundary=---------------------------2394118477469";
+        String contentType = "multipart/form-data; boundary=---------------------------2394118477469; charset=utf-8";
         int contentLength = 338;
 
         MultipartContext ctx = new MultipartContext(contentType, contentLength, "UTF-8");

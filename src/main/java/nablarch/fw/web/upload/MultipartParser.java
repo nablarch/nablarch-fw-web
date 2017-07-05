@@ -143,6 +143,10 @@ class MultipartParser {
         if (boundary.startsWith("\"")) {
             boundary = boundary.replace('"', ' ').trim();
         }
+        if (boundary.contains(";")) {
+            final int pos = boundary.indexOf(';');
+            boundary = boundary.substring(0, pos);
+        }
         return "--" + boundary;
     }
 
