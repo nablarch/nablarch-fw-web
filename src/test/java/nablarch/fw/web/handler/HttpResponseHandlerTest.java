@@ -921,6 +921,85 @@ public class HttpResponseHandlerTest {
                    res.getLocation(), not(containsString("jsessionid")));
     }
 
+    /**
+     * ステータスコード(303)を設定してリダイレクトを行う場合、そのステータスコードがレスポンスヘッダーに設定されること。
+     * @throws Exception
+     */
+    @Test
+    public void testRedirectWithStatusCode303() throws Exception {
+        HttpServer server = new HttpServer()
+                .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
+                .addHandler("/redirect", new HttpRequestHandler() {
+                    public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
+                        return new HttpResponse(303).setContentPath("redirect:///index.jsp");
+                    }
+                })
+                .startLocal();
+
+        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), null);
+        assertThat("ステータスコードが設定したステータスコード(303)であること", res.getStatusCode(), is(303));
+        assertThat("ロケーションヘッダが設定されていること", res.getLocation(), is("/index.jsp"));
+    }
+    
+    /**
+     * ステータスコード(301)を設定してリダイレクトを行う場合、そのステータスコードがレスポンスヘッダーに設定されること。
+     * @throws Exception
+     */
+    @Test
+    public void testRedirectWithStatusCode301() throws Exception {
+        HttpServer server = new HttpServer()
+                .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
+                .addHandler("/redirect", new HttpRequestHandler() {
+                    public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
+                        return new HttpResponse(301).setContentPath("redirect:///index.jsp");
+                    }
+                })
+                .startLocal();
+
+        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), null);
+        assertThat("ステータスコードが設定したステータスコード(301)であること", res.getStatusCode(), is(301));
+        assertThat("ロケーションヘッダが設定されていること", res.getLocation(), is("/index.jsp"));
+    }
+    
+    /**
+     * ステータスコード(307)を設定してリダイレクトを行う場合、そのステータスコードがレスポンスヘッダーに設定されること。
+     * @throws Exception
+     */
+    @Test
+    public void testRedirectWithStatusCode307() throws Exception {
+        HttpServer server = new HttpServer()
+                .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
+                .addHandler("/redirect", new HttpRequestHandler() {
+                    public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
+                        return new HttpResponse(307).setContentPath("redirect:///index.jsp");
+                    }
+                })
+                .startLocal();
+
+        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), null);
+        assertThat("ステータスコードが設定したステータスコード(307)であること", res.getStatusCode(), is(307));
+        assertThat("ロケーションヘッダが設定されていること", res.getLocation(), is("/index.jsp"));
+    }
+    
+    /**
+     * リダイレクト対象でないステータスコードを指定してリダイレクトのパスを設定した場合302に強制的に置き換わること
+     * @throws Exception
+     */
+    @Test
+    public void testRedirectWithStatusCodeInvalid() throws Exception {
+        HttpServer server = new HttpServer()
+                .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
+                .addHandler("/redirect", new HttpRequestHandler() {
+                    public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
+                        return new HttpResponse(304).setContentPath("redirect:///index.jsp");
+                    }
+                })
+                .startLocal();
+
+        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), null);
+        assertThat("ステータスコードは302に置き換わる", res.getStatusCode(), is(302));
+        assertThat("ロケーションヘッダが設定されていること", res.getLocation(), containsString("/index.jsp"));
+    }
 
     /**
      * サーブレットフォーワード時のステータス変換のテスト。
