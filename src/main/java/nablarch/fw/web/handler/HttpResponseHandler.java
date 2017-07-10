@@ -24,6 +24,7 @@ import nablarch.fw.ExecutionContext;
 import nablarch.fw.Handler;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpResponse;
+import nablarch.fw.web.HttpResponse.Status;
 import nablarch.fw.web.ResourceLocator;
 import nablarch.fw.web.ResponseBody;
 import nablarch.fw.web.download.encorder.DownloadFileNameEncoder;
@@ -336,7 +337,15 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
                   : ctx.getServletContext().getContextPath() + path.getPath();
         HttpServletResponse servletResponse = ctx.getServletResponse();
         to = servletResponse.encodeRedirectURL(to);
-        servletResponse.sendRedirect(to);
+
+        // 302の場合は、sendRedirectを使用してリダイレクト
+        // それ以外の場合は、Locationヘッダを使用してリダイレクト
+        if (res.getStatusCode() == Status.FOUND.getStatusCode()) {
+            servletResponse.sendRedirect(to);
+        } else {
+            servletResponse.setStatus(res.getStatusCode());
+            servletResponse.setHeader("Location", to);
+        }
     }
 
     /**

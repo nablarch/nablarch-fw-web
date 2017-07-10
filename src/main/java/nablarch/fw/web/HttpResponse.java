@@ -351,10 +351,21 @@ public class HttpResponse implements Result {
      */
     @Published
     public int getStatusCode() {
-        if (body != null && body.getContentPath() != null && body.getContentPath().isRedirect()) {
+        if (body != null && body.getContentPath() != null && body.getContentPath().isRedirect() && !isRedirectStatusCode()) {
             return Status.FOUND.code;
         }
         return this.status.code;
+    }
+
+    /**
+     * {@link #status}がリダイレクトを示すステータスコードかどうか。
+     * @return リダイレクトを示すステータスコード(301, 302, 303, 307)の場合はtrue
+     */
+    private boolean isRedirectStatusCode() {
+        return status == Status.MOVED_PERMANENTLY
+                || status == Status.FOUND
+                || status == Status.SEE_OTHER
+                || status == Status.TEMPORARY_REDIRECT;
     }
 
     /**
