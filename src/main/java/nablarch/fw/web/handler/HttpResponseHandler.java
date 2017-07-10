@@ -235,7 +235,7 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
     /**
      * レスポンスがエラーか否かを判定する。
      * <p>
-     * ステータスコードが200～300系以外であればtrue、
+     * ステータスコードが400以上であればtrue、
      * それ以外であればfalseを返す。
      * </p>
      * @param res HTTPレスポンス
@@ -243,7 +243,7 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
      */
     protected boolean isErrorResponse(HttpResponse res) {
         int statusCode = res.getStatusCode();
-        return statusCode < 200 || statusCode >= 400;
+        return statusCode >= 400;
     }
 
     /**
