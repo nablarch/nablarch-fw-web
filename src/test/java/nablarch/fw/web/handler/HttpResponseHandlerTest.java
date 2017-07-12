@@ -1000,6 +1000,24 @@ public class HttpResponseHandlerTest {
         assertThat("ステータスコードは302に置き換わる", res.getStatusCode(), is(302));
         assertThat("ロケーションヘッダが設定されていること", res.getLocation(), containsString("/index.jsp"));
     }
+    
+    /**
+     * ステータスコードに100を設定した場合、それが正しくかえること。
+     */
+    @Test
+    public void testStatusCode100() throws Exception {
+        HttpServer server = new HttpServer()
+                .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
+                .addHandler("/status100", new HttpRequestHandler() {
+                    public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
+                        return new HttpResponse(100);
+                    }
+                })
+                .startLocal();
+
+        HttpResponse res = server.handle(new MockHttpRequest("GET /status100 HTTP/1.1"), null);
+        assertThat("ステータスコードが設定したステータスコード(100)であること", res.getStatusCode(), is(100));
+    }
 
     /**
      * サーブレットフォーワード時のステータス変換のテスト。
