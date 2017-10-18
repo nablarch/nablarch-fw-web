@@ -1,8 +1,8 @@
 package nablarch.fw.web.servlet;
 
 import mockit.Deencapsulation;
+import mockit.Expectations;
 import mockit.Mocked;
-import mockit.NonStrictExpectations;
 import mockit.Verifications;
 import nablarch.core.repository.ObjectLoader;
 import nablarch.core.repository.SystemRepository;
@@ -44,16 +44,21 @@ public class HttpRequestWrapperTest {
 
     @Before
     public void setUp() throws Exception {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getMethod();
+            minTimes = 0;
             result = "GET";
             nablarchHttpServletRequestWrapper.getContextPath();
+            minTimes = 0;
             result = "www.example.com";
             nablarchHttpServletRequestWrapper.getRequestURI();
+            minTimes = 0;
             result = "www.example.com/index.html";
             nablarchHttpServletRequestWrapper.getProtocol();
+            minTimes = 0;
             result = "HTTP/1.1";
             nablarchHttpServletRequestWrapper.getCookies();
+            minTimes = 0;
             result = null;
         }};
     }
@@ -81,7 +86,7 @@ public class HttpRequestWrapperTest {
         assertThat("メソッドを取得できること", sut.getMethod(), is("GET"));
 
         // メソッドの前後に空白が含まれるケース
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getMethod();
             result = " POST ";
         }};
@@ -101,7 +106,7 @@ public class HttpRequestWrapperTest {
         assertThat("リクエストURIを取得できること", sut.getRequestUri(), is("/index.html"));
 
         // リクエストURIの前後に空白が含まれるケース
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getRequestURI();
             result = "www.example.com /test.html ";
         }};
@@ -141,7 +146,7 @@ public class HttpRequestWrapperTest {
         assertThat("リクエストパスを取得できること", sut.getRequestPath(), is("/index.html"));
 
         // クエリストリングが設定されているケース
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getRequestURI();
             result = "www.example.com/test.html?key=value";
         }};
@@ -164,7 +169,7 @@ public class HttpRequestWrapperTest {
         assertThat("リクエストパスが設定されていること", sut.getRequestUri(), is("/test.html"));
 
         // クエリストリングが設定されているケース
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getRequestURI();
             result = "www.example.com/index.html?key=value";
         }};
@@ -174,7 +179,7 @@ public class HttpRequestWrapperTest {
         assertThat("クエリストリングが変更されていないこと", sut.getRequestUri(), is("/test.html?key=value"));
 
         // リクエストパスに$が含まれるケース
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getRequestURI();
             result = "www.example.com/index.html?key=value";
         }};
@@ -203,7 +208,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetParamMap() throws Exception {
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getParameterMap();
             result = new HashMap<String, String[]>() {{
                 put("key", new String[]{"value1", "value2"});
@@ -224,7 +229,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetParam() throws Exception {
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getParameterMap();
             result = new HashMap<String, String[]>() {{
                 put("key", new String[]{"value1", "value2"});
@@ -247,7 +252,7 @@ public class HttpRequestWrapperTest {
             put("key", new String[]{"value"});
         }};
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getParameterMap();
             result = paramMap;
 
@@ -298,7 +303,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetHeaderMap() throws Exception {
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getHeaderMap();
             result = new HashMap<String, String>() {{
                 put("key", "value");
@@ -319,7 +324,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetHeader() throws Exception {
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getHeader("key");
             result = "value";
         }};
@@ -336,7 +341,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetHost() throws Exception {
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getHeader("Host");
             result = "host_value";
         }};
@@ -353,7 +358,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetCookie() throws Exception {
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getCookies();
             result = new Cookie[]{new Cookie("key1", "value1"), new Cookie("key2", "value2")};
         }};
@@ -452,7 +457,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetUserAgent_default() throws Exception {
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getHeader("User-Agent");
             result = "test";
         }};
@@ -480,7 +485,7 @@ public class HttpRequestWrapperTest {
             }
         });
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getHeader("User-Agent");
             result = "test";
         }};
@@ -499,7 +504,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetInputStream_success() throws Exception {
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getInputStream();
             result = new ServletInputStream() {
                 @Override
@@ -523,7 +528,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetInputStream_error() throws Exception {
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getInputStream();
             result = new IOException();
         }};
@@ -546,7 +551,7 @@ public class HttpRequestWrapperTest {
     public void testGetContentType_header() throws Exception {
 
         // ヘッダにのみ設定されているケース
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getHeader("Content-Type");
             result = "type";
         }};
@@ -555,7 +560,7 @@ public class HttpRequestWrapperTest {
         assertThat("Content-Typeを取得できること", sut.getContentType(), is("type"));
 
         // ヘッダとContentType両方に設定されているケース
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getHeader("Content-Type");
             result = "type";
             nablarchHttpServletRequestWrapper.getContentType();
@@ -575,7 +580,7 @@ public class HttpRequestWrapperTest {
     public void testGetContentType_contentType() throws Exception {
 
         // ContentTypeにのみ設定されているケース
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getContentType();
             result = "type";
         }};
@@ -584,7 +589,7 @@ public class HttpRequestWrapperTest {
         assertThat("Content-Typeを取得できること", sut.getContentType(), is("type"));
 
         // ヘッダとContentType両方に設定されているケース
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getContentType();
             result = "type";
             nablarchHttpServletRequestWrapper.getHeader("Content-Type");
@@ -612,7 +617,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetContentLength() throws Exception {
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getContentLength();
             result = 10;
         }};
@@ -629,7 +634,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetCharacterEncoding() throws Exception {
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             nablarchHttpServletRequestWrapper.getCharacterEncoding();
             result = "UTF-8";
         }};

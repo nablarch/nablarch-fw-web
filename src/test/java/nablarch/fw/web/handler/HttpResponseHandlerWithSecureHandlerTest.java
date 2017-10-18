@@ -18,8 +18,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import mockit.Delegate;
+import mockit.Expectations;
 import mockit.Mocked;
-import mockit.NonStrictExpectations;
 import mockit.Verifications;
 
 /**
@@ -47,12 +47,13 @@ public class HttpResponseHandlerWithSecureHandlerTest {
 
     @Before
     public void setUp() throws Exception {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             mockServletRequest.getRequestURI();
             result = "/sampleapp/action/sample";
             mockServletRequest.getContextPath();
             result = "sampleapp";
             mockServletResponse.encodeRedirectURL(anyString);
+            minTimes = 0;
             result = new Delegate<String>() {
                 String delegate(String to) {
                     return to;
