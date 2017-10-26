@@ -1,5 +1,6 @@
 package nablarch.common.web.session.integration;
 
+import mockit.Expectations;
 import mockit.Mocked;
 import nablarch.common.web.session.SessionManager;
 import nablarch.common.web.session.SessionStoreHandler;
@@ -45,8 +46,6 @@ import static org.junit.Assert.assertThat;
 @RunWith(DatabaseTestRunner.class)
 public class SessionStoreIntegrationTest {
 
-    @Mocked("parse") HttpResponse unused;
-
     @Rule
     public SystemRepositoryResource systemRepository = new SystemRepositoryResource("db-default.xml");
 
@@ -89,6 +88,16 @@ public class SessionStoreIntegrationTest {
                 .addHandler(new HttpCharacterEncodingHandler())
                 .addHandler(new HttpResponseHandler())
                 .addHandler(sessionStoreHandler);
+
+        final HttpResponse unused = new HttpResponse();
+        new Expectations(unused) {
+            {
+                HttpResponse.parse(anyString);
+                minTimes = 0;
+                HttpResponse.parse((byte[]) withNotNull());
+                minTimes = 0;
+            }
+        };
     }
 
     /**

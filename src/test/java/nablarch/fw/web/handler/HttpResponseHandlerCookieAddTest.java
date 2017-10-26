@@ -1,7 +1,10 @@
 package nablarch.fw.web.handler;
 
-import mockit.Mocked;
-import mockit.Verifications;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
+
+import java.nio.charset.Charset;
+
 import nablarch.core.util.StringUtil;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpCookie;
@@ -10,20 +13,28 @@ import nablarch.fw.web.HttpRequestHandler;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.HttpServer;
 import nablarch.fw.web.MockHttpRequest;
+
+import org.junit.Before;
 import org.junit.Test;
 
-import java.nio.charset.Charset;
-
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import mockit.Expectations;
+import mockit.Verifications;
 
 /**
  * {@link HttpResponseHandler}のCookie追加のテスト。
  */
 public class HttpResponseHandlerCookieAddTest {
 
-    @Mocked("parse") HttpResponse unused;
+    @Before
+    public void setUp() throws Exception {
+        final HttpResponse unused = new HttpResponse();
+        new Expectations(unused) {{
+            HttpResponse.parse((byte[]) withNotNull());
+            minTimes = 0;
+            HttpResponse.parse(anyString);
+            minTimes = 0;
+        }};
+    }
 
     /**
      * サーブレットフォワードした場合に、Cookieが設定されること。

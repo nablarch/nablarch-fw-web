@@ -20,6 +20,7 @@ import nablarch.common.handler.threadcontext.ThreadContextHandler;
 import nablarch.common.web.handler.HttpAccessLogHandler;
 import nablarch.common.web.handler.threadcontext.LanguageAttributeInHttpCookie;
 import nablarch.common.web.handler.threadcontext.LanguageAttributeInHttpUtil;
+import nablarch.core.ThreadContext;
 import nablarch.core.log.LogUtil;
 import nablarch.core.repository.SystemRepository;
 import nablarch.core.repository.di.DiContainer;
@@ -64,7 +65,7 @@ public class HttpResponseHandlerTest {
         XmlComponentDefinitionLoader loader = new XmlComponentDefinitionLoader("nablarch/fw/web/handler/cookie.xml");
         DiContainer container = new DiContainer(loader);
         SystemRepository.load(container);
-
+        ThreadContext.clear();
     }
 
     @After
