@@ -7,6 +7,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import nablarch.core.repository.SystemRepository;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.Handler;
 import nablarch.fw.web.HttpRequest;
@@ -47,6 +48,7 @@ public class HttpResponseHandlerWithSecureHandlerTest {
 
     @Before
     public void setUp() throws Exception {
+        SystemRepository.clear();
         new Expectations() {{
             mockServletRequest.getRequestURI();
             result = "/sampleapp/action/sample";

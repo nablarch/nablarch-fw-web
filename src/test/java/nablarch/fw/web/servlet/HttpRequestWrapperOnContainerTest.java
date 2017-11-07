@@ -1,10 +1,13 @@
 package nablarch.fw.web.servlet;
 
+import nablarch.core.repository.SystemRepository;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.HttpServer;
 import nablarch.fw.web.MockHttpCookie;
 import nablarch.fw.web.MockHttpRequest;
+
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -21,6 +24,11 @@ import static org.junit.Assert.assertThat;
  * @author Naoki Yamamoto
  */
 public class HttpRequestWrapperOnContainerTest {
+
+    @Before
+    public void setUp() throws Exception {
+        SystemRepository.clear();
+    }
 
     /**
      * {@link HttpRequestWrapper}の各メソッドがサーブレットコンテナ上でも想定通りに動作することを、
