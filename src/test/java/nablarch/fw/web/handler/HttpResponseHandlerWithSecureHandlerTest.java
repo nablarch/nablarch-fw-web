@@ -7,6 +7,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.poi.ss.formula.functions.T;
+
+import nablarch.core.ThreadContext;
 import nablarch.core.repository.SystemRepository;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.Handler;
@@ -20,6 +23,7 @@ import org.junit.Test;
 
 import mockit.Delegate;
 import mockit.Expectations;
+import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Verifications;
 
@@ -29,16 +33,16 @@ import mockit.Verifications;
  */
 public class HttpResponseHandlerWithSecureHandlerTest {
 
-    @Mocked
+    @Injectable
     private HttpServletRequest mockServletRequest;
 
-    @Mocked
+    @Injectable
     private HttpServletResponse mockServletResponse;
 
-    @Mocked
+    @Injectable
     private ServletContext mockServletContext;
 
-    @Mocked
+    @Injectable
     private HttpRequest mockHttpRequest;
 
     /** テスト対象 */
@@ -48,6 +52,7 @@ public class HttpResponseHandlerWithSecureHandlerTest {
 
     @Before
     public void setUp() throws Exception {
+        ThreadContext.clear();
         SystemRepository.clear();
         new Expectations() {{
             mockServletRequest.getRequestURI();
