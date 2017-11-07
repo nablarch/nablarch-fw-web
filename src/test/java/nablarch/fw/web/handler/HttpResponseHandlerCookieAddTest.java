@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import java.nio.charset.Charset;
 
+import nablarch.core.ThreadContext;
 import nablarch.core.repository.SystemRepository;
 import nablarch.core.util.StringUtil;
 import nablarch.fw.ExecutionContext;
@@ -29,6 +30,7 @@ public class HttpResponseHandlerCookieAddTest {
     @Before
     public void setUp() throws Exception {
         SystemRepository.clear();
+        ThreadContext.clear();
         final HttpResponse unused = new HttpResponse();
         new Expectations(unused) {{
             HttpResponse.parse((byte[]) withNotNull());
