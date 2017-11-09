@@ -13,6 +13,25 @@
     <version>1.0.0</version>
   </parent>
 
+  <properties>
+    <ecj.version>3.5.1</ecj.version>
+  </properties>
+
+  <profiles>
+    <profile>
+      <id>java8</id>
+      <properties>
+        <ecj.version>4.6.1</ecj.version>
+      </properties>
+    </profile>
+    <profile>
+      <id>java9</id>
+      <properties>
+        <ecj.version>4.6.1</ecj.version>
+      </properties>
+    </profile>
+  </profiles>
+
   <dependencies>
     <dependency>
       <groupId>com.nablarch.framework</groupId>
@@ -62,6 +81,18 @@
       <groupId>com.nablarch.framework</groupId>
       <artifactId>nablarch-testing</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse.jdt.core.compiler</groupId>
+          <artifactId>ecj</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.eclipse.jdt.core.compiler</groupId>
+      <artifactId>ecj</artifactId>
+      <version>${ecj.version}</version>
     </dependency>
 
     <dependency>
