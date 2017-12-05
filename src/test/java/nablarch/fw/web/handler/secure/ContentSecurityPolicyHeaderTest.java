@@ -44,6 +44,9 @@ public class ContentSecurityPolicyHeaderTest {
         assertThat(sut.getName(), is("Content-Security-Policy-Report-Only"));
     }
 
+    /**
+     * ポリシーが設定されていない場合(null)、例外が発生すること。
+     */
     @Test
     public void invalidPolicyNull() {
         expectedException.expect(IllegalStateException.class);
@@ -53,8 +56,11 @@ public class ContentSecurityPolicyHeaderTest {
         sut.getValue();
     }
 
+    /**
+     * ポリシーが設定されていない場合(空文字)、例外が発生すること。
+     */
     @Test
-    public void invalidPolicyEmpty() throws Exception {
+    public void invalidPolicyEmpty() {
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("invalid Content-Security-Policy. policy is empty");
 
