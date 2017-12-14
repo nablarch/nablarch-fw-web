@@ -22,9 +22,12 @@ import nablarch.fw.web.MockHttpRequest;
 import nablarch.fw.web.interceptor.ErrorOnSessionWriteConflict;
 import nablarch.test.core.log.LogVerifier;
 import nablarch.test.support.SystemRepositoryResource;
+
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
+@Ignore
 public class SessionConcurrentAccessHandlerTest {
 
     @Rule
