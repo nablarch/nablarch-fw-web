@@ -15,20 +15,27 @@ import javax.validation.Validator;
 
 import nablarch.common.web.interceptor.InjectForm;
 import nablarch.core.beans.BeanUtil;
-import nablarch.core.message.ApplicationException;
 import nablarch.core.message.Message;
 import nablarch.core.util.StringUtil;
 import nablarch.core.util.annotation.Published;
 import nablarch.core.validation.ValidationResultMessage;
 import nablarch.core.validation.ee.ConstraintViolationConverterFactory;
 import nablarch.core.validation.ee.ValidatorUtil;
+import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 
 /**
  * BeanValidationを使用する場合のリクエスト内容のバリデーション、オブジェクト(Bean)生成ロジック.
  *
+ * 本実装ではバリデーションエラーが発生した場合に、
+ * リクエストパラメータから値をコピーしたオブジェクト(Bean)が、
+ * {@link ValidationResult}に格納される。
+ * これは、バリデーションエラーが発生した時でも、JSP側でリクエストパラメータの値を
+ * 参照できるようにするためである。
+ *
  * @author sumida
+ * @see InjectForm.Impl#handle(HttpRequest, ExecutionContext)
  */
 public class BeanValidationStrategy implements ValidationStrategy {
 
@@ -39,7 +46,7 @@ public class BeanValidationStrategy implements ValidationStrategy {
     public BeanValidationStrategy() {
     }
 
-    public Serializable validate(HttpRequest request, InjectForm annotation, boolean notUse,
+    public ValidationResult validate(HttpRequest request, InjectForm annotation, boolean notUse,
             ServletExecutionContext context) {
 
         Map<String, String[]> rawRequestParamMap = request.getParamMap();
@@ -48,11 +55,12 @@ public class BeanValidationStrategy implements ValidationStrategy {
         Serializable bean = BeanUtil.createAndCopy(annotation.form(), requestParamMap);
         Validator validator = ValidatorUtil.getValidator();
         Set<ConstraintViolation<Serializable>> results = validator.validate(bean);
+
         if (!results.isEmpty()) {
             List<Message> messages = new ConstraintViolationConverterFactory().create(annotation.prefix()).convert(results);
-            throw new ApplicationException(sortMessages(messages, context, annotation));
+            return ValidationResult.createInvalidResult(bean, sortMessages(messages, context, annotation));
         }
-        return bean;
+        return ValidationResult.createValidResult(bean);
     }
 
     /**
