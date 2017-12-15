@@ -8,8 +8,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import nablarch.common.web.validator.NablarchValidationStrategy;
+import nablarch.common.web.validator.ValidationResult;
 import nablarch.common.web.validator.ValidationStrategy;
 import nablarch.core.beans.BeanUtil;
+import nablarch.core.message.ApplicationException;
 import nablarch.core.repository.SystemRepository;
 import nablarch.core.util.StringUtil;
 import nablarch.core.util.annotation.Published;
@@ -150,8 +152,15 @@ public @interface InjectForm {
             boolean canInitialize = StringUtil.hasValue(annotation.initialize());
             boolean canValidate = StringUtil.hasValue(annotation.validate());
 
-            Serializable form = validationStrategy.validate(request, annotation, canValidate,
-                    (ServletExecutionContext) context);
+            ValidationResult result = validationStrategy.validate(request, annotation, canValidate,
+                                                                  (ServletExecutionContext) context);
+            Serializable form = result.getObject();
+            if (!result.isValid()) {
+                if (form != null) {
+                    context.setRequestScopedVar(annotation.name(), form);
+                }
+                throw new ApplicationException(result.getMessage());
+            }
 
             if (canInitialize) {
                 Serializable initForm = createForm(annotation);

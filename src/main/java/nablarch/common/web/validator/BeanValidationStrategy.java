@@ -39,7 +39,7 @@ public class BeanValidationStrategy implements ValidationStrategy {
     public BeanValidationStrategy() {
     }
 
-    public Serializable validate(HttpRequest request, InjectForm annotation, boolean notUse,
+    public ValidationResult validate(HttpRequest request, InjectForm annotation, boolean notUse,
             ServletExecutionContext context) {
 
         Map<String, String[]> rawRequestParamMap = request.getParamMap();
@@ -48,11 +48,12 @@ public class BeanValidationStrategy implements ValidationStrategy {
         Serializable bean = BeanUtil.createAndCopy(annotation.form(), requestParamMap);
         Validator validator = ValidatorUtil.getValidator();
         Set<ConstraintViolation<Serializable>> results = validator.validate(bean);
+
         if (!results.isEmpty()) {
             List<Message> messages = new ConstraintViolationConverterFactory().create(annotation.prefix()).convert(results);
-            throw new ApplicationException(sortMessages(messages, context, annotation));
+            return ValidationResult.createInvaidResult(sortMessages(messages, context, annotation));
         }
-        return bean;
+        return ValidationResult.createValidResult(bean);
     }
 
     /**

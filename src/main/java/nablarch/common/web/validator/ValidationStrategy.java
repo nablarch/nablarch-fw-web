@@ -24,7 +24,7 @@ public interface ValidationStrategy {
      * 
      * @return バリデーション済みのオブジェクト
      */
-    Serializable validate(HttpRequest request, InjectForm annotation, boolean canValidate,
+    ValidationResult validate(HttpRequest request, InjectForm annotation, boolean canValidate,
             ServletExecutionContext context);
 
 }
