@@ -219,6 +219,8 @@ public class BeanValidationStrategyTest {
             assertThat(e.getMessages()
                         .get(0)
                         .formatMessage(), is("数字でないですよ。"));
+            SampleBean sampleBean = context.getRequestScopedVar("form");
+            assertThat(sampleBean.getUserId(), is("abcdef"));
         }
     }
 

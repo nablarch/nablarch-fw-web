@@ -49,6 +49,8 @@ public class BeanValidationStrategy implements ValidationStrategy {
         Validator validator = ValidatorUtil.getValidator();
         Set<ConstraintViolation<Serializable>> results = validator.validate(bean);
         if (!results.isEmpty()) {
+            // エラーのとき、リクエストスコープにbeanを設定する
+            context.setRequestScopedVar(annotation.name(), bean);
             List<Message> messages = new ConstraintViolationConverterFactory().create(annotation.prefix()).convert(results);
             throw new ApplicationException(sortMessages(messages, context, annotation));
         }
