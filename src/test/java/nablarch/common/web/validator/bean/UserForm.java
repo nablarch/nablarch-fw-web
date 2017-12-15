@@ -80,6 +80,14 @@ public class UserForm implements Serializable {
         public boolean isMultiItemValidation() {
             return !(StringUtil.isNullOrEmpty(sub1) && StringUtil.isNullOrEmpty(sub2));
         }
+
+        public String getSub3() {
+            return sub3;
+        }
+
+        public void setSub3(String sub3) {
+            this.sub3 = sub3;
+        }
     }
     
 }
