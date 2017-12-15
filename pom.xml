@@ -34,6 +34,7 @@
       <id>java9</id>
       <properties>
         <ecj.version>4.6.1</ecj.version>
+        <junit.additionalArgLine>--add-modules java.activation,java.xml.bind</junit.additionalArgLine>
       </properties>
     </profile>
   </profiles>
