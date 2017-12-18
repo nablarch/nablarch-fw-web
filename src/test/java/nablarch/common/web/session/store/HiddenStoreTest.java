@@ -56,7 +56,8 @@ public class HiddenStoreTest {
         List<SessionEntry> inEntries = Arrays.asList(
                 new SessionEntry("key1", "val1", store),
                 new SessionEntry("key2", "val2", store),
-                new SessionEntry("key3", "val3", store));
+                new SessionEntry("key3", "val3", store),
+                new SessionEntry("key4", "val\uD83C\uDF63\uD83C\uDF63\uD83C\uDF63", store));
 
         String unusedId = createSessionId();
         ServletExecutionContext outCtxt = createExeCtxt();
@@ -71,13 +72,13 @@ public class HiddenStoreTest {
                 "nablarch_hiddenStore", new String[] {value});
         List<SessionEntry> outEntries = store.load(unusedId, inCtxt);
 
-        assertThat(outEntries.size(), is(3));
+        assertThat(outEntries.size(), is(4));
         Collections.sort(outEntries, keySort);
-        int i = 1;
-        for (SessionEntry outEntry : outEntries) {
-            int num = i++;
-            assertThat(outEntry.getKey(), is("key" + num));
-            assertThat(outEntry.getValue().toString(), is("val" + num));
+        for (int i = 0; i < outEntries.size(); i++) {
+            final SessionEntry outEntry = outEntries.get(i);
+            final SessionEntry inEntry = inEntries.get(i);
+            assertThat(outEntry.getKey(), is(inEntry.getKey()));
+            assertThat(outEntry.getValue().toString(), is(inEntry.getValue()));
         }
     }
     
@@ -93,7 +94,8 @@ public class HiddenStoreTest {
         List<SessionEntry> inEntries = Arrays.asList(
                 new SessionEntry("key1", "val1", store),
                 new SessionEntry("key2", "val2", store),
-                new SessionEntry("key3", "val3", store));
+                new SessionEntry("key3", "val3", store),
+                new SessionEntry("key4", "\uD85A\uDE58\uD85A\uDE58\uD85A\uDE58", store));
 
         String unusedId = createSessionId();
         ServletExecutionContext outCtxt = createExeCtxt();
@@ -108,13 +110,13 @@ public class HiddenStoreTest {
                 "nablarch_hiddenStore", new String[] {value});
         List<SessionEntry> outEntries = store.load(unusedId, inCtxt);
 
-        assertThat(outEntries.size(), is(3));
+        assertThat(outEntries.size(), is(4));
         Collections.sort(outEntries, keySort);
-        int i = 1;
-        for (SessionEntry outEntry : outEntries) {
-            int num = i++;
-            assertThat(outEntry.getKey(), is("key" + num));
-            assertThat(outEntry.getValue().toString(), is("val" + num));
+        for (int i = 0; i < outEntries.size(); i++) {
+            final SessionEntry outEntry = outEntries.get(i);
+            final SessionEntry inEntry = inEntries.get(i);
+            assertThat(outEntry.getKey(), is(inEntry.getKey()));
+            assertThat(outEntry.getValue().toString(), is(inEntry.getValue()));
         }
     }
 
@@ -132,7 +134,8 @@ public class HiddenStoreTest {
         List<SessionEntry> inEntries = Arrays.asList(
                 new SessionEntry("key1", "val1", store),
                 new SessionEntry("key2", "val2", store),
-                new SessionEntry("key3", "val3", store));
+                new SessionEntry("key3", "val3", store),
+                new SessionEntry("key4", "\uD866\uDCC6\uD866\uDCC6\uD866\uDCC6", store));
 
         String unusedId = createSessionId();
         ServletExecutionContext outCtxt = createExeCtxt();
@@ -147,13 +150,13 @@ public class HiddenStoreTest {
                 "_HIDDEN_STORE_", new String[] {value});
         List<SessionEntry> outEntries = store.load(unusedId, inCtxt);
 
-        assertThat(outEntries.size(), is(3));
+        assertThat(outEntries.size(), is(4));
         Collections.sort(outEntries, keySort);
-        int i = 1;
-        for (SessionEntry outEntry : outEntries) {
-            int num = i++;
-            assertThat(outEntry.getKey(), is("key" + num));
-            assertThat(outEntry.getValue().toString(), is("val" + num));
+        for (int i = 0; i < outEntries.size(); i++) {
+            final SessionEntry outEntry = outEntries.get(i);
+            final SessionEntry inEntry = inEntries.get(i);
+            assertThat(outEntry.getKey(), is(inEntry.getKey()));
+            assertThat(outEntry.getValue().toString(), is(inEntry.getValue()));
         }
     }
 

@@ -89,6 +89,7 @@ public class SessionStoreTest {
             add(new SessionEntry("hoge", "hoge_value", store));
             add(new SessionEntry("fuga", "fuga_value", store));
             add(new SessionEntry("piyo", null, store));
+            add(new SessionEntry("\uD83C\uDF63\uD83C\uDF63", "\uD83C\uDF7A\uD83C\uDF7A", store));
         }}, ctx);
 
         final String marshalled = ctx.getRequestScopedVar("serialized_session");
@@ -107,12 +108,14 @@ public class SessionStoreTest {
         ctx = new ServletExecutionContext(servletReq, httpResponse, servletContext);
 
         List<SessionEntry> unmarshalled = store.load(session.getOrGenerateId(), ctx);
-        assertEquals(3, unmarshalled.size());
+        assertEquals(4, unmarshalled.size());
         assertEquals("hoge", unmarshalled.get(0).getKey());
         assertEquals("hoge_value", unmarshalled.get(0).getValue());
         assertEquals("fuga", unmarshalled.get(1).getKey());
         assertEquals("fuga_value", unmarshalled.get(1).getValue());
         assertEquals("piyo", unmarshalled.get(2).getKey());
+        assertEquals("\uD83C\uDF63\uD83C\uDF63", unmarshalled.get(3).getKey());
+        assertEquals("\uD83C\uDF7A\uD83C\uDF7A", unmarshalled.get(3).getValue());
         assertNull(unmarshalled.get(2).getValue());
     }
 
@@ -192,14 +195,14 @@ public class SessionStoreTest {
     public void testThatIfAnEntryWrapsAnJavaBeansItsPropertiesCanBeAccessedThroughMapInterface() {
         HogeBean bean = new HogeBean();
         SessionEntry entry = new SessionEntry("hoge", bean, store);
-        bean.setStringValue("str");
+        bean.setStringValue("str\uD83C\uDF7A\uD83C\uDF7A");
         bean.setIntValue(100);
 
         assertTrue(!entry.isEmpty());
         assertEquals(3, entry.size());
         assertTrue(entry.containsKey("stringValue"));
-        assertTrue(entry.containsValue("str"));
-        assertEquals("str", entry.get("stringValue"));
+        assertTrue(entry.containsValue("str\uD83C\uDF7A\uD83C\uDF7A"));
+        assertEquals("str\uD83C\uDF7A\uD83C\uDF7A", entry.get("stringValue"));
         assertEquals(100, entry.get("intValue"));
         assertEquals("readonly", entry.get("readonlyValue"));
         assertNull(entry.get("writeonlyValue"));
