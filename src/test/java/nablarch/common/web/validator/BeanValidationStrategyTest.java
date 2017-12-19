@@ -219,6 +219,7 @@ public class BeanValidationStrategyTest {
             assertThat(e.getMessages()
                         .get(0)
                         .formatMessage(), is("数字でないですよ。"));
+            // バリデーションエラー時、リクエストスコープにBeanが設定されること
             SampleBean sampleBean = context.getRequestScopedVar("form");
             assertThat(sampleBean.getUserId(), is("abcdef"));
         }
@@ -245,6 +246,10 @@ public class BeanValidationStrategyTest {
         } catch (ApplicationException e) {
             assertThat(e, hasProperty(
                     "messages", hasItems(hasProperty("propertyName", is("userId")))));
+
+            // バリデーションエラー時、リクエストスコープにBeanが設定されること
+            SampleBean sampleBean = context.getRequestScopedVar("form");
+            assertThat(sampleBean.getUserId(), is("abcdef"));
         }
     }
 
@@ -325,6 +330,12 @@ public class BeanValidationStrategyTest {
                     MessageMatcher.is("必須項目です。", "form.birthday"),
                     MessageMatcher.is("項目間のバリデーションエラー", "form.sub.multiItemValidation")
             ));
+
+            // バリデーションエラー時、リクエストスコープにBeanが設定されること
+            UserForm userForm = context.getRequestScopedVar("form");
+            assertThat(userForm.getAge(), is("10"));
+            assertThat(userForm.getBirthday(), is(""));
+            assertThat(userForm.getSub().getSub3(), is(""));
         }
     }
 
@@ -382,6 +393,12 @@ public class BeanValidationStrategyTest {
                     MessageMatcher.is("[誕生日]必須項目です。", "form.birthday"),
                     MessageMatcher.is("項目間のバリデーションエラー", "form.sub.multiItemValidation")
             ));
+
+            // バリデーションエラー時、リクエストスコープにBeanが設定されること
+            UserForm userForm = context.getRequestScopedVar("form");
+            assertThat(userForm.getAge(), is("10"));
+            assertThat(userForm.getBirthday(), is(""));
+            assertThat(userForm.getSub().getSub3(), is(""));
         }
     }
 
