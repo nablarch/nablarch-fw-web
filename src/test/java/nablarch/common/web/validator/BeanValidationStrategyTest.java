@@ -219,6 +219,9 @@ public class BeanValidationStrategyTest {
             assertThat(e.getMessages()
                         .get(0)
                         .formatMessage(), is("数字でないですよ。"));
+            // バリデーションエラー時、リクエストスコープにBeanが設定されること
+            SampleBean sampleBean = context.getRequestScopedVar("form");
+            assertThat(sampleBean.getUserId(), is("abcdef"));
         }
     }
 
@@ -243,6 +246,10 @@ public class BeanValidationStrategyTest {
         } catch (ApplicationException e) {
             assertThat(e, hasProperty(
                     "messages", hasItems(hasProperty("propertyName", is("userId")))));
+
+            // バリデーションエラー時、リクエストスコープにBeanが設定されること
+            SampleBean sampleBean = context.getRequestScopedVar("form");
+            assertThat(sampleBean.getUserId(), is("abcdef"));
         }
     }
 
@@ -323,6 +330,12 @@ public class BeanValidationStrategyTest {
                     MessageMatcher.is("必須項目です。", "form.birthday"),
                     MessageMatcher.is("項目間のバリデーションエラー", "form.sub.multiItemValidation")
             ));
+
+            // バリデーションエラー時、リクエストスコープにBeanが設定されること
+            UserForm userForm = context.getRequestScopedVar("form");
+            assertThat(userForm.getAge(), is("10"));
+            assertThat(userForm.getBirthday(), is(""));
+            assertThat(userForm.getSub().getSub3(), is(""));
         }
     }
 
@@ -380,6 +393,12 @@ public class BeanValidationStrategyTest {
                     MessageMatcher.is("[誕生日]必須項目です。", "form.birthday"),
                     MessageMatcher.is("項目間のバリデーションエラー", "form.sub.multiItemValidation")
             ));
+
+            // バリデーションエラー時、リクエストスコープにBeanが設定されること
+            UserForm userForm = context.getRequestScopedVar("form");
+            assertThat(userForm.getAge(), is("10"));
+            assertThat(userForm.getBirthday(), is(""));
+            assertThat(userForm.getSub().getSub3(), is(""));
         }
     }
 
@@ -404,6 +423,42 @@ public class BeanValidationStrategyTest {
         context.handleNext(new MockHttpRequest("GET /index.html HTTP/1.1")
                 .setParam("form.id", "100")
                 .setParam("form.numbers", "1", "    ", "3"));
+    }
+
+
+    /**
+     * {@link BeanValidationStrategy#setCopyBeanToRequestScopeOnError(boolean)}が偽のとき、
+     * リクエストスコープに値がコピーされないこと。
+     */
+    @Test
+    public void testCopyBeanToRequestScopeOnErrorFalse() {
+        // コピーされない設定で、SystemRepositoryに登録する
+        BeanValidationStrategy sut = new BeanValidationStrategy();
+        sut.setCopyBeanToRequestScopeOnError(false);
+        repositoryResource.addComponent("validationStrategy", sut);
+
+        Object action = new Object() {
+            @InjectForm(form = SampleBean.class, prefix = "sample")
+            public HttpResponse getIndexHtml(HttpRequest req, ExecutionContext ctx) {
+                return new HttpResponse();
+            }
+        };
+        context.addHandler("//", new HttpMethodBinding(action));
+        try {
+            context.handleNext(new MockHttpRequest("GET /index.html HTTP/1.1")
+                                       .setParam("sample.userId", "abcdef"));
+            fail("must be thrown ApplicationException");
+        } catch (ApplicationException e) {
+            assertThat(e.getMessages()
+                        .size(), is(1));
+            assertThat(e.getMessages()
+                        .get(0)
+                        .formatMessage(), is("数字でないですよ。"));
+            // バリデーションエラー時、リクエストスコープにBeanが設定されること
+            SampleBean sampleBean = context.getRequestScopedVar("form");
+            assertThat(sampleBean, nullValue());
+        }
+
     }
 
     private static class MessageMatcher extends TypeSafeMatcher<Message> {

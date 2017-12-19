@@ -32,11 +32,14 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
  */
 public class BeanValidationStrategy implements ValidationStrategy {
 
+    /** バリデーションエラー時にBeanをリクエストスコープにコピーするかどうか */
+    private boolean copyBeanToRequestScopeOnError = false;
+
     /**
      * {@code BeanValidationStrategy}を生成する。
      */
     @Published(tag = "architect")
-    public BeanValidationStrategy() {
+    public BeanValidationStrategy() {   // NOP
     }
 
     public Serializable validate(HttpRequest request, InjectForm annotation, boolean notUse,
@@ -49,6 +52,10 @@ public class BeanValidationStrategy implements ValidationStrategy {
         Validator validator = ValidatorUtil.getValidator();
         Set<ConstraintViolation<Serializable>> results = validator.validate(bean);
         if (!results.isEmpty()) {
+            if (copyBeanToRequestScopeOnError) {
+                // エラーのとき、リクエストスコープにbeanを設定する
+                context.setRequestScopedVar(annotation.name(), bean);
+            }
             List<Message> messages = new ConstraintViolationConverterFactory().create(annotation.prefix()).convert(results);
             throw new ApplicationException(sortMessages(messages, context, annotation));
         }
@@ -138,5 +145,15 @@ public class BeanValidationStrategy implements ValidationStrategy {
             }
         }
         return convertedMap;
+    }
+
+    /**
+     * バリデーションエラー時に、Beanをリクエストスコープにコピーするかどうかを
+     * 設定する（デフォルトは「コピーしない」）。
+     *
+     * @param copyBeanToRequestScopeOnError コピーする場合は真を指定
+     */
+    public void setCopyBeanToRequestScopeOnError(boolean copyBeanToRequestScopeOnError) {
+        this.copyBeanToRequestScopeOnError = copyBeanToRequestScopeOnError;
     }
 }
