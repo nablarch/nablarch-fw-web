@@ -425,6 +425,42 @@ public class BeanValidationStrategyTest {
                 .setParam("form.numbers", "1", "    ", "3"));
     }
 
+
+    /**
+     * {@link BeanValidationStrategy#setCopyBeanToRequestScopeOnError(boolean)}が偽のとき、
+     * リクエストスコープに値がコピーされないこと。
+     */
+    @Test
+    public void testCopyBeanToRequestScopeOnErrorFalse() {
+        // コピーされない設定で、SystemRepositoryに登録する
+        BeanValidationStrategy sut = new BeanValidationStrategy();
+        sut.setCopyBeanToRequestScopeOnError(false);
+        repositoryResource.addComponent("validationStrategy", sut);
+
+        Object action = new Object() {
+            @InjectForm(form = SampleBean.class, prefix = "sample")
+            public HttpResponse getIndexHtml(HttpRequest req, ExecutionContext ctx) {
+                return new HttpResponse();
+            }
+        };
+        context.addHandler("//", new HttpMethodBinding(action));
+        try {
+            context.handleNext(new MockHttpRequest("GET /index.html HTTP/1.1")
+                                       .setParam("sample.userId", "abcdef"));
+            fail("must be thrown ApplicationException");
+        } catch (ApplicationException e) {
+            assertThat(e.getMessages()
+                        .size(), is(1));
+            assertThat(e.getMessages()
+                        .get(0)
+                        .formatMessage(), is("数字でないですよ。"));
+            // バリデーションエラー時、リクエストスコープにBeanが設定されること
+            SampleBean sampleBean = context.getRequestScopedVar("form");
+            assertThat(sampleBean, nullValue());
+        }
+
+    }
+
     private static class MessageMatcher extends TypeSafeMatcher<Message> {
 
         private final String message;

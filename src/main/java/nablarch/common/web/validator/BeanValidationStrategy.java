@@ -39,7 +39,7 @@ public class BeanValidationStrategy implements ValidationStrategy {
      * {@code BeanValidationStrategy}を生成する。
      */
     @Published(tag = "architect")
-    public BeanValidationStrategy() {
+    public BeanValidationStrategy() {   // NOP
     }
 
     public Serializable validate(HttpRequest request, InjectForm annotation, boolean notUse,
