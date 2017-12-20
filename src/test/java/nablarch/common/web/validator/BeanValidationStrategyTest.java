@@ -220,6 +220,7 @@ public class BeanValidationStrategyTest {
                         .get(0)
                         .formatMessage(), is("数字でないですよ。"));
             // バリデーションエラー時、リクエストスコープにBeanが設定されること
+            // (InjectFormのnameが指定されていないので、キーはデフォルトの"form")
             SampleBean sampleBean = context.getRequestScopedVar("form");
             assertThat(sampleBean.getUserId(), is("abcdef"));
         }
@@ -427,6 +428,33 @@ public class BeanValidationStrategyTest {
 
 
     /**
+     * バリデーションエラー時に、{@link InjectForm#name()}で指定されたキー名で、
+     * リクエストスコープにBeanが格納されること。
+     */
+    @Test
+    public void testCopyBeanToRequestScopeOnErrorWithName() {
+
+        Object action = new Object() {
+            // InjectFormのname属性を明示的に指定する.
+            @InjectForm(form = SampleBean.class, prefix = "sample", name = "keyOfForm")
+            public HttpResponse getIndexHtml(HttpRequest req, ExecutionContext ctx) {
+                return new HttpResponse();
+            }
+        };
+        context.addHandler("//", new HttpMethodBinding(action));
+        try {
+            context.handleNext(new MockHttpRequest("GET /index.html HTTP/1.1")
+                                       .setParam("sample.userId", "abcdef"));
+            fail("must be thrown ApplicationException");
+        } catch (ApplicationException e) {
+            // バリデーションエラー時、リクエストスコープにBeanが設定されること
+            // (InjectFormのnameが指定されているので、キー"keyOfForm")
+            SampleBean sampleBean = context.getRequestScopedVar("keyOfForm");
+            assertThat(sampleBean.getUserId(), is("abcdef"));
+        }
+    }
+
+    /**
      * {@link BeanValidationStrategy#setCopyBeanToRequestScopeOnError(boolean)}が偽のとき、
      * リクエストスコープに値がコピーされないこと。
      */
@@ -454,7 +482,7 @@ public class BeanValidationStrategyTest {
             assertThat(e.getMessages()
                         .get(0)
                         .formatMessage(), is("数字でないですよ。"));
-            // バリデーションエラー時、リクエストスコープにBeanが設定されること
+            // バリデーションエラー時、リクエストスコープにBeanが設定され*ない*こと
             SampleBean sampleBean = context.getRequestScopedVar("form");
             assertThat(sampleBean, nullValue());
         }
