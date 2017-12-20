@@ -4,7 +4,10 @@
                          xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ../../../../../../Nablarch/resources/component-configuration.xsd">
 
   <!-- BeanValidation機能を有効にする -->
-  <component name="validationStrategy" class="nablarch.common.web.validator.BeanValidationStrategy" />
+  <component name="validationStrategy" class="nablarch.common.web.validator.BeanValidationStrategy" >
+    <!-- バリデーションエラー時にリクエストスコープに値をコピーする -->
+    <property name="copyBeanToRequestScopeOnError" value="true"/>
+  </component>
 
   <!-- BeanValidationのメッセージ多国語対応の機能を有効にする -->
   <component name="messageInterpolator"

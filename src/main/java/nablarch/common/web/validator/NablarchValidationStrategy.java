@@ -11,6 +11,15 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
 /**
  * NablarchのFormを使用する場合のリクエスト内容のバリデーション、オブジェクト(Form)生成ロジック.
  *
+ * <p>
+ * {@link BeanValidationStrategy}とは異なり、
+ * 本実装ではバリデーションエラーが発生した場合には、
+ * リクエストパラメータから値をコピーしたオブジェクト(Form)を
+ * リクエストスコープに格納する機能は持たない。
+ * これは、Nablarchのバリデーションが、（バリデーション前ではなく）
+ * バリデーション成功後にオブジェクトを生成するためである。
+ * </p>
+ *
  * @author sumida
  */
 public class NablarchValidationStrategy implements ValidationStrategy {
