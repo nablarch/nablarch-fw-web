@@ -24,18 +24,19 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
  */
 public class NablarchValidationStrategy implements ValidationStrategy {
 
-    public Serializable validate(
+    public ValidationResult validate(
             HttpRequest request, InjectForm annotation, boolean canValidate, final ServletExecutionContext context) {
 
         if (!canValidate) {
-            return null;
+            return ValidationResult.createValidResult(null);
         }
 
         ValidationContext<? extends Serializable> validationContext = ValidationUtil.validateAndConvertRequest(
                     annotation.prefix(), annotation.form(), request, annotation.validate());
-        validationContext.abortIfInvalid();
-
-        return validationContext.createObject();
+        if (validationContext.isValid()) {
+            return ValidationResult.createValidResult(validationContext.createObject());
+        }
+        return ValidationResult.createInvaidResult(validationContext.getMessages());
     }
 
 }
