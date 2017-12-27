@@ -366,6 +366,38 @@ public class ResourceLocatorFunctionalTest {
     }
 
     /**
+     * 許可されないスキームを指定した場合
+     */
+    @Test
+    public void disallowdScheme() {
+        String scheme = "disallowed";
+        assertThat(ResourceLocator.SCHEMES, not(containsString(scheme)));
+        try {
+            String path = scheme + "://foo/bar";
+            ResourceLocator.valueOf(path);
+            fail();
+        } catch (HttpErrorResponse expected) {
+            assertThat(expected.getResponse().getStatusCode(), is(400));
+        }
+    }
+
+    /**
+     * ディレクトリが許可されない文字を含んでいた場合
+     */
+    @Test
+    public void httpContentDisallowedDirectory() {
+        String directory = "x..z";
+        assertThat(ResourceLocator.ALLOWED_CHAR.matcher(directory).matches(), is(false));
+        try {
+            String path = "http://yourhost.com/" + directory + "/index.html";
+            ResourceLocator.valueOf(path);
+            fail();
+        } catch (HttpErrorResponse expected) {
+            assertThat(expected.getResponse().getStatusCode(), is(400));
+        }
+    }
+
+    /**
      * classpathとfile scheme以外で不正なオペレーションのアサートをする
      *
      * @param sut
