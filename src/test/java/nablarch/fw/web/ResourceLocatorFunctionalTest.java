@@ -329,6 +329,43 @@ public class ResourceLocatorFunctionalTest {
     }
 
     /**
+     * file schemeで存在しないファイルを指定した場合
+     */
+    @Test
+    public void fileContentNotExists() throws Exception {
+
+        final ResourceLocator sut = ResourceLocator.valueOf(
+                "file://src/test/resources/nablarch/fw/web/resourceLocator/notExists");
+
+        assertThat(sut, allOf(
+                hasProperty("scheme", is("file")),
+                hasProperty("resourceName", is("notExists")),
+                hasProperty("path", is("src/test/resources/nablarch/fw/web/resourceLocator/notExists")),
+                hasProperty("realPath", containsString("notExists")),
+                hasProperty("redirect", is(false)),
+                hasProperty("relative", is(true)),
+                hasProperty("hostname", isEmptyString()),
+                hasProperty("directory", is("src/test/resources/nablarch/fw/web/resourceLocator/"))
+        ));
+        assertThat("存在しないファイルなのでfalse", sut.exists(), is(false));
+        assertThat(sut.toString(),
+                is("file://src/test/resources/nablarch/fw/web/resourceLocator/notExists"));
+
+        // 存在しないファイルなのでアクセスできない
+        try {
+            sut.getReader();
+            fail("");
+        } catch (FileNotFoundException ignore) {
+        }
+        try {
+            sut.getInputStream();
+            fail("");
+        } catch (FileNotFoundException ignore) {
+        }
+
+    }
+
+    /**
      * classpathとfile scheme以外で不正なオペレーションのアサートをする
      *
      * @param sut
