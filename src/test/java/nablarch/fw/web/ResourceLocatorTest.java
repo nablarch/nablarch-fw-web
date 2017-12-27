@@ -22,6 +22,7 @@ import nablarch.test.IgnoringLS;
 import nablarch.test.support.tool.Hereis;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -245,6 +246,33 @@ public class ResourceLocatorTest {
         assertEquals("/", redirection.getDirectory());
         assertEquals("?foo=fuga"
           , redirection.getResourceName());
+    }
+
+    @Ignore("5u12の仕様ではパスしないテストケース。リダイレクトの仕様変更にあわせてテストを実施するため、@Ignoreを付けている。")
+    @Test
+    public void test5u13NewSyntaxOfResourcePathWithTheRedirectionScheme() {
+
+        ResourceLocator redirection = null;
+
+        redirection = new HttpResponse("redirect:http://localhost:8080/templates/index.html")
+                .getContentPath();
+
+        assertEquals("redirect:http://localhost:8080/templates/index.html", redirection.toString());
+        assertEquals("redirect",                                            redirection.getScheme());
+        assertEquals("",                                                    redirection.getHostname());
+        assertEquals("http://localhost:8080/templates/index.html",          redirection.getPath());
+        assertEquals("",                                                    redirection.getDirectory());
+        assertEquals("",                                                    redirection.getResourceName());
+        
+        redirection = new HttpResponse("redirect:URN:ISBN:978-4-7741-6931-6")
+                         .getContentPath();
+
+        assertEquals("redirect:URN:ISBN:978-4-7741-6931-6", redirection.toString());
+        assertEquals("redirect",                            redirection.getScheme());
+        assertEquals("",                                    redirection.getHostname());
+        assertEquals("URN:ISBN:978-4-7741-6931-6",          redirection.getPath());
+        assertEquals("",                                    redirection.getDirectory());
+        assertEquals("",                                    redirection.getResourceName());
     }
 
     @Test
@@ -610,6 +638,56 @@ public class ResourceLocatorTest {
         assertEquals("https://www.example.com/secure.html", res.getLocation());
     }
 
+
+    /**
+     * 5u13からサポートされた形式のリダイレクション処理のテスト
+     */
+    @Ignore("5u12の仕様ではパスしないテストケース。リダイレクトの仕様変更にあわせてテストを実施するため、@Ignoreを付けている。")
+    @Test
+    public void testRedirection5u13NewFeature() {
+        HttpServer server = new HttpServer()
+        .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
+        .setServletContextPath("/app")
+        .addHandler("/test/Greeting", new HttpRequestHandler() {
+            @Override
+            public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
+                ctx.invalidateSession();
+                ctx.setRequestScopedVar("greeting", "Hello World!");
+                return new HttpResponse().setContentPath(
+                    "redirect:http://foo/bar"
+                );
+            }
+        })
+        .addHandler("/test/Greeting2", new HttpRequestHandler() {
+            @Override
+            public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
+                ctx.setRequestScopedVar("greeting", "Hello World!");
+                return new HttpResponse().setContentPath(
+                    "redirect:URN:ISBN:978-4-7741-6931-6"
+                );
+            }
+        })
+        .startLocal();
+
+        HttpResponse res = server.handle(new MockHttpRequest(string()), null);
+        /*************************
+        GET /app/test/Greeting HTTP/1.1
+        **************************/
+
+        assertEquals(302, res.getStatusCode());
+        // Locationはサーブレットコンテナ出力
+        assertEquals("http://foo/bar", res.getLocation());
+
+
+        res = server.handle(new MockHttpRequest(string()), null);
+        /*************************
+        GET /app/test/Greeting2 HTTP/1.1
+        **************************/
+
+        assertEquals(302, res.getStatusCode());
+        // Locationはサーブレットコンテナ出力
+        assertEquals("URN:ISBN:978-4-7741-6931-6", res.getLocation());
+    }
 
     @Test
     public void testIsRelative() {

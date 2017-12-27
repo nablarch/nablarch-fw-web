@@ -14,7 +14,7 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 
 import org.hamcrest.text.IsEmptyString;
-
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -397,6 +397,52 @@ public class ResourceLocatorFunctionalTest {
         }
     }
 
+    /**
+     * reidirect schemeで絶対URLを指定した場合
+     */
+    @Ignore("5u12の仕様ではパスしないテストケース。リダイレクトの仕様変更にあわせてテストを実施するため、@Ignoreを付けている。")
+    @Test
+    public void redirectContentAbsoluteURL() {
+        final ResourceLocator sut = ResourceLocator.valueOf("redirect:http://action/menu");
+
+        assertThat(sut, allOf(
+                hasProperty("scheme", is("redirect")),
+                hasProperty("resourceName", isEmptyString()),
+                hasProperty("path", is("http://action/menu")),
+                hasProperty("redirect", is(true)),
+                hasProperty("relative", is(false)),
+                hasProperty("hostname", isEmptyString()),
+                hasProperty("directory", isEmptyString())
+        ));
+        assertThat("redirectの場合は常にfalse", sut.exists(), is(false));
+        assertThat(sut.toString(), is("redirect:http://action/menu"));
+
+        invalidOperationWithoutClasspathAndFileScheme(sut);
+    }
+
+    /**
+     * reidirect schemeで{@link ResourceLocator#SCHEMES 対応するスキーム名}以外のURIを指定した場合
+     */
+    @Ignore("5u12の仕様ではパスしないテストケース。リダイレクトの仕様変更にあわせてテストを実施するため、@Ignoreを付けている。")
+    @Test
+    public void redirectContentUnknownSchemes() {
+        final ResourceLocator sut = ResourceLocator.valueOf("redirect:URN:ISBN:978-4-7741-6931-6");
+
+        assertThat(sut, allOf(
+                hasProperty("scheme", is("redirect")),
+                hasProperty("resourceName", isEmptyString()),
+                hasProperty("path", is("URN:ISBN:978-4-7741-6931-6")),
+                hasProperty("redirect", is(true)),
+                hasProperty("relative", is(false)),
+                hasProperty("hostname", isEmptyString()),
+                hasProperty("directory", isEmptyString())
+        ));
+        assertThat("redirectの場合は常にfalse", sut.exists(), is(false));
+        assertThat(sut.toString(), is("redirect:URN:ISBN:978-4-7741-6931-6"));
+
+        invalidOperationWithoutClasspathAndFileScheme(sut);
+    }
+    
     /**
      * classpathとfile scheme以外で不正なオペレーションのアサートをする
      *

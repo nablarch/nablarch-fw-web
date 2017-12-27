@@ -44,6 +44,7 @@ import nablarch.test.support.log.app.OnMemoryLogWriter;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -920,6 +921,30 @@ public class HttpResponseHandlerTest {
         res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1\r\nCookie: JSESSIONID=" + jsessionid + "\r\n\r\n"), null);
         assertThat("リダイレクト先URLにjsessionidが付与されていないこと。",
                    res.getLocation(), not(containsString("jsessionid")));
+    }
+
+    /** 5u13から導入された形式のリダイレクトの場合、リダイレクト先のURLにjsessionidが付与されないこと。 */
+    @Ignore("5u12の仕様ではパスしないテストケース。リダイレクトの仕様変更にあわせてテストを実施するため、@Ignoreを付けている。")
+    @Test
+    public void testJsessionidNotAddedWhenRedirectedSince5u13NewStyle() {
+        HttpServer server = new HttpServer()
+                .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
+                .addHandler(new SessionConcurrentAccessHandler())
+                .addHandler("/redirect", new HttpRequestHandler() {
+                    public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
+                        return new HttpResponse().setContentPath("redirect:http://foo/bar/index.jsp");
+                    }
+                })
+                .startLocal();
+
+        // 内部リソースへのリダイレクトの場合、jsessionidが付与されること。
+        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), null);
+        assertThat("ステータスコードがリダイレクトであること。",
+                res.getStatusCode(), is(302));
+        String jsessionid = getCookieValue(res.getHeader("Set-Cookie"), "JSESSIONID");
+        assertThat("jsessionidが発行されていないこと。", jsessionid, is(nullValue()));
+        assertThat("リダイレクト先URLにjsessionidが付与されていないこと。",
+                res.getLocation(), not(containsString("jsessionid=")));
     }
 
     /**
