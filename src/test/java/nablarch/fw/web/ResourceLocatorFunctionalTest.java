@@ -298,21 +298,21 @@ public class ResourceLocatorFunctionalTest {
     public void directoryContent() throws Exception {
 
         final ResourceLocator sut = ResourceLocator.valueOf(
-                "file:///src/test/resources/nablarch/fw/web/resourceLocator");
+                "file://src/test/resources/nablarch/fw/web/resourceLocator");
 
         assertThat(sut, allOf(
                 hasProperty("scheme", is("file")),
                 hasProperty("resourceName", is("resourceLocator")),
-                hasProperty("path", is("/src/test/resources/nablarch/fw/web/resourceLocator")),
+                hasProperty("path", is("src/test/resources/nablarch/fw/web/resourceLocator")),
                 hasProperty("realPath", containsString("resourceLocator")),
                 hasProperty("redirect", is(false)),
-                hasProperty("relative", is(false)),
+                hasProperty("relative", is(true)),
                 hasProperty("hostname", isEmptyString()),
-                hasProperty("directory", is("/src/test/resources/nablarch/fw/web/"))
+                hasProperty("directory", is("src/test/resources/nablarch/fw/web/"))
         ));
         assertThat("ディレクトリはファイルとして扱えないのでfalse", sut.exists(), is(false));
         assertThat(sut.toString(),
-                is("file:///src/test/resources/nablarch/fw/web/resourceLocator"));
+                is("file://src/test/resources/nablarch/fw/web/resourceLocator"));
 
         // ディレクトリなのでアクセスできない
         try {
