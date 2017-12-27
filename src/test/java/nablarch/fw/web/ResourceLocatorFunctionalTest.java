@@ -160,7 +160,7 @@ public class ResourceLocatorFunctionalTest {
     }
 
     /**
-     * reidirect schemeの場合
+     * redirect schemeの場合
      *
      * @throws Exception
      */
@@ -398,7 +398,7 @@ public class ResourceLocatorFunctionalTest {
     }
 
     /**
-     * reidirect schemeで絶対URLを指定した場合
+     * redirect schemeで絶対URLを指定した場合
      */
     @Ignore("5u12の仕様ではパスしないテストケース。リダイレクトの仕様変更にあわせてテストを実施するため、@Ignoreを付けている。")
     @Test
@@ -421,7 +421,7 @@ public class ResourceLocatorFunctionalTest {
     }
 
     /**
-     * reidirect schemeで{@link ResourceLocator#SCHEMES 対応するスキーム名}以外のURIを指定した場合
+     * redirect schemeで{@link ResourceLocator#SCHEMES 対応するスキーム名}以外のURIを指定した場合
      */
     @Ignore("5u12の仕様ではパスしないテストケース。リダイレクトの仕様変更にあわせてテストを実施するため、@Ignoreを付けている。")
     @Test
