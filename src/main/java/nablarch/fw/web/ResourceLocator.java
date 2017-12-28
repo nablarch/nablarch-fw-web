@@ -77,10 +77,12 @@ import nablarch.core.util.annotation.Published;
  *     (書式)
  *         redirect://(リダイレクト先パス)
  *         http(s)://(リダイレクト先URL)
+ *         redirect:(リダイレクト先の絶対URL)
  *     (例)
  *         redirect://login             (現在のページからの相対パス)
  *         redirect:///UserAction/login (サーブレットコンテキストを起点とする相対パス)
  *         http://www.example.com/login (外部サイトのURL)
+ *         redirect:myapp://example.com (モバイルアプリのカスタムスキームを持つURL)
  *
  * このクラスは不変クラスである。
  * </pre>
@@ -135,6 +137,9 @@ public final class ResourceLocator {
     /** ディレクトリ */
     private final String directory;
 
+    /** 絶対URIを伴うリダイレクトかどうかを表すフラグ */
+    private final boolean redirectWithAbsoluteUri;
+
     /**
      * リソースの文字列表現から{@code ResourceLocator}オブジェクトを生成する。
      * <p/>
@@ -154,6 +159,30 @@ public final class ResourceLocator {
      * @param path リソースの文字列表現
      */
     private ResourceLocator(final String path) {
+
+        //5u13でサポートされた絶対URIを指定するredirectスキームの場合の処理
+        if (path.startsWith("redirect:")
+                //5u12でサポートされている形式のredirectスキームは除外する
+                && path.startsWith("redirect://") == false) {
+
+            final String maybeAbsoluteUri = path.substring("redirect:".length());
+
+            //"redirect:"に続く文字列はスキームを含んだ絶対URIでなければならない
+            if (ResourceLocatorInternalHelper.startsWithScheme(maybeAbsoluteUri) == false) {
+                LOG.logInfo("malformed resource path. resource path = " + path);
+                throw new HttpErrorResponse(400);
+            }
+
+            this.contentPath = path;
+            this.scheme = "redirect";
+            this.path = maybeAbsoluteUri;
+            this.resourceName = "";
+            this.hostname = "";
+            this.directory = "";
+            this.redirectWithAbsoluteUri = true;
+            return;
+        }
+        this.redirectWithAbsoluteUri = false;
 
         final Matcher matcher = EXTRACT_SCHEME_PATTERN.matcher(path);
         final String pathWithoutScheme;
@@ -192,6 +221,18 @@ public final class ResourceLocator {
     }
 
     /**
+     * 絶対URIを伴うリダイレクトかどうかを表すフラグを返す。
+     * 
+     * このメソッドはnablarch-fw-web内部からのみの使用を想定しており、
+     * package privateにしている。
+     * 
+     * @return 絶対URIを伴うリダイレクトかどうかを表すフラグ
+     */
+    boolean isRedirectWithAbsoluteUri() {
+        return redirectWithAbsoluteUri;
+    }
+
+    /**
      * 自身のスキームがhttp(https)スキームかどうかを返す。
      * @return http(https)の場合は{@code true}
      */
@@ -215,7 +256,7 @@ public final class ResourceLocator {
      *          コンテキストクラスローダ上のリソースである場合、常に{@code false}
      */
     public boolean isRelative() {
-        if (scheme.equals("classpath") || isHttpScheme()) {
+        if (scheme.equals("classpath") || isHttpScheme() || redirectWithAbsoluteUri) {
             return false;
         }
         return !path.startsWith("/");

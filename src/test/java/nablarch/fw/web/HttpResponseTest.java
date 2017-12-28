@@ -9,7 +9,6 @@ import static org.junit.Assert.fail;
 import nablarch.core.util.Builder;
 import nablarch.test.support.tool.Hereis;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.servlet.http.Cookie;
@@ -98,7 +97,6 @@ public class HttpResponseTest {
 
     }
 
-    @Ignore("5u12の仕様ではパスしないテストケース。リダイレクトの仕様変更にあわせてテストを実施するため、@Ignoreを付けている。")
     @Test
     public void testAccessorsToHttpStatus5u13NewStyleRedirection() {
         HttpResponse res = new HttpResponse("redirect:http://action/menu");

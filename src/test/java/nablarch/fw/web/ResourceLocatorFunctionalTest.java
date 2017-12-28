@@ -3,8 +3,7 @@ package nablarch.fw.web;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
 import static org.hamcrest.text.IsEmptyString.isEmptyString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -14,7 +13,6 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 
 import org.hamcrest.text.IsEmptyString;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -400,7 +398,6 @@ public class ResourceLocatorFunctionalTest {
     /**
      * redirect schemeで絶対URLを指定した場合
      */
-    @Ignore("5u12の仕様ではパスしないテストケース。リダイレクトの仕様変更にあわせてテストを実施するため、@Ignoreを付けている。")
     @Test
     public void redirectContentAbsoluteURL() {
         final ResourceLocator sut = ResourceLocator.valueOf("redirect:http://action/menu");
@@ -423,7 +420,6 @@ public class ResourceLocatorFunctionalTest {
     /**
      * redirect schemeで{@link ResourceLocator#SCHEMES 対応するスキーム名}以外のURIを指定した場合
      */
-    @Ignore("5u12の仕様ではパスしないテストケース。リダイレクトの仕様変更にあわせてテストを実施するため、@Ignoreを付けている。")
     @Test
     public void redirectContentUnknownSchemes() {
         final ResourceLocator sut = ResourceLocator.valueOf("redirect:URN:ISBN:978-4-7741-6931-6");
@@ -442,7 +438,46 @@ public class ResourceLocatorFunctionalTest {
 
         invalidOperationWithoutClasspathAndFileScheme(sut);
     }
-    
+
+    /**
+     * redirect schemeで5u12でサポートされている構文でスキームを含まない相対URIを指定した場合
+     */
+    @Test
+    public void redirectContentNotContainsSchemeWith5u12Syntax() {
+        final ResourceLocator sut = ResourceLocator.valueOf("redirect://foo/bar");
+
+        assertThat(sut, allOf(
+                hasProperty("scheme", is("redirect")),
+                hasProperty("resourceName", is("bar")),
+                hasProperty("path", is("foo/bar")),
+                hasProperty("redirect", is(true)),
+                hasProperty("relative", is(true)),
+                hasProperty("hostname", isEmptyString()),
+                hasProperty("directory", is("foo/"))
+        ));
+        assertThat("redirectの場合は常にfalse", sut.exists(), is(false));
+        assertThat(sut.toString(), is("redirect://foo/bar"));
+
+        invalidOperationWithoutClasspathAndFileScheme(sut);
+    }
+
+    /**
+     * redirect schemeの5u13からサポートされた構文でスキームを含まない相対URIを指定した場合はエラー
+     */
+    @Test
+    public void invalidRedirectContentNotContainsSchemeWith5u13Syntax() {
+        try {
+            //redirect:foo/bar というパスは5u12までの実装では
+            //servlet://redirect:foo/bar と解釈されていた。
+            //絶対URIを伴うredirect schemeをサポートすることで、
+            //このパスは不正とする。
+            ResourceLocator.valueOf("redirect:foo/bar");
+            fail();
+        } catch (HttpErrorResponse expected) {
+            assertThat(expected.getResponse().getStatusCode(), is(400));
+        }
+    }
+
     /**
      * classpathとfile scheme以外で不正なオペレーションのアサートをする
      *
