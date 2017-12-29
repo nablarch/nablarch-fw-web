@@ -20,7 +20,7 @@ public class ResourceLocatorInternalHelper {
      * 
      * @param path 評価対象となるパス
      * @return {@code path}がschemeとコロンから始まっていれば{@code true}
-     * @see https://tools.ietf.org/html/rfc3986#section-3.1
+     * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.1" rel="nofollow">RFC 3986 Section 3.1. Scheme</a>
      */
     public static boolean startsWithScheme(String path) {
         return STARTS_WITH_SCHEME_PATTERN.matcher(path).matches();
