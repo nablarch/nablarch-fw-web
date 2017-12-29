@@ -36,6 +36,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("directory", is("/hoge/fuga/")),
                 hasProperty("path", is("/hoge/fuga/image.png"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("httpでは存在チェックが無効(false)", sut.exists(), is(false));
         assertThat(sut.toString(), is("http://yourhost.com/hoge/fuga/image.png"));
 
@@ -59,6 +60,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("directory", is("/hoge/fuga/")),
                 hasProperty("path", is("/hoge/fuga/content?aa=bb#aa=bb"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("httpsでは存在チェックが無効(false)", sut.exists(), is(false));
         assertThat(sut.toString(), is("https://yourhost.com/hoge/fuga/content?aa=bb#aa=bb"));
 
@@ -82,6 +84,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("directory", is("")),
                 hasProperty("path", is(""))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         
         assertThat("httpでは存在チェックが無効(false)", sut.exists(), is(false));
         assertThat(sut.toString(), is("http://"));
@@ -107,6 +110,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("/WEB-INF/users/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("servletの場合は常にtrue", sut.exists(), is(true));
         assertThat(sut.toString(), is("servlet:///WEB-INF/users/index.jsp"));
 
@@ -129,6 +133,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("/WEB-INF/users/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("servletの場合は常にtrue", sut.exists(), is(true));
         assertThat(sut.toString(), is("servlet:///WEB-INF/users/index.jsp"));
         
@@ -151,6 +156,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", isEmptyString())
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("forwardの場合は常にtrue", sut.exists(), is(true));
         assertThat(sut.toString(), is("forward://index"));
 
@@ -175,6 +181,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("/action/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("redirectの場合は常にfalse", sut.exists(), is(false));
         assertThat(sut.toString(), is("redirect:///action/menu"));
 
@@ -197,6 +204,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("users/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("デフォルト(servlet)の場合は常にtrue", sut.exists(), is(true));
         assertThat(sut.toString(), is("servlet://users/index.jsp"));
 
@@ -221,6 +229,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("/nablarch/fw/web/resourceLocator/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("存在しているのでtrue", sut.exists(), is(true));
         assertThat(sut.toString(), is("classpath:///nablarch/fw/web/resourceLocator/classpathResource.txt"));
 
@@ -246,6 +255,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("/nablarch/fw/web/resourceLocator/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("存在していないのでfalse", sut.exists(), is(false));
         assertThat(sut.toString(), is("classpath:///nablarch/fw/web/resourceLocator/not_exists.txt"));
 
@@ -281,6 +291,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("src/test/resources/nablarch/fw/web/resourceLocator/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("存在している", sut.exists(), is(true));
         assertThat(sut.toString(),
                 is("file://src/test/resources/nablarch/fw/web/resourceLocator/classpathResource.txt"));
@@ -308,6 +319,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("src/test/resources/nablarch/fw/web/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("ディレクトリはファイルとして扱えないのでfalse", sut.exists(), is(false));
         assertThat(sut.toString(),
                 is("file://src/test/resources/nablarch/fw/web/resourceLocator"));
@@ -345,6 +357,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("src/test/resources/nablarch/fw/web/resourceLocator/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("存在しないファイルなのでfalse", sut.exists(), is(false));
         assertThat(sut.toString(),
                 is("file://src/test/resources/nablarch/fw/web/resourceLocator/notExists"));
@@ -411,6 +424,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", isEmptyString())
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(true));
         assertThat("redirectの場合は常にfalse", sut.exists(), is(false));
         assertThat(sut.toString(), is("redirect:http://action/menu"));
 
@@ -433,6 +447,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", isEmptyString())
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(true));
         assertThat("redirectの場合は常にfalse", sut.exists(), is(false));
         assertThat(sut.toString(), is("redirect:URN:ISBN:978-4-7741-6931-6"));
 
@@ -455,6 +470,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("foo/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("redirectの場合は常にfalse", sut.exists(), is(false));
         assertThat(sut.toString(), is("redirect://foo/bar"));
 
