@@ -34,6 +34,9 @@ public class NablarchServletContextListener implements ServletContextListener {
     /** 設定値に重複する設定が存在した場合の動作ポリシーの設定キー。 */
     private static final String DI_CONTAINER_DUPLICATE_DEFINITION_CONFIG_KEY = "di.duplicate-definition-policy";
 
+    /** staticプロパティインジェクションの許可設定キー。 */
+    private static final String DI_CONTAINER_ALLOW_STATIC_PROPERTY_KEY = "di.allow-static-property";
+
     /**
      * {@inheritDoc}<br/>
      * <br/>
@@ -71,9 +74,14 @@ public class NablarchServletContextListener implements ServletContextListener {
                 servletContext.getInitParameter(DI_CONTAINER_DUPLICATE_DEFINITION_CONFIG_KEY);
         DuplicateDefinitionPolicy policy = evaluateDuplicateDefinitionPolicy(duplicateDefinitionPolicy);
 
+        // staticプロパティへのインジェクションを許可するか
+        String allowStaticProperty = servletContext.getInitParameter(DI_CONTAINER_ALLOW_STATIC_PROPERTY_KEY);
+        boolean isStaticPropertyAllowed = evaluateAllowStaticProperty(
+                allowStaticProperty);
+
         // リポジトリ初期化
         ComponentDefinitionLoader loader = new XmlComponentDefinitionLoader(configFile, policy);
-        DiContainer container = new DiContainer(loader);
+        DiContainer container = new DiContainer(loader, isStaticPropertyAllowed);
         SystemRepository.load(container);
     }
 
@@ -93,6 +101,16 @@ public class NablarchServletContextListener implements ServletContextListener {
             throw new IllegalArgumentException("Illegal duplicate definition policy was specified."
                     + DI_CONTAINER_DUPLICATE_DEFINITION_CONFIG_KEY + " = " + stringExpression, e);
         }
+    }
+
+    /**
+     * 文字列から、staticプロパティインジェクションの許可設定を評価する。
+     *
+     * @param stringExpression 文字列表現
+     * @return staticプロパティインジェクションの許可設定
+     */
+    private boolean evaluateAllowStaticProperty(String stringExpression) {
+        return stringExpression != null && Boolean.parseBoolean(stringExpression);
     }
 
     /**

@@ -1,6 +1,9 @@
 package nablarch.fw.web.servlet;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertNotNull;
@@ -22,6 +25,8 @@ import nablarch.core.repository.SystemRepository;
 import nablarch.core.repository.di.ConfigurationLoadException;
 import nablarch.core.repository.di.DiContainer;
 import nablarch.core.repository.di.config.xml.XmlComponentDefinitionLoader;
+import nablarch.fw.web.servlet.staticprop.Bar;
+import nablarch.fw.web.servlet.staticprop.Foo;
 import nablarch.test.support.log.app.OnMemoryLogWriter;
 import nablarch.test.support.tool.Hereis;
 
@@ -37,6 +42,7 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
     private void clear() {
         SystemRepository.clear();
         OnMemoryLogWriter.clear();
+        Foo.setBar(null);
     }
     
     /**
@@ -245,7 +251,39 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
         
         Thread.currentThread().setContextClassLoader(defaultCL);
     }
-    
+
+    /** 初期パラメータで、staticプロパティへのインジェクションを許可した場合、staticプロパティにインジェクションが行われること。 */
+    @Test
+    public void testAllowStaticProperty() {
+        MockServletContext ctx = new MockServletContext();
+        ctx.getInitParams().put("di.config", "classpath:nablarch/fw/web/servlet/staticprop/static-property-injection-autowire.xml");
+        ctx.getInitParams().put("di.allow-static-property", "true");
+        ServletContextEvent ctxEvt = new ServletContextEvent(ctx);
+        ServletContextListener listener = new NablarchServletContextListener();
+
+        clear();
+        listener.contextInitialized(ctxEvt);
+
+        Bar bar = SystemRepository.get("bar");
+        assertThat(Foo.getBar(), is(sameInstance(bar)));;
+    }
+
+    /** デフォルトでは、staticプロパティにインジェクションが行われないこと。 */
+    @Test
+    public void testDisallowStaticPropertyByDefault() {
+        MockServletContext ctx = new MockServletContext();
+        ctx.getInitParams().put("di.config", "classpath:nablarch/fw/web/servlet/staticprop/static-property-injection-autowire.xml");
+
+        ServletContextEvent ctxEvt = new ServletContextEvent(ctx);
+        ServletContextListener listener = new NablarchServletContextListener();
+
+        clear();
+        listener.contextInitialized(ctxEvt);
+
+        assertThat(Foo.getBar(), is(nullValue()));;
+    }
+
+
     public static final class Book {
         private String name;
         
