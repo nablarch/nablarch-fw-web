@@ -12,7 +12,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 
-import org.hamcrest.text.IsEmptyString;
 import org.junit.Test;
 
 /**
