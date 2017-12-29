@@ -169,6 +169,10 @@ public final class ResourceLocator {
 
             //"redirect:"に続く文字列はスキームを含んだ絶対URIでなければならない
             if (ResourceLocatorInternalHelper.startsWithScheme(maybeAbsoluteUri) == false) {
+                //既存コードが不正なスキームを含んでいた場合にログを出力して
+                //400 Bad RequestとなるようHttpErrorResponseを投げている。
+                //そうしている設計の意図を汲めてはいないが、ResourceLocatorクラス内での
+                //統一感を保つため、その設計を踏襲しておく。
                 LOG.logInfo("malformed resource path. resource path = " + path);
                 throw new HttpErrorResponse(400);
             }
