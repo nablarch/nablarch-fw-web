@@ -927,9 +927,10 @@ public class HttpResponseHandlerTest {
     public void testJsessionidNotAddedWhenRedirectedSince5u13NewStyle() {
         HttpServer server = new HttpServer()
                 .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
-                .addHandler(new SessionConcurrentAccessHandler())
                 .addHandler("/redirect", new HttpRequestHandler() {
                     public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
+                        //セッションを作る
+                        ctx.getSessionScopeMap();
                         return new HttpResponse().setContentPath("redirect:http://foo/bar/index.jsp");
                     }
                 })
