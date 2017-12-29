@@ -936,7 +936,6 @@ public class HttpResponseHandlerTest {
                 })
                 .startLocal();
 
-        // 内部リソースへのリダイレクトの場合、jsessionidが付与されること。
         HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), null);
         assertThat("ステータスコードがリダイレクトであること。",
                 res.getStatusCode(), is(302));
