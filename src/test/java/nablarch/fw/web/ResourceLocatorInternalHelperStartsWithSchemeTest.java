@@ -13,7 +13,7 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 /**
- * {@link ResourceLocator#startsWithScheme(String)}のテスト
+ * {@link ResourceLocatorInternalHelper#startsWithScheme(String)}のテスト
  */
 @RunWith(Parameterized.class)
 public class ResourceLocatorInternalHelperStartsWithSchemeTest {
