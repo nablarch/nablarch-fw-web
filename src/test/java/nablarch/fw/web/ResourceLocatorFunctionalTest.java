@@ -380,7 +380,7 @@ public class ResourceLocatorFunctionalTest {
      * 許可されないスキームを指定した場合
      */
     @Test
-    public void disallowdScheme() {
+    public void disallowedScheme() {
         String scheme = "disallowed";
         assertThat(ResourceLocator.SCHEMES, not(containsString(scheme)));
         try {
