@@ -7,11 +7,18 @@ import java.util.regex.Pattern;
  * 
  * @author Taichi Uragami
  */
-public class ResourceLocatorInternalHelper {
+public final class ResourceLocatorInternalHelper {
 
     /** スキームから開始される文字列であるか検証するための正規表現 */
     private static final Pattern STARTS_WITH_SCHEME_PATTERN = Pattern
             .compile("[A-Za-z][A-Za-z0-9+-.]*:.*");
+
+    /**
+     * インスタンス化させない。
+     */
+    private ResourceLocatorInternalHelper() {
+        //NOP
+    }
 
     /**
      * 渡された{@code path}がschemeとコロンから始まるかどうか判断して結果を返す。
