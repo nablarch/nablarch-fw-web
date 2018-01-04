@@ -3,8 +3,7 @@ package nablarch.fw.web;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
 import static org.hamcrest.text.IsEmptyString.isEmptyString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -12,8 +11,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
-
-import org.hamcrest.text.IsEmptyString;
 
 import org.junit.Test;
 
@@ -38,6 +35,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("directory", is("/hoge/fuga/")),
                 hasProperty("path", is("/hoge/fuga/image.png"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("httpでは存在チェックが無効(false)", sut.exists(), is(false));
         assertThat(sut.toString(), is("http://yourhost.com/hoge/fuga/image.png"));
 
@@ -61,6 +59,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("directory", is("/hoge/fuga/")),
                 hasProperty("path", is("/hoge/fuga/content?aa=bb#aa=bb"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("httpsでは存在チェックが無効(false)", sut.exists(), is(false));
         assertThat(sut.toString(), is("https://yourhost.com/hoge/fuga/content?aa=bb#aa=bb"));
 
@@ -84,6 +83,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("directory", is("")),
                 hasProperty("path", is(""))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         
         assertThat("httpでは存在チェックが無効(false)", sut.exists(), is(false));
         assertThat(sut.toString(), is("http://"));
@@ -109,6 +109,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("/WEB-INF/users/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("servletの場合は常にtrue", sut.exists(), is(true));
         assertThat(sut.toString(), is("servlet:///WEB-INF/users/index.jsp"));
 
@@ -131,6 +132,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("/WEB-INF/users/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("servletの場合は常にtrue", sut.exists(), is(true));
         assertThat(sut.toString(), is("servlet:///WEB-INF/users/index.jsp"));
         
@@ -153,6 +155,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", isEmptyString())
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("forwardの場合は常にtrue", sut.exists(), is(true));
         assertThat(sut.toString(), is("forward://index"));
 
@@ -160,7 +163,7 @@ public class ResourceLocatorFunctionalTest {
     }
 
     /**
-     * reidirect schemeの場合
+     * redirect schemeの場合
      *
      * @throws Exception
      */
@@ -177,6 +180,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("/action/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("redirectの場合は常にfalse", sut.exists(), is(false));
         assertThat(sut.toString(), is("redirect:///action/menu"));
 
@@ -199,6 +203,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("users/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("デフォルト(servlet)の場合は常にtrue", sut.exists(), is(true));
         assertThat(sut.toString(), is("servlet://users/index.jsp"));
 
@@ -223,6 +228,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("/nablarch/fw/web/resourceLocator/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("存在しているのでtrue", sut.exists(), is(true));
         assertThat(sut.toString(), is("classpath:///nablarch/fw/web/resourceLocator/classpathResource.txt"));
 
@@ -248,6 +254,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("/nablarch/fw/web/resourceLocator/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("存在していないのでfalse", sut.exists(), is(false));
         assertThat(sut.toString(), is("classpath:///nablarch/fw/web/resourceLocator/not_exists.txt"));
 
@@ -283,6 +290,7 @@ public class ResourceLocatorFunctionalTest {
                 hasProperty("hostname", isEmptyString()),
                 hasProperty("directory", is("src/test/resources/nablarch/fw/web/resourceLocator/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("存在している", sut.exists(), is(true));
         assertThat(sut.toString(),
                 is("file://src/test/resources/nablarch/fw/web/resourceLocator/classpathResource.txt"));
@@ -298,21 +306,22 @@ public class ResourceLocatorFunctionalTest {
     public void directoryContent() throws Exception {
 
         final ResourceLocator sut = ResourceLocator.valueOf(
-                "file:///src/test/resources/nablarch/fw/web/resourceLocator");
+                "file://src/test/resources/nablarch/fw/web/resourceLocator");
 
         assertThat(sut, allOf(
                 hasProperty("scheme", is("file")),
                 hasProperty("resourceName", is("resourceLocator")),
-                hasProperty("path", is("/src/test/resources/nablarch/fw/web/resourceLocator")),
+                hasProperty("path", is("src/test/resources/nablarch/fw/web/resourceLocator")),
                 hasProperty("realPath", containsString("resourceLocator")),
                 hasProperty("redirect", is(false)),
-                hasProperty("relative", is(false)),
+                hasProperty("relative", is(true)),
                 hasProperty("hostname", isEmptyString()),
-                hasProperty("directory", is("/src/test/resources/nablarch/fw/web/"))
+                hasProperty("directory", is("src/test/resources/nablarch/fw/web/"))
         ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
         assertThat("ディレクトリはファイルとして扱えないのでfalse", sut.exists(), is(false));
         assertThat(sut.toString(),
-                is("file:///src/test/resources/nablarch/fw/web/resourceLocator"));
+                is("file://src/test/resources/nablarch/fw/web/resourceLocator"));
 
         // ディレクトリなのでアクセスできない
         try {
@@ -326,6 +335,162 @@ public class ResourceLocatorFunctionalTest {
         } catch (FileNotFoundException ignore) {
         }
 
+    }
+
+    /**
+     * file schemeで存在しないファイルを指定した場合
+     */
+    @Test
+    public void fileContentNotExists() throws Exception {
+
+        final ResourceLocator sut = ResourceLocator.valueOf(
+                "file://src/test/resources/nablarch/fw/web/resourceLocator/notExists");
+
+        assertThat(sut, allOf(
+                hasProperty("scheme", is("file")),
+                hasProperty("resourceName", is("notExists")),
+                hasProperty("path", is("src/test/resources/nablarch/fw/web/resourceLocator/notExists")),
+                hasProperty("realPath", containsString("notExists")),
+                hasProperty("redirect", is(false)),
+                hasProperty("relative", is(true)),
+                hasProperty("hostname", isEmptyString()),
+                hasProperty("directory", is("src/test/resources/nablarch/fw/web/resourceLocator/"))
+        ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
+        assertThat("存在しないファイルなのでfalse", sut.exists(), is(false));
+        assertThat(sut.toString(),
+                is("file://src/test/resources/nablarch/fw/web/resourceLocator/notExists"));
+
+        // 存在しないファイルなのでアクセスできない
+        try {
+            sut.getReader();
+            fail("");
+        } catch (FileNotFoundException ignore) {
+        }
+        try {
+            sut.getInputStream();
+            fail("");
+        } catch (FileNotFoundException ignore) {
+        }
+
+    }
+
+    /**
+     * 許可されないスキームを指定した場合
+     */
+    @Test
+    public void disallowedScheme() {
+        String scheme = "disallowed";
+        assertThat(ResourceLocator.SCHEMES, not(containsString(scheme)));
+        try {
+            String path = scheme + "://foo/bar";
+            ResourceLocator.valueOf(path);
+            fail();
+        } catch (HttpErrorResponse expected) {
+            assertThat(expected.getResponse().getStatusCode(), is(400));
+        }
+    }
+
+    /**
+     * ディレクトリが許可されない文字を含んでいた場合
+     */
+    @Test
+    public void httpContentDisallowedDirectory() {
+        String directory = "x..z";
+        assertThat(ResourceLocator.ALLOWED_CHAR.matcher(directory).matches(), is(false));
+        try {
+            String path = "http://yourhost.com/" + directory + "/index.html";
+            ResourceLocator.valueOf(path);
+            fail();
+        } catch (HttpErrorResponse expected) {
+            assertThat(expected.getResponse().getStatusCode(), is(400));
+        }
+    }
+
+    /**
+     * redirect schemeで絶対URLを指定した場合
+     */
+    @Test
+    public void redirectContentAbsoluteURL() {
+        final ResourceLocator sut = ResourceLocator.valueOf("redirect:http://action/menu");
+
+        assertThat(sut, allOf(
+                hasProperty("scheme", is("redirect")),
+                hasProperty("resourceName", isEmptyString()),
+                hasProperty("path", is("http://action/menu")),
+                hasProperty("redirect", is(true)),
+                hasProperty("relative", is(false)),
+                hasProperty("hostname", isEmptyString()),
+                hasProperty("directory", isEmptyString())
+        ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(true));
+        assertThat("redirectの場合は常にfalse", sut.exists(), is(false));
+        assertThat(sut.toString(), is("redirect:http://action/menu"));
+
+        invalidOperationWithoutClasspathAndFileScheme(sut);
+    }
+
+    /**
+     * redirect schemeで{@link ResourceLocator#SCHEMES 対応するスキーム名}以外のURIを指定した場合
+     */
+    @Test
+    public void redirectContentUnknownSchemes() {
+        final ResourceLocator sut = ResourceLocator.valueOf("redirect:URN:ISBN:978-4-7741-6931-6");
+
+        assertThat(sut, allOf(
+                hasProperty("scheme", is("redirect")),
+                hasProperty("resourceName", isEmptyString()),
+                hasProperty("path", is("URN:ISBN:978-4-7741-6931-6")),
+                hasProperty("redirect", is(true)),
+                hasProperty("relative", is(false)),
+                hasProperty("hostname", isEmptyString()),
+                hasProperty("directory", isEmptyString())
+        ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(true));
+        assertThat("redirectの場合は常にfalse", sut.exists(), is(false));
+        assertThat(sut.toString(), is("redirect:URN:ISBN:978-4-7741-6931-6"));
+
+        invalidOperationWithoutClasspathAndFileScheme(sut);
+    }
+
+    /**
+     * redirect schemeで5u12でサポートされている構文でスキームを含まない相対URIを指定した場合
+     */
+    @Test
+    public void redirectContentNotContainsSchemeWith5u12Syntax() {
+        final ResourceLocator sut = ResourceLocator.valueOf("redirect://foo/bar");
+
+        assertThat(sut, allOf(
+                hasProperty("scheme", is("redirect")),
+                hasProperty("resourceName", is("bar")),
+                hasProperty("path", is("foo/bar")),
+                hasProperty("redirect", is(true)),
+                hasProperty("relative", is(true)),
+                hasProperty("hostname", isEmptyString()),
+                hasProperty("directory", is("foo/"))
+        ));
+        assertThat(sut.isRedirectWithAbsoluteUri(), is(false));
+        assertThat("redirectの場合は常にfalse", sut.exists(), is(false));
+        assertThat(sut.toString(), is("redirect://foo/bar"));
+
+        invalidOperationWithoutClasspathAndFileScheme(sut);
+    }
+
+    /**
+     * redirect schemeの5u13からサポートされた構文でスキームを含まない相対URIを指定した場合はエラー
+     */
+    @Test
+    public void invalidRedirectContentNotContainsSchemeWith5u13Syntax() {
+        try {
+            //redirect:foo/bar というパスは5u12までの実装では
+            //servlet://redirect:foo/bar と解釈されていた。
+            //絶対URIを伴うredirect schemeをサポートすることで、
+            //このパスは不正とする。
+            ResourceLocator.valueOf("redirect:foo/bar");
+            fail();
+        } catch (HttpErrorResponse expected) {
+            assertThat(expected.getResponse().getStatusCode(), is(400));
+        }
     }
 
     /**

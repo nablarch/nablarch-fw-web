@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 
 import nablarch.core.util.Builder;
 import nablarch.test.support.tool.Hereis;
+
 import org.junit.Test;
 
 import javax.servlet.http.Cookie;
@@ -94,6 +95,15 @@ public class HttpResponseTest {
         res = new HttpResponse("redirect://xxx/yyy");
         assertEquals(302, res.getStatusCode());
 
+    }
+
+    @Test
+    public void testAccessorsToHttpStatus5u13NewStyleRedirection() {
+        HttpResponse res = new HttpResponse("redirect:http://action/menu");
+        assertEquals(302, res.getStatusCode());
+
+        res = new HttpResponse("redirect:URN:ISBN:978-4-7741-6931-6");
+        assertEquals(302, res.getStatusCode());
     }
 
     @Test

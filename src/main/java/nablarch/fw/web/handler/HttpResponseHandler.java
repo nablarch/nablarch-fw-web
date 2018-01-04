@@ -26,6 +26,7 @@ import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.HttpResponse.Status;
 import nablarch.fw.web.ResourceLocator;
+import nablarch.fw.web.ResourceLocatorInternalHelper;
 import nablarch.fw.web.ResponseBody;
 import nablarch.fw.web.download.encorder.DownloadFileNameEncoder;
 import nablarch.fw.web.download.encorder.DownloadFileNameEncoderFactory;
@@ -332,11 +333,20 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
     private void doRedirect(HttpResponse res, ServletExecutionContext ctx) throws IOException {
         setHeaders(res, ctx);
         ResourceLocator path = res.getContentPath();
-        String to = path.getScheme().matches("https?") ? path.toString()
-                  : path.isRelative() ? path.getPath()
-                  : ctx.getServletContext().getContextPath() + path.getPath();
+        
         HttpServletResponse servletResponse = ctx.getServletResponse();
-        to = servletResponse.encodeRedirectURL(to);
+        final String to;
+        if (ResourceLocatorInternalHelper.isRedirectWithAbsoluteUri(path)) {
+            //絶対URIへのリダイレクトの場合はセッションIDが付与されると
+            //セキュリティホールになってしまうので
+            //HttpServletResponse#encodeRedirectURLは適用しない。
+            to = path.getPath();
+        } else {
+            String rawTo = path.getScheme().matches("https?") ? path.toString()
+                      : path.isRelative() ? path.getPath()
+                      : ctx.getServletContext().getContextPath() + path.getPath();
+            to = servletResponse.encodeRedirectURL(rawTo);
+        }
 
         // 302の場合は、sendRedirectを使用してリダイレクト
         // それ以外の場合は、Locationヘッダを使用してリダイレクト

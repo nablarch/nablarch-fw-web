@@ -922,6 +922,30 @@ public class HttpResponseHandlerTest {
                    res.getLocation(), not(containsString("jsessionid")));
     }
 
+    /** 5u13から導入された形式のリダイレクトの場合、リダイレクト先のURLにjsessionidが付与されないこと。 */
+    @Test
+    public void testJsessionidNotAddedWhenRedirectedSince5u13NewStyle() {
+        HttpServer server = new HttpServer()
+                .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
+                .addHandler("/redirect", new HttpRequestHandler() {
+                    public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
+                        //セッションを作る
+                        ctx.getSessionScopeMap();
+                        return new HttpResponse().setContentPath("redirect:http://foo/bar/index.jsp");
+                    }
+                })
+                .startLocal();
+
+        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), null);
+        assertThat("ステータスコードがリダイレクトであること。",
+                res.getStatusCode(), is(302));
+        String jsessionid = getCookieValue(res.getHeader("Set-Cookie"), "JSESSIONID");
+        //セッションが作られること自体に問題はない
+        assertThat("jsessionidが発行されていること。", jsessionid, is(notNullValue()));
+        assertThat("リダイレクト先URLにjsessionidが付与されていないこと。",
+                res.getLocation(), not(containsString("jsessionid=")));
+    }
+
     /**
      * ステータスコード(303)を設定してリダイレクトを行う場合、そのステータスコードがレスポンスヘッダーに設定されること。
      * @throws Exception
