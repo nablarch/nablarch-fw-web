@@ -173,8 +173,7 @@ public final class ResourceLocator {
                 //400 Bad RequestとなるようHttpErrorResponseを投げている。
                 //そうしている設計の意図を汲めてはいないが、ResourceLocatorクラス内での
                 //統一感を保つため、その設計を踏襲しておく。
-                LOG.logInfo("malformed resource path. resource path = " + path);
-                throw new HttpErrorResponse(400);
+                throw createResponseForMalformedResourcePath(path);
             }
 
             this.contentPath = path;
@@ -194,8 +193,7 @@ public final class ResourceLocator {
             scheme = matcher.group(1);
             if (!ALLOWED_SCHEMES.matcher(scheme)
                                .matches()) {
-                LOG.logInfo("malformed resource path. resource path = " + path);
-                throw new HttpErrorResponse(400);
+                throw createResponseForMalformedResourcePath(path);
             }
             pathWithoutScheme = path.substring(matcher.end());
             contentPath = path;
@@ -407,6 +405,17 @@ public final class ResourceLocator {
         return directory;
     }
 
+    /**
+     * リソースのパスが不正な場合にスローされる例外を生成する。
+     * 
+     * @param path パス
+     * @return 生成された例外
+     */
+    private static HttpErrorResponse createResponseForMalformedResourcePath(final String path) {
+        LOG.logInfo("malformed resource path. resource path = " + path);
+        return new HttpErrorResponse(400);
+    }
+
     private static class Resource {
 
         private final String directory;
@@ -426,8 +435,7 @@ public final class ResourceLocator {
             for (final String s : directory.split("/")) {
                 if (!ALLOWED_CHAR.matcher(s + '/')
                                  .matches()) {
-                    LOG.logInfo("malformed resource path. resource path = " + path);
-                    throw new HttpErrorResponse(400);
+                    throw createResponseForMalformedResourcePath(path);
                 }
             }
         }
