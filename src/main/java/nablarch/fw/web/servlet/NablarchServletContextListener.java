@@ -76,8 +76,7 @@ public class NablarchServletContextListener implements ServletContextListener {
 
         // staticプロパティへのインジェクションを許可するか
         String allowStaticProperty = servletContext.getInitParameter(DI_CONTAINER_ALLOW_STATIC_PROPERTY_KEY);
-        boolean isStaticPropertyAllowed = evaluateAllowStaticProperty(
-                allowStaticProperty);
+        boolean isStaticPropertyAllowed = evaluateAllowStaticProperty(allowStaticProperty);
 
         // リポジトリ初期化
         ComponentDefinitionLoader loader = new XmlComponentDefinitionLoader(configFile, policy);

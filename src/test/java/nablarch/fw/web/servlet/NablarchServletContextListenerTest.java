@@ -23,6 +23,7 @@ import nablarch.core.log.Logger;
 import nablarch.core.log.LoggerManager;
 import nablarch.core.repository.SystemRepository;
 import nablarch.core.repository.di.ConfigurationLoadException;
+import nablarch.core.repository.di.ContainerProcessException;
 import nablarch.core.repository.di.DiContainer;
 import nablarch.core.repository.di.config.xml.XmlComponentDefinitionLoader;
 import nablarch.fw.web.servlet.staticprop.Bar;
@@ -268,7 +269,7 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
         assertThat(Foo.getBar(), is(sameInstance(bar)));;
     }
 
-    /** デフォルトでは、staticプロパティにインジェクションが行われないこと。 */
+    /** デフォルトでは、staticプロパティにインジェクションが行われず例外が発生すること。 */
     @Test
     public void testDisallowStaticPropertyByDefault() {
         MockServletContext ctx = new MockServletContext();
@@ -278,9 +279,13 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
         ServletContextListener listener = new NablarchServletContextListener();
 
         clear();
-        listener.contextInitialized(ctxEvt);
-
-        assertThat(Foo.getBar(), is(nullValue()));;
+        try {
+            listener.contextInitialized(ctxEvt);
+            fail("staticを許容しない場合、staticプロパティインジェクション時に例外が発生しなければならない");
+        } catch (ContainerProcessException e) {
+            assertThat(e.getMessage(),
+                       is("static property injection not allowed. component=[foo] property=[bar]"));
+        }
     }
 
 
