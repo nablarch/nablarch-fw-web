@@ -76,7 +76,7 @@ public class NablarchServletContextListener implements ServletContextListener {
 
         // staticプロパティへのインジェクションを許可するか
         String allowStaticProperty = servletContext.getInitParameter(DI_CONTAINER_ALLOW_STATIC_PROPERTY_KEY);
-        boolean isStaticPropertyAllowed = evaluateAllowStaticProperty(allowStaticProperty);
+        boolean isStaticPropertyAllowed = Boolean.parseBoolean(allowStaticProperty);
 
         // リポジトリ初期化
         ComponentDefinitionLoader loader = new XmlComponentDefinitionLoader(configFile, policy);
@@ -100,16 +100,6 @@ public class NablarchServletContextListener implements ServletContextListener {
             throw new IllegalArgumentException("Illegal duplicate definition policy was specified."
                     + DI_CONTAINER_DUPLICATE_DEFINITION_CONFIG_KEY + " = " + stringExpression, e);
         }
-    }
-
-    /**
-     * 文字列から、staticプロパティインジェクションの許可設定を評価する。
-     *
-     * @param stringExpression 文字列表現
-     * @return staticプロパティインジェクションの許可設定
-     */
-    private boolean evaluateAllowStaticProperty(String stringExpression) {
-        return stringExpression != null && Boolean.parseBoolean(stringExpression);
     }
 
     /**
