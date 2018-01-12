@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -22,6 +23,7 @@ import nablarch.fw.web.HttpResponse;
  * @author Taichi Uragami
  *
  */
+@Ignore("要望対応後の検証のためにテストケースを修正。プロダクションコード修正後に@Ignoreを外す。")
 @RunWith(Parameterized.class)
 public class ContentDispositionRawValueTest {
 
@@ -60,16 +62,19 @@ public class ContentDispositionRawValueTest {
         List<Fixture> fixtures = new ArrayList<Fixture>();
 
         fixtures.add(new Fixture("attachment; filename=\"ファイル名.txt\"",
-                true, "ファイル名.txt", "attachment; filename=\"エンコード済み.txt\""));
+                true, "ファイル名.txt",
+                "attachment; filename*=UTF-8''%E3%82%A8%E3%83%B3%E3%82%B3%E3%83%BC%E3%83%89%E6%B8%88%E3%81%BF.txt; filename=\"エンコード済み.txt\""));
 
         fixtures.add(new Fixture("inline; filename=\"ファイル名.txt\"",
-                true, "ファイル名.txt", "inline; filename=\"エンコード済み.txt\""));
+                true, "ファイル名.txt",
+                "inline; filename*=UTF-8''%E3%82%A8%E3%83%B3%E3%82%B3%E3%83%BC%E3%83%89%E6%B8%88%E3%81%BF.txt; filename=\"エンコード済み.txt\""));
 
         fixtures.add(new Fixture("attachment; filename=hoge.txt",
                 false, nothing, nothing));
 
         fixtures.add(new Fixture("attachment; filename=\"hoge.txt\"",
-                true, "hoge.txt", "attachment; filename=\"エンコード済み.txt\""));
+                true, "hoge.txt",
+                "attachment; filename*=UTF-8''%E3%82%A8%E3%83%B3%E3%82%B3%E3%83%BC%E3%83%89%E6%B8%88%E3%81%BF.txt; filename=\"エンコード済み.txt\""));
 
         fixtures.add(new Fixture("attachment",
                 false, nothing, nothing));
