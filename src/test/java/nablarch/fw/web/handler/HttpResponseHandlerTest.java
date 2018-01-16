@@ -830,10 +830,11 @@ public class HttpResponseHandlerTest {
                 new MockHttpRequest("GET /test1 HTTP/1.1"), null
         );
         
-        String dispositionTemplate = "attachment; filename=\"%s\"";
+        String dispositionTemplate = "attachment; filename*=UTF-8''%1$s; filename=\"%2$s\"";
         
         String disposition = String.format(
             dispositionTemplate
+          , new UrlDownloadFileNameEncoder().encode("データファイル１")
           , new UrlDownloadFileNameEncoder().encode("データファイル１")
         );
         
@@ -850,6 +851,7 @@ public class HttpResponseHandlerTest {
         );
         disposition = String.format(
             dispositionTemplate
+          , new UrlDownloadFileNameEncoder().encode("データファイル１")
           , new MimeBDownloadFileNameEncoder().encode("データファイル１")
         );
             
@@ -865,6 +867,7 @@ public class HttpResponseHandlerTest {
         );
         disposition = String.format(
             dispositionTemplate
+          , new UrlDownloadFileNameEncoder().encode("データファイル１")
           , new UrlDownloadFileNameEncoder().encode("データファイル１")
         );
             

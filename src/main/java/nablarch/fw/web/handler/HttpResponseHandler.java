@@ -6,8 +6,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketException;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -450,16 +448,15 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
      */
     private String replaceContentDisposition(String dispositionValue,
                                                     HttpServletRequest nativeReq) {
-        Pattern pattern = Pattern.compile("(.*filename=\")(.*)(\".*)");
-        Matcher matcher = pattern.matcher(dispositionValue);
-        if (!matcher.matches()) {
+        ContentDispositionRawValue cdrv = new ContentDispositionRawValue(dispositionValue);
+        if (cdrv.needsToBeEncoded() == false) {
             return dispositionValue;
         }
         String userAgent = nativeReq.getHeader(USER_AGENT);
         DownloadFileNameEncoder
         encoder = downloadFileNameEncoderFactory.getEncoder(userAgent);
-        String encodedFileName = encoder.encode(matcher.group(2));
-        return matcher.replaceFirst("$1" + encodedFileName + "$3");
+        String encodedFileName = encoder.encode(cdrv.getRawFileName());
+        return cdrv.buildEncodedValue(encodedFileName);
     }
 
     /**
