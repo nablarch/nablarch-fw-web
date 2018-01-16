@@ -102,10 +102,24 @@ class ContentDispositionRawValue {
         return buf.toString();
     }
 
+    /**
+     * パラメーターのキーを正規化する。
+     * 
+     * <p>
+     * パラメーターのキーはcase insensitiveなので検索のために正規化する。
+     * </p>
+     * 
+     * @param key 正規化する前のキー
+     * @return 正規化したキー
+     */
     private static String normalizeKey(String key) {
         return key.toLowerCase();
     }
 
+    /**
+     * Content-Dispositionヘッダの値が含んでいるパラメーターを表すクラス。
+     *
+     */
     private class Param {
 
         /** コンストラクタで受け取ったキー */
