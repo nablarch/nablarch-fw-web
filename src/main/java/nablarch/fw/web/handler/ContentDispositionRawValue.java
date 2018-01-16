@@ -171,7 +171,7 @@ class ContentDispositionRawValue {
             if (isFilenameParam && containsFilenameExtParam == false) {
                 buf.append("; ")
                         .append(FILENAME_EXT_PARAM_NAME)
-                        .append("=")
+                        .append('=')
                         .append("UTF-8''").append(UTF8_URL_ENCODER.encode(value));
             }
 
