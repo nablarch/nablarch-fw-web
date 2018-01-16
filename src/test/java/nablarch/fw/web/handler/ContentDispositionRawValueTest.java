@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.junit.Assume;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -23,7 +22,6 @@ import nablarch.fw.web.HttpResponse;
  * @author Taichi Uragami
  *
  */
-@Ignore("要望対応後の検証のためにテストケースを修正。プロダクションコード修正後に@Ignoreを外す。")
 @RunWith(Parameterized.class)
 public class ContentDispositionRawValueTest {
 
