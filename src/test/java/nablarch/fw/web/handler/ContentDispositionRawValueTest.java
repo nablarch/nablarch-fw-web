@@ -37,52 +37,86 @@ public class ContentDispositionRawValueTest {
         sut = new ContentDispositionRawValue(fixture.rawValue);
     }
 
+    /**
+     * {@link ContentDispositionRawValue#needsToBeEncoded()}のテスト。
+     */
     @Test
     public void needsToBeEncoded() {
         assertThat(sut.needsToBeEncoded(), is(fixture.expectedNeedsToBeEncoded));
     }
 
+    /**
+     * {@link ContentDispositionRawValue#getRawFileName()}のテスト。
+     * 
+     * {@link ContentDispositionRawValue#needsToBeEncoded()}がfalseの場合はエンコード不要なのでテストをスキップする。
+     */
     @Test
     public void getRawFileName() {
         Assume.assumeTrue(fixture.rawValue + " はエンコード不要", sut.needsToBeEncoded());
         assertThat(sut.getRawFileName(), is(fixture.expectedGetRawFileName));
     }
 
+    /**
+     * {@link ContentDispositionRawValue#buildEncodedValue(String)}のテスト。
+     * 
+     * {@link ContentDispositionRawValue#needsToBeEncoded()}がfalseの場合はエンコード不要なのでテストをスキップする。
+     */
     @Test
     public void buildEncodedValue() {
         Assume.assumeTrue(fixture.rawValue + " はエンコード不要", sut.needsToBeEncoded());
-        assertThat(sut.buildEncodedValue("エンコード済み.txt"), is(fixture.expectedBuildEncodedValue));
+        assertThat(sut.buildEncodedValue("ENCODEDFILENAME"), is(fixture.expectedBuildEncodedValue));
     }
 
     @Parameters(name = "{0}")
     public static List<Fixture> parameters() {
 
-        String nothing = null;
-
         List<Fixture> fixtures = new ArrayList<Fixture>();
 
-        fixtures.add(new Fixture("attachment; filename=\"ファイル名.txt\"",
-                true, "ファイル名.txt",
-                "attachment; filename*=UTF-8''%E3%82%A8%E3%83%B3%E3%82%B3%E3%83%BC%E3%83%89%E6%B8%88%E3%81%BF.txt; filename=\"エンコード済み.txt\""));
+        Fixture.testCase("attachment; filename=\"ファイル名.txt\"")
+                .expect("ファイル名.txt",
+                        "attachment; filename*=UTF-8''%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E5%90%8D.txt; filename=\"ENCODEDFILENAME\"")
+                .addTo(fixtures, "filename*パラメーターが追加されてエンコードする");
 
-        fixtures.add(new Fixture("inline; filename=\"ファイル名.txt\"",
-                true, "ファイル名.txt",
-                "inline; filename*=UTF-8''%E3%82%A8%E3%83%B3%E3%82%B3%E3%83%BC%E3%83%89%E6%B8%88%E3%81%BF.txt; filename=\"エンコード済み.txt\""));
+        Fixture.testCase("inline; filename=\"ファイル名.txt\"")
+                .expect("ファイル名.txt",
+                        "inline; filename*=UTF-8''%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E5%90%8D.txt; filename=\"ENCODEDFILENAME\"")
+                .addTo(fixtures, "disposition-typeがinlineの場合もエンコードする");
 
-        fixtures.add(new Fixture("attachment; filename=hoge.txt",
-                false, nothing, nothing));
+        Fixture.testCase("attachment; filename=hoge.txt")
+                .expectNoEncoding()
+                .addTo(fixtures, "ダブルクォートで囲まれていない場合はエンコードしない");
 
-        fixtures.add(new Fixture("attachment; filename=\"hoge.txt\"",
-                true, "hoge.txt",
-                "attachment; filename*=UTF-8''%E3%82%A8%E3%83%B3%E3%82%B3%E3%83%BC%E3%83%89%E6%B8%88%E3%81%BF.txt; filename=\"エンコード済み.txt\""));
+        Fixture.testCase("attachment; filename=\"hoge.txt\"")
+                .expect("hoge.txt",
+                        "attachment; filename*=UTF-8''hoge.txt; filename=\"ENCODEDFILENAME\"")
+                .addTo(fixtures, "アルファベットとピリオドからなるファイル名でもダブルクォートで囲んだ場合はエンコードする");
 
-        fixtures.add(new Fixture("attachment",
-                false, nothing, nothing));
+        Fixture.testCase("attachment")
+                .expectNoEncoding()
+                .addTo(fixtures, "disposition-typeしかない場合はエンコードしない");
+
+        //これ以降は念のためテスト
+
+        Fixture.testCase("attachment; filename=\"ファイル名.txt\";ext1=foo  ;    ext2=bar")
+                .expect("ファイル名.txt",
+                        "attachment; filename*=UTF-8''%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E5%90%8D.txt; filename=\"ENCODEDFILENAME\"; ext1=foo; ext2=bar")
+                .addTo(fixtures, "filename以外のパラメーターが設定されている場合");
+
+        Fixture.testCase("attachment; filename=\"ファイル名.txt\"; filename*=UTF-8''ALREADY.txt")
+                .expect("ファイル名.txt",
+                        "attachment; filename=\"ENCODEDFILENAME\"; filename*=UTF-8''ALREADY.txt")
+                .addTo(fixtures, "filename*パラメーターが既に設定されている場合は設定値を優先する");
+
+        Fixture.testCase("attachment; filename*=UTF-8''ALREADY.txt")
+                .expectNoEncoding()
+                .addTo(fixtures, "filename*パラメーターしかない場合はエンコードしない");
 
         return fixtures;
     }
 
     private static class Fixture {
+
+        private final String testCaseName;
 
         /**
          * Content-Dispositionの値（ただしfilenameはエンコードしていない）。
@@ -100,8 +134,9 @@ public class ContentDispositionRawValueTest {
         /** {@link ContentDispositionRawValue#buildEncodedValue(String)}の期待値 */
         final String expectedBuildEncodedValue;
 
-        public Fixture(String rawValue, boolean expectedNeedsToBeEncoded,
+        public Fixture(String testCaseName, String rawValue, boolean expectedNeedsToBeEncoded,
                 String expectedGetRawFileName, String expectedBuildEncodedValue) {
+            this.testCaseName = testCaseName;
             this.rawValue = rawValue;
             this.expectedNeedsToBeEncoded = expectedNeedsToBeEncoded;
             this.expectedGetRawFileName = expectedGetRawFileName;
@@ -113,7 +148,39 @@ public class ContentDispositionRawValueTest {
          */
         @Override
         public String toString() {
-            return rawValue;
+            return testCaseName;
+        }
+
+        static Builder testCase(String rawValue) {
+            Builder builder = new Builder();
+            builder.rawValue = rawValue;
+            return builder;
+        }
+
+        private static class Builder {
+            String rawValue;
+            boolean expectedNeedsToBeEncoded;
+            String expectedGetRawFileName;
+            String expectedBuildEncodedValue;
+
+            Builder expectNoEncoding() {
+                this.expectedNeedsToBeEncoded = false;
+                this.expectedGetRawFileName = null;
+                this.expectedBuildEncodedValue = null;
+                return this;
+            }
+
+            Builder expect(String getRawFileName, String buildEncodedValue) {
+                this.expectedNeedsToBeEncoded = true;
+                this.expectedGetRawFileName = getRawFileName;
+                this.expectedBuildEncodedValue = buildEncodedValue;
+                return this;
+            }
+
+            void addTo(List<Fixture> fixtures, String testCaseName) {
+                fixtures.add(new Fixture(testCaseName, rawValue, expectedNeedsToBeEncoded,
+                        expectedGetRawFileName, expectedBuildEncodedValue));
+            }
         }
     }
 }
