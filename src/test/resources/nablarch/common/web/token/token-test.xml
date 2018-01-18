@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ./component-configuration.xsd">
+
+    <component name="doubleSubmissionHandler"
+               class="nablarch.common.web.token.BasicDoubleSubmissionHandler">
+        <property name="path" value="/common_error.jsp" />
+        <property name="messageId" value="MSG00022" />
+        <property name="statusCode" value="200" />
+    </component>
+
+</component-configuration>

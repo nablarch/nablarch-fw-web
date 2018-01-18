@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ../../../../../../Nablarch/resources/component-configuration.xsd">
+    <!--
+    デフォルトのIStatementFactory実装クラスの設定
+    IConnectionFactoryのpropertyに対する設定がない限り、本設定が適用される。
+    -->
+    <component name="statementFactory"
+               class="nablarch.core.db.statement.BasicStatementFactory" autowireType="ByName"/>
+
+    <component name="stringResourceHolder" class="nablarch.test.support.message.MockStringResourceHolder" autowireType="ByName">
+    </component>
+</component-configuration>
