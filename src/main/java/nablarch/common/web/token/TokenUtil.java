@@ -1,9 +1,8 @@
 package nablarch.common.web.token;
 
-import static nablarch.fw.ExecutionContext.FW_PREFIX;
+import static nablarch.fw.ExecutionContext.*;
 
 import javax.servlet.http.HttpSession;
-import javax.servlet.jsp.PageContext;
 
 import nablarch.core.repository.SystemRepository;
 import nablarch.fw.ExecutionContext;
@@ -54,15 +53,15 @@ public final class TokenUtil {
     /**
      * トークンを生成し、セッションスコープに設定する。<br>
      * トークンの生成は、リクエストスコープに対して一度だけ行い、リクエストスコープ内では一度生成したトークンを使いまわす。
-     * @param pageContext ページコンテキスト
+     * @param request リクエスト
      * @return 生成したトークン
      */
-    public static String generateToken(PageContext pageContext) {
-        String token = (String) pageContext.getAttribute(KEY_REQUEST_TOKEN, PageContext.REQUEST_SCOPE);
+    public static String generateToken(NablarchHttpServletRequestWrapper request) {
+        String token = (String) request.getAttribute(KEY_REQUEST_TOKEN);
         if (token == null) {
             token = getTokenGenerator().generate();
-            pageContext.setAttribute(KEY_REQUEST_TOKEN, token, PageContext.REQUEST_SCOPE);
-            final HttpSession session = getNativeSession(pageContext);
+            request.setAttribute(KEY_REQUEST_TOKEN, token);
+            final HttpSession session = getNativeSession(request);
             synchronized (session) {
                 session.setAttribute(KEY_SESSION_TOKEN, token);
             }
@@ -73,11 +72,10 @@ public final class TokenUtil {
     /**
      * {@link HttpSession}を取得する。
      * {@link HttpSession}が存在しない場合は生成する。
-     * @param pageContext ページコンテキスト
+     * @param request リクエスト
      * @return * {@link HttpSession}
      */
-    private static HttpSession getNativeSession(PageContext pageContext) {
-        NablarchHttpServletRequestWrapper request = (NablarchHttpServletRequestWrapper) pageContext.getRequest();
+    private static HttpSession getNativeSession(NablarchHttpServletRequestWrapper request) {
         return request.getSession(true).getDelegate();
     }
 
@@ -87,7 +85,7 @@ public final class TokenUtil {
      * @return {@link TokenGenerator}
      */
     public static TokenGenerator getTokenGenerator() {
-        TokenGenerator generator = (TokenGenerator) SystemRepository.getObject(TOKEN_GENERATOR_NAME);
+        final TokenGenerator generator = (TokenGenerator) SystemRepository.getObject(TOKEN_GENERATOR_NAME);
         return generator != null ? generator : new RandomTokenGenerator();
     }
 
@@ -105,15 +103,15 @@ public final class TokenUtil {
      */
     public static synchronized boolean isValidToken(HttpRequest request, ExecutionContext context)
     throws ClassCastException {
-        String[] tokenParam = request.getParam(KEY_HIDDEN_TOKEN);
+        final String[] tokenParam = request.getParam(KEY_HIDDEN_TOKEN);
         boolean validToken = true;
-        HttpSession session = getNativeSession(context);
+        final HttpSession session = getNativeSession(context);
         if (session == null) {
             return false;
         }
         if (tokenParam != null && tokenParam.length == 1) {
-            String clientToken = tokenParam[0];
-            String serverToken = (String) session.getAttribute(KEY_SESSION_TOKEN);
+            final String clientToken = tokenParam[0];
+            final String serverToken = (String) session.getAttribute(KEY_SESSION_TOKEN);
             validToken = serverToken != null && serverToken.equals(clientToken);
         } else {
             validToken = false;

@@ -1,20 +1,19 @@
 package nablarch.common.web.token;
 
-import nablarch.common.web.handler.MockPageContext;
+import static org.hamcrest.core.Is.*;
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+import nablarch.common.web.MockHttpSession;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.Handler;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.HttpServer;
 import nablarch.fw.web.MockHttpRequest;
-import org.junit.Test;
-
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import nablarch.fw.web.servlet.NablarchHttpServletRequestWrapper;
+import nablarch.test.support.web.servlet.MockServletRequest;
 
 /**
  * @author Kiyohito Itoh
@@ -120,18 +119,21 @@ public class TokenUtilTest {
     @Test
     public void testGenerateTokenWithoutConfig() {
 
-        MockPageContext pageContext = new MockPageContext(true);
+        MockServletRequest nativeRequest = new MockServletRequest();
+        MockHttpSession nativeSession = new MockHttpSession();
+        nativeRequest.setSession(nativeSession);
+        NablarchHttpServletRequestWrapper request = new NablarchHttpServletRequestWrapper(nativeRequest);
 
-        assertNull(pageContext.getAttribute(TokenUtil.KEY_REQUEST_TOKEN));
-        assertNull(pageContext.getAttribute(TokenUtil.KEY_SESSION_TOKEN, javax.servlet.jsp.PageContext.SESSION_SCOPE));
+        assertNull(request.getAttribute(TokenUtil.KEY_REQUEST_TOKEN));
+        assertNull(nativeSession.getAttribute(TokenUtil.KEY_SESSION_TOKEN));
 
-        String token = TokenUtil.generateToken(pageContext);
+        String token = TokenUtil.generateToken(request);
         assertThat(token.length(), is(16));
 
-        assertThat(pageContext.getAttribute(TokenUtil.KEY_REQUEST_TOKEN, javax.servlet.jsp.PageContext.REQUEST_SCOPE).toString(), is(token));
-        assertThat(pageContext.getNativeSession().getAttribute(TokenUtil.KEY_SESSION_TOKEN).toString(), is(token));
+        assertThat(request.getAttribute(TokenUtil.KEY_REQUEST_TOKEN).toString(), is(token));
+        assertThat(nativeSession.getAttribute(TokenUtil.KEY_SESSION_TOKEN).toString(), is(token));
 
-        assertThat(TokenUtil.generateToken(pageContext).length(), is(16));
+        assertThat(TokenUtil.generateToken(request).length(), is(16));
     }
 
     @Test
@@ -139,8 +141,11 @@ public class TokenUtilTest {
 
         TokenTestUtil.setUpTokenGenerator();
 
-        MockPageContext pageContext = new MockPageContext(true);
+        MockServletRequest nativeRequest = new MockServletRequest();
+        MockHttpSession nativeSession = new MockHttpSession();
+        nativeRequest.setSession(nativeSession);
+        NablarchHttpServletRequestWrapper request = new NablarchHttpServletRequestWrapper(nativeRequest);
 
-        assertThat(TokenUtil.generateToken(pageContext), is("token_test"));
+        assertThat(TokenUtil.generateToken(request), is("token_test"));
     }
 }
