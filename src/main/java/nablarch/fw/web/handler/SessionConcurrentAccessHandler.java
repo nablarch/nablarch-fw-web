@@ -4,6 +4,7 @@ import java.util.ConcurrentModificationException;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
+import nablarch.common.web.WebConfigFinder;
 import nablarch.core.log.Logger;
 import nablarch.core.log.LoggerManager;
 import nablarch.core.message.ApplicationException;
@@ -99,7 +100,8 @@ public class SessionConcurrentAccessHandler implements Handler<Object, Object> {
 
             wrappedSession = new CopyOnReadMap<String, Object>(
                     new LockableMap<String, Object>(session)
-            ).setIgnoredEntries("/nablarch_session_token");
+            ).setIgnoredEntries(
+                    WebConfigFinder.getWebConfig().getDoubleSubmissionTokenSessionAttributeName());
 
             HttpResponse res = null;
 

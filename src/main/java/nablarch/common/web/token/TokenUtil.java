@@ -1,9 +1,9 @@
 package nablarch.common.web.token;
 
-import static nablarch.fw.ExecutionContext.*;
-
 import javax.servlet.http.HttpSession;
 
+import nablarch.common.web.WebConfig;
+import nablarch.common.web.WebConfigFinder;
 import nablarch.core.repository.SystemRepository;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpRequest;
@@ -23,24 +23,6 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
  */
 public final class TokenUtil {
 
-    /** トークンをhiddenタグに設定する際に使用するキー */
-    public static final String KEY_HIDDEN_TOKEN = FW_PREFIX + "token";
-
-    /** トークンをリクエストスコープに設定する際に使用するキー */
-    public static final String KEY_REQUEST_TOKEN = FW_PREFIX + "request_token";
-
-    /**
-     * トークンをセッションスコープに設定する際に使用するキー
-     * <pre>
-     * {@link nablarch.fw.web.handler.SessionConcurrentAccessHandler#handle(Object, ExecutionContext)}にて、
-     * このキーと同じ値をリテラルで使用しているので、キーの値を変更した場合は合わせて修正すること。
-     * リテラルを使用している理由は以下のとおり。
-     * ・SessionConcurrentAccessHandlerが行う同期化の対象から除外するため
-     * ・モジュールの依存関係から、このフィールドを直接参照できないため
-     * </pre>
-     */
-    public static final String KEY_SESSION_TOKEN = "/" + FW_PREFIX + "session_token";
-
     /** {@link TokenGenerator}をリポジトリから取得する際に使用する名前 */
     private static final String TOKEN_GENERATOR_NAME = "tokenGenerator";
 
@@ -57,13 +39,16 @@ public final class TokenUtil {
      * @return 生成したトークン
      */
     public static String generateToken(NablarchHttpServletRequestWrapper request) {
-        String token = (String) request.getAttribute(KEY_REQUEST_TOKEN);
+        WebConfig webConfig = WebConfigFinder.getWebConfig();
+        String token = (String) request
+                .getAttribute(webConfig.getDoubleSubmissionTokenRequestAttributeName());
         if (token == null) {
             token = getTokenGenerator().generate();
-            request.setAttribute(KEY_REQUEST_TOKEN, token);
+            request.setAttribute(webConfig.getDoubleSubmissionTokenRequestAttributeName(), token);
             final HttpSession session = getNativeSession(request);
             synchronized (session) {
-                session.setAttribute(KEY_SESSION_TOKEN, token);
+                session.setAttribute(webConfig.getDoubleSubmissionTokenSessionAttributeName(),
+                        token);
             }
         }
         return token;
@@ -103,7 +88,9 @@ public final class TokenUtil {
      */
     public static synchronized boolean isValidToken(HttpRequest request, ExecutionContext context)
     throws ClassCastException {
-        final String[] tokenParam = request.getParam(KEY_HIDDEN_TOKEN);
+        WebConfig webConfig = WebConfigFinder.getWebConfig();
+        final String[] tokenParam = request
+                .getParam(webConfig.getDoubleSubmissionTokenParameterName());
         boolean validToken = true;
         final HttpSession session = getNativeSession(context);
         if (session == null) {
@@ -111,12 +98,13 @@ public final class TokenUtil {
         }
         if (tokenParam != null && tokenParam.length == 1) {
             final String clientToken = tokenParam[0];
-            final String serverToken = (String) session.getAttribute(KEY_SESSION_TOKEN);
+            final String serverToken = (String) session
+                    .getAttribute(webConfig.getDoubleSubmissionTokenSessionAttributeName());
             validToken = serverToken != null && serverToken.equals(clientToken);
         } else {
             validToken = false;
         }
-        session.removeAttribute(KEY_SESSION_TOKEN);
+        session.removeAttribute(webConfig.getDoubleSubmissionTokenSessionAttributeName());
         return validToken;
     }
 

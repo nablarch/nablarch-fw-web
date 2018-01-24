@@ -6,6 +6,8 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import nablarch.common.web.MockHttpSession;
+import nablarch.common.web.WebConfig;
+import nablarch.common.web.WebConfigFinder;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.Handler;
 import nablarch.fw.web.HttpRequest;
@@ -88,7 +90,9 @@ public class TokenUtilTest {
         HttpServer server = new HttpServer().addHandler(new Handler<HttpRequest, HttpResponse>() {
             @Override
             public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
-                req.getParamMap().put(TokenUtil.KEY_HIDDEN_TOKEN, new String[] { "token1", "token2" });
+                WebConfig webConfig = WebConfigFinder.getWebConfig();
+                req.getParamMap().put(webConfig.getDoubleSubmissionTokenParameterName(),
+                        new String[] { "token1", "token2" });
                 TokenTestUtil.setTokenSession(ctx, TokenTestUtil.TOKEN);
                 assertFalse("invalid token", TokenUtil.isValidToken(req, ctx));
                 return new HttpResponse(200);
@@ -124,14 +128,20 @@ public class TokenUtilTest {
         nativeRequest.setSession(nativeSession);
         NablarchHttpServletRequestWrapper request = new NablarchHttpServletRequestWrapper(nativeRequest);
 
-        assertNull(request.getAttribute(TokenUtil.KEY_REQUEST_TOKEN));
-        assertNull(nativeSession.getAttribute(TokenUtil.KEY_SESSION_TOKEN));
+        WebConfig webConfig = WebConfigFinder.getWebConfig();
+
+        assertNull(request.getAttribute(webConfig.getDoubleSubmissionTokenRequestAttributeName()));
+        assertNull(nativeSession
+                .getAttribute(webConfig.getDoubleSubmissionTokenSessionAttributeName()));
 
         String token = TokenUtil.generateToken(request);
         assertThat(token.length(), is(16));
 
-        assertThat(request.getAttribute(TokenUtil.KEY_REQUEST_TOKEN).toString(), is(token));
-        assertThat(nativeSession.getAttribute(TokenUtil.KEY_SESSION_TOKEN).toString(), is(token));
+        assertThat(request.getAttribute(webConfig.getDoubleSubmissionTokenRequestAttributeName())
+                .toString(), is(token));
+        assertThat(nativeSession
+                .getAttribute(webConfig.getDoubleSubmissionTokenSessionAttributeName()).toString(),
+                is(token));
 
         assertThat(TokenUtil.generateToken(request).length(), is(16));
     }

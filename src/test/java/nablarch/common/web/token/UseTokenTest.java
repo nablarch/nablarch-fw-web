@@ -10,6 +10,8 @@ import javax.servlet.http.HttpSession;
 
 import org.junit.Test;
 
+import nablarch.common.web.WebConfig;
+import nablarch.common.web.WebConfigFinder;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.Handler;
 import nablarch.fw.web.HttpRequest;
@@ -57,17 +59,21 @@ public class UseTokenTest {
                         NablarchHttpServletRequestWrapper request = sec.getServletRequest();
                         HttpSession session = request.getSession().getDelegate();
 
+                        WebConfig webConfig = WebConfigFinder.getWebConfig();
+                        String requestAttributeName = webConfig
+                                .getDoubleSubmissionTokenRequestAttributeName();
+                        String sessionAttributeName = webConfig
+                                .getDoubleSubmissionTokenSessionAttributeName();
+
                         //リクエストとセッションにトークンが登録されていないこと
-                        assertThat(request.getAttribute(TokenUtil.KEY_REQUEST_TOKEN), nullValue());
-                        assertThat(session.getAttribute(TokenUtil.KEY_SESSION_TOKEN), nullValue());
+                        assertThat(request.getAttribute(requestAttributeName), nullValue());
+                        assertThat(session.getAttribute(sessionAttributeName), nullValue());
 
                         HttpResponse response = context.handleNext(requet);
 
                         //リクエストとセッションに発行されたトークンが登録されていること
-                        assertThat(request.getAttribute(TokenUtil.KEY_REQUEST_TOKEN),
-                                notNullValue());
-                        assertThat(session.getAttribute(TokenUtil.KEY_SESSION_TOKEN),
-                                notNullValue());
+                        assertThat(request.getAttribute(requestAttributeName), notNullValue());
+                        assertThat(session.getAttribute(sessionAttributeName), notNullValue());
 
                         return response;
                     }

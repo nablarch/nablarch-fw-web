@@ -2,6 +2,8 @@ package nablarch.common.web.token;
 
 import java.util.Locale;
 
+import nablarch.common.web.WebConfig;
+import nablarch.common.web.WebConfigFinder;
 import nablarch.core.ThreadContext;
 
 import nablarch.core.repository.SystemRepository;
@@ -46,7 +48,9 @@ public class TokenTestUtil {
     }
 
     static void setTokenParam(HttpRequest request, String token) {
-        request.getParamMap().put(TokenUtil.KEY_HIDDEN_TOKEN, new String[] { token });
+        WebConfig webConfig = WebConfigFinder.getWebConfig();
+        request.getParamMap().put(webConfig.getDoubleSubmissionTokenParameterName(),
+                new String[] { token });
     }
 
     static void setUpMessageBeforeClass() throws Exception  {

@@ -18,7 +18,19 @@ import nablarch.fw.web.HttpResponse;
  * <p>
  * 業務アクションハンドラのメソッドに付与することで、二重サブミット(同一リクエストの二重送信)のチェックを行う。
  * </p>
- * 本インターセプタを使用するためには、jspでのn:formタグによるトークン設定が必要である。
+ * 
+ * <p>
+ * 本インターセプタを使用するためには、トークン設定が必要である。
+ * トークン設定はトークンの生成とHTMLへの埋め込みがある。
+ * トークンの生成は{@link UseToken}でできる。
+ * HTMLへの埋め込みはリクエストに格納されたトークンをテンプレートエンジンでinput要素を組み立てればよい。
+ * Thymeleafの例を示す。
+ * </p>
+ * <pre>{@code <input type="hidden" name="nablarch_token" th:value="${nablarch_request_token}"/>}</pre>
+ * 
+ * <p>
+ * JSPを使用している場合はn:formタグでトークンを設定できる。
+ * </p>
  * <pre>
  *     {@code <n:form useToken="true">
  *     <n:submit type="button" value="Submit" uri="/XXXXX" allowDoubleSubmission="false">
