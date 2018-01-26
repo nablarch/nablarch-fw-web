@@ -18,12 +18,15 @@ import nablarch.fw.web.handler.HttpErrorHandler;
 import nablarch.fw.web.handler.HttpRequestJavaPackageMapping;
 import nablarch.fw.web.servlet.MockServletRequest;
 import nablarch.fw.web.servlet.ServletExecutionContext;
+
+import org.junit.Before;
 import org.junit.Test;
 
 public class HttpRequestJavaPackageMappingTest {
 
     private ExecutionContext ctx;
 
+    @Before
     public void setUp() {
         ctx = new ServletExecutionContext(initServletReq(), null, null);
     }
@@ -227,6 +230,7 @@ public class HttpRequestJavaPackageMappingTest {
         assertEquals(404, res.getStatusCode());
     }
 
+    @Test
     public void testErrorHandling() {
         Handler<HttpRequest, HttpResponse> dispatcher = new HttpRequestJavaPackageMapping();
         
