@@ -48,6 +48,7 @@ public class HttpRequestRewriteRuleTest {
         assertEquals("/app/pages/list.html", request.getRequestPath());
     }
     
+    @Test
     public void testExecutesRewritingIfItSatisfiesConditions() {
         rule = new HttpRequestRewriteRule()
                   .addCondition("%{paramNames}  nablarch_uri_override_(.[^,]+)")
