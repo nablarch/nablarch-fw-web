@@ -1,6 +1,7 @@
 package nablarch.fw.web.handler;
 
 import junit.framework.AssertionFailedError;
+import nablarch.core.ThreadContext;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpRequestHandler;
@@ -12,7 +13,7 @@ import nablarch.fw.web.servlet.MockServletContext;
 import nablarch.fw.web.servlet.MockServletRequest;
 import nablarch.fw.web.servlet.MockServletResponse;
 import nablarch.fw.web.servlet.ServletExecutionContext;
-import nablarch.test.IgnoringLS;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.ServletException;
@@ -24,6 +25,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class HttpResponseHandlerCustomWriterTest {
+
+    @Before
+    public void setUp() {
+        // 多言語対応機能(nablarch.fw.web.i18n.ResourcePathRule.getPathForLanguage)をオフにする.
+        ThreadContext.setLanguage(null);
+    }
 
     /**
      * {@link CustomResponseWriter}が、レスポンスを処理対象と判定しなかった場合、
