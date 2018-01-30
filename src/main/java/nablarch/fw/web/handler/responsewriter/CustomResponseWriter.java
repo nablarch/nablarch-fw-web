@@ -1,5 +1,6 @@
 package nablarch.fw.web.handler.responsewriter;
 
+import nablarch.core.util.annotation.Published;
 import nablarch.fw.web.handler.HttpResponseHandler;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 
@@ -17,6 +18,7 @@ import java.io.IOException;
  * @author Tsuyoshi Kawasaki
  * @see HttpResponseHandler
  */
+@Published(tag = "architect")
 public interface CustomResponseWriter {
 
     /**
