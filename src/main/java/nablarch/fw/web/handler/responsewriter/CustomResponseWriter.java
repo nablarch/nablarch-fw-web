@@ -1,11 +1,9 @@
 package nablarch.fw.web.handler.responsewriter;
 
-import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.handler.HttpResponseHandler;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -24,21 +22,19 @@ public interface CustomResponseWriter {
     /**
      * 処理対象のレスポンスであるか判定する。
      *
-     * @param response HTTPレスポンス
+     * @param path レスポンス出力に指定されたパス(テンプレートファイルへのパス等を指す。実装依存。)
      * @param context 実行コンテキスト
      * @return 処理対象である場合、真
      */
-    boolean isResponsibleTo(HttpResponse response, ServletExecutionContext context);
+    boolean isResponsibleTo(String path, ServletExecutionContext context);
 
     /**
      * レスポンスの書き込みを行う。
      *
-     * レスポンスの書き込みには{@link HttpResponse}ではなく{@link HttpServletResponse}を使用すること。
-     *
-     * @param response HTTPレスポンス
+     * @param path レスポンス出力に指定されたパス(テンプレートファイルへのパス等を指す。実装依存。)
      * @param context 実行コンテキスト
      * @throws ServletException Servlet API使用時に発生した例外
      * @throws IOException 入出力例外(ソケットI/Oエラー等)
      */
-    void writeResponse(HttpResponse response, ServletExecutionContext context) throws ServletException, IOException;
+    void writeResponse(String path, ServletExecutionContext context) throws ServletException, IOException;
 }

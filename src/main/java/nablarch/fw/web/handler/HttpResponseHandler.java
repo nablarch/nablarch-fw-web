@@ -217,8 +217,9 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
             exportSessionStore(context);   // セッションストア->リクエストスコープへの書き出し
         }
 
-        if (customResponseWriter != null && customResponseWriter.isResponsibleTo(res, context)) {
-            customResponseWriter.writeResponse(res, context);
+        String path = res.getContentPath().getPath();
+        if (customResponseWriter != null && customResponseWriter.isResponsibleTo(path, context)) {
+            customResponseWriter.writeResponse(path, context);
         } else {
             doServletForward(pathForLanguage, context);
         }

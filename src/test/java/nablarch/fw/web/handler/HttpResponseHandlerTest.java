@@ -1153,11 +1153,11 @@ public class HttpResponseHandlerTest {
         HttpResponseHandler sut = server.getHandlerOf(HttpResponseHandler.class);
         sut.setCustomResponseWriter(new CustomResponseWriter() {
             @Override
-            public boolean isResponsibleTo(HttpResponse response, ServletExecutionContext context) {
+            public boolean isResponsibleTo(String path, ServletExecutionContext context) {
                 return false;  // 常にfalseを返却する
             }
             @Override
-            public void writeResponse(HttpResponse response, ServletExecutionContext context) throws ServletException, IOException {
+            public void writeResponse(String path, ServletExecutionContext context) throws ServletException, IOException {
                 throw new AssertionFailedError(
                         "isResponsibleToがfalseを返却するので、ここには到達しない。");
             }
