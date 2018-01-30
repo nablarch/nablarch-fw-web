@@ -1143,40 +1143,6 @@ public class HttpResponseHandlerTest {
     }
 
     /**
-     * {@link CustomResponseWriter}が、レスポンスを処理対象と判定しなかった場合、
-     * サーブレットフォワードが実行されること
-     */
-    @Test
-    public void testNoCustomResponseWriter() {
-        HttpServer server = new HttpServer();
-        // HttpResponseHandlerにCustomResponseWriterを設定する
-        HttpResponseHandler sut = server.getHandlerOf(HttpResponseHandler.class);
-        sut.setCustomResponseWriter(new CustomResponseWriter() {
-            @Override
-            public boolean isResponsibleTo(String path, ServletExecutionContext context) {
-                return false;  // 常にfalseを返却する
-            }
-            @Override
-            public void writeResponse(String path, ServletExecutionContext context) throws ServletException, IOException {
-                throw new AssertionFailedError(
-                        "isResponsibleToがfalseを返却するので、ここには到達しない。");
-            }
-        });
-        server.setWarBasePath("classpath://nablarch/fw/web/handler/httpresponsehandler")
-              .addHandler(new HttpRequestHandler() {
-                  @Override
-                  public HttpResponse handle(HttpRequest request, ExecutionContext context) {
-                      return new HttpResponse("index.jsp");  // index.jspにフォワード
-                  }
-              })
-              .startLocal();
-        HttpResponse res = server.handle(new MockHttpRequest("GET / HTTP/1.1"), null);
-        assertThat("index.jspにサーブレットフォワードされること",
-                   res.getBodyString(), is("Hello World!"));
-    }
-
-
-    /**
      * ステータスコンバートのテスト用のハンドラを用意する。
      * @return ハンドラ設定済みのHTTP Server
      */
