@@ -33,8 +33,8 @@ public class HttpResponseHandlerCustomWriterTest {
     }
 
     /**
-     * {@link CustomResponseWriter}が、レスポンスを処理対象と判定しなかった場合、
-     * サーブレットフォワードが実行されること
+     * {@link CustomResponseWriter}が、レスポンスを処理対象と判定した場合、
+     * {@link CustomResponseWriter}によるレスポンス出力が行われること。
      */
     @Test
     public void testCustomResponseWriter() {
@@ -47,7 +47,7 @@ public class HttpResponseHandlerCustomWriterTest {
         httpResponseHandler.setCustomResponseWriter(new CustomResponseWriter() {
             @Override
             public boolean isResponsibleTo(String path, ServletExecutionContext context) {
-                return path.equals("hello.html");
+                return true;
             }
 
             @Override
