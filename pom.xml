@@ -40,6 +40,7 @@
   </profiles>
 
   <dependencies>
+
     <dependency>
       <groupId>com.nablarch.framework</groupId>
       <artifactId>nablarch-fw</artifactId>

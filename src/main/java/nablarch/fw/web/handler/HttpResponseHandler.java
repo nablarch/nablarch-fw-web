@@ -28,6 +28,7 @@ import nablarch.fw.web.ResourceLocatorInternalHelper;
 import nablarch.fw.web.ResponseBody;
 import nablarch.fw.web.download.encorder.DownloadFileNameEncoder;
 import nablarch.fw.web.download.encorder.DownloadFileNameEncoderFactory;
+import nablarch.fw.web.handler.responsewriter.CustomResponseWriter;
 import nablarch.fw.web.i18n.DirectoryBasedResourcePathRule;
 import nablarch.fw.web.i18n.ResourcePathRule;
 import nablarch.fw.web.servlet.ServletExecutionContext;
@@ -104,6 +105,20 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
         this.convertMode = HttpResponseUtil.StatusConvertMode.valueOf(convertMode);
     }
 
+    /** HTTPレスポンス出力クラス */
+    private CustomResponseWriter customResponseWriter = null;
+
+    /**
+     * HTTPレスポンス出力クラスを設定する。
+     * このプロパティを設定することで、任意のレスポンス出力処理を実行できる。
+     * 設定されていない場合はサーブレットフォワード(JSP)によるレスポンス出力が実行される。
+     *
+     * @param customResponseWriter HTTPレスポンス出力クラス
+     */
+    public void setCustomResponseWriter(CustomResponseWriter customResponseWriter) {
+        this.customResponseWriter = customResponseWriter;
+    }
+
     /**
      * {@inheritDoc}
      * <p>
@@ -122,10 +137,10 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
         HttpResponseUtil.setStatusConvertMode(context, convertMode);
         try {
             HttpResponse res = ctx.handleNext(req);
-            // サーブレットフォーワード
-            if (doesServletForward(res)) {
+            // HttpResponseのschemeが"servlet"の場合)
+            if (isServletScheme(res)) {
                 try {
-                    doServletForward(res, context);
+                    handleServletScheme(res, context);
                     return res;
                 } catch (ServletException e) {
                     // フォーワード中のエラーはエラーページに遷移させる。
@@ -181,6 +196,36 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
     }
 
     /**
+     * {@link HttpResponse}のschemeが"servlet"の場合の処理を行う。
+     *
+     * {@link CustomResponseWriter}が、このレスポンスを処理対象と判断した場合、
+     * {@link CustomResponseWriter}に処理を移譲する。
+     * そうでない場合、サーブレットフォワードを行う。
+     *
+     * @param res HTTPレスポンス
+     * @param context 実行コンテキスト
+     * @throws ServletException Servlet API使用時に発生した例外
+     * @throws IOException 入出力例外(ソケットI/Oエラー等)
+     */
+    private void handleServletScheme(HttpResponse res, ServletExecutionContext context)
+            throws ServletException, IOException {
+        // schemeが"servlet"の時の共通処理
+        setStatusCode(res, context);    // ステータスコード設定
+        setHeaders(res, context);       // レスポンスヘッダ設定
+        String pathForLanguage = getPathForLanguage(res, context);  // 多言語対応を施したパス
+        if (isSessionExportRequired(pathForLanguage)) {
+            exportSessionStore(context);   // セッションストア->リクエストスコープへの書き出し
+        }
+
+        String path = res.getContentPath().getPath();
+        if (customResponseWriter != null && customResponseWriter.isResponsibleTo(path, context)) {
+            customResponseWriter.writeResponse(path, context);
+        } else {
+            doServletForward(pathForLanguage, context);
+        }
+    }
+
+    /**
      * サーブレット例外がクライアントの接続断に起因する例外であるかを判定する。
      * <p>
      * 本実装は、WebLogic 11g のJSP処理中にクライアントの接続断が起きた際に発生する
@@ -229,8 +274,8 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
             res.cleanup();
         }
     }
-    
-    
+
+
     /**
      * レスポンスがエラーか否かを判定する。
      * <p>
@@ -246,12 +291,12 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
     }
 
     /**
-     * このリクエストのレスポンス処理においてサーブレットフォーワードを行うか？。
+     * {@link HttpResponse}のschemeが"servlet"であるか判定する。
      *
-     * @param res HTTPレスポンスオブジェクト
-     * @return サーブレットフォーワードを行う場合はtrue。
+     * @param res 判定対象のHTTPレスポンスオブジェクト
+     * @return "servlet"である場合、真
      */
-    private boolean doesServletForward(HttpResponse res) {
+    private boolean isServletScheme(HttpResponse res) {
         return res.getContentPath() != null
             && res.getContentPath().getScheme().equals("servlet");
     }
@@ -271,19 +316,14 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
     /**
      * サーブレットフォーワード処理を行う。
      *
-     * @param res HTTPレスポンスオブジェクト
+     * @param pathToForward フォワード先のパス
      * @param ctx 実行コンテキスト
      * @throws ServletException フォーワード先においてエラーが発生した場合。
      * @throws IOException レスポンス処理中でのIOエラー
      */
-    private void doServletForward(HttpResponse res, ServletExecutionContext ctx)
-    throws ServletException, IOException {
-        setStatusCode(res, ctx);
-        setHeaders(res, ctx);
-        String pathToForward = getPathForLanguage(res, ctx);
-        if (isSessionExportRequired(pathToForward)) {
-            exportSessionStore(ctx);
-        }
+    private void doServletForward(String pathToForward, ServletExecutionContext ctx)
+            throws ServletException, IOException {
+
         ctx.getServletRequest()
            .getRequestDispatcher(pathToForward)
            .forward(ctx.getServletRequest(), ctx.getServletResponse());
@@ -331,7 +371,7 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
     private void doRedirect(HttpResponse res, ServletExecutionContext ctx) throws IOException {
         setHeaders(res, ctx);
         ResourceLocator path = res.getContentPath();
-        
+
         HttpServletResponse servletResponse = ctx.getServletResponse();
         final String to;
         if (ResourceLocatorInternalHelper.isRedirectWithAbsoluteUri(path)) {
