@@ -7,6 +7,8 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
 
+import org.hamcrest.Matchers;
+
 import nablarch.core.message.ApplicationException;
 import nablarch.core.message.BasicStringResource;
 import nablarch.core.message.Message;
@@ -88,5 +90,15 @@ public class ErrorMessagesTest {
     public void 全てのメセージが扱えること() {
         assertThat("全てのメッセージが元の順番のまま返されること",
                 sut.getAllMessages(), contains("エラー", "globalメッセージ", "エラー２", "エラー２の２", "globalメッセージ２"));
+    }
+
+    @Test
+    public void メッセージが存在しない場合空のリストが返されること() {
+        final ErrorMessages sut = new ErrorMessages(new ApplicationException());
+
+        assertThat(sut.getAllMessages(), Matchers.<String>empty());
+        assertThat(sut.getGlobalMessages(), Matchers.<String>empty());
+        assertThat(sut.getPropertyMessages(), Matchers.<String>empty());
+        assertThat(sut.hasError("propertyName"), is(false));
     }
 }
