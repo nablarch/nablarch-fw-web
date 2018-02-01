@@ -57,7 +57,7 @@ public class ErrorMessages {
      * プロパティ名に対応したメッセージが存在しない場合は、{@code null}を返す。
      *
      * @param propertyName プロパティ名
-     * @return プロパティ名に対応したメッセージ(存在しない場合はr @ code null })
+     * @return プロパティ名に対応したメッセージ(存在しない場合は{@code null})
      */
     public String getMessage(final String propertyName) {
         verifyPropertyName(propertyName);
