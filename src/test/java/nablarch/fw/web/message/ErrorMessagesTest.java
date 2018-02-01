@@ -99,6 +99,5 @@ public class ErrorMessagesTest {
         assertThat(sut.getAllMessages(), Matchers.<String>empty());
         assertThat(sut.getGlobalMessages(), Matchers.<String>empty());
         assertThat(sut.getPropertyMessages(), Matchers.<String>empty());
-        assertThat(sut.hasError("propertyName"), is(false));
     }
 }
