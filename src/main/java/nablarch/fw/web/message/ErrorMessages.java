@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import nablarch.core.message.ApplicationException;
 import nablarch.core.message.Message;
@@ -53,6 +54,7 @@ public class ErrorMessages {
     /**
      * プロパティ名に対応したメッセージを返す。
      * <p>
+     * プロパティ名に対応したメッセージが複数存在した場合には、最後に追加されたものを返す。
      * プロパティ名に対応したメッセージが存在しない場合は、{@code null}を返す。
      *
      * @param propertyName プロパティ名
@@ -88,9 +90,9 @@ public class ErrorMessages {
     }
 
     /**
-     * プロパティに紐づくメッセージをすべて返す。
+     * プロパティに対応したメッセージをすべて返す。
      *
-     * @return プロパティ紐づくメッセージのリスト
+     * @return プロパティ対応したメッセージのリスト
      */
     public List<String> getPropertyMessages() {
         return Collections.unmodifiableList(propertyMessage.messages);

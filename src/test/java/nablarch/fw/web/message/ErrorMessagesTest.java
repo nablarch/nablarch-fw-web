@@ -2,6 +2,7 @@ package nablarch.fw.web.message;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
@@ -40,6 +41,9 @@ public class ErrorMessagesTest {
 
         exception.addMessages(new ValidationResultMessage(
                 "prop2", new BasicStringResource("id2", Collections.singletonMap("ja", "エラー２")), new Object[0]));
+        
+        exception.addMessages(new ValidationResultMessage(
+                "prop2", new BasicStringResource("id2", Collections.singletonMap("ja", "エラー２の２")), new Object[0]));
 
         exception.addMessages(new Message(
                 MessageLevel.ERROR, new BasicStringResource("global2", Collections.singletonMap("ja", "globalメッセージ２")), new Object[0]));
@@ -52,11 +56,14 @@ public class ErrorMessagesTest {
 
         assertThat("prop1のエラーはあるのでtrue", sut.hasError("prop1"), is(true));
         assertThat("prop1のメッセージ", sut.getMessage("prop1"), is("エラー"));
+        
+        assertThat("同一のプロパティ名のメッセージが複数あった場合は最後のメッセージが返される",
+                sut.getMessage("prop2"), is("エラー２の２"));
 
         assertThat("prop3のエラーはないのでfalse", sut.hasError("prop3"), is(false));
         assertThat("prop3は存在しないのでメッセージはnull", sut.getMessage("prop3"), is(nullValue()));
 
-        assertThat("プロパティに紐づくメッセージだけが元の順番のまま返されること", sut.getPropertyMessages(), contains("エラー", "エラー２"));
+        assertThat("プロパティに紐づくメッセージだけが元の順番のまま返されること", sut.getPropertyMessages(), contains("エラー", "エラー２", "エラー２の２"));
     }
 
     @Test
@@ -80,6 +87,6 @@ public class ErrorMessagesTest {
     @Test
     public void 全てのメセージが扱えること() {
         assertThat("全てのメッセージが元の順番のまま返されること",
-                sut.getAllMessages(), contains("エラー", "globalメッセージ", "エラー２", "globalメッセージ２"));
+                sut.getAllMessages(), contains("エラー", "globalメッセージ", "エラー２", "エラー２の２", "globalメッセージ２"));
     }
 }
