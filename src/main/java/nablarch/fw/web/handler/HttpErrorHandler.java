@@ -5,14 +5,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import nablarch.common.web.WebConfig;
+import nablarch.common.web.WebConfigFinder;
 import nablarch.core.log.Logger;
 import nablarch.core.log.LoggerManager;
 import nablarch.core.log.app.FailureLogUtil;
+import nablarch.core.message.ApplicationException;
 import nablarch.core.util.Builder;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.NoMoreHandlerException;
 import nablarch.fw.Result;
 import nablarch.fw.results.ServiceError;
+import nablarch.fw.web.message.ErrorMessages;
 import nablarch.fw.web.HttpErrorResponse;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpRequestHandler;
@@ -58,6 +62,14 @@ public class HttpErrorHandler implements HttpRequestHandler {
             // レスポンスオブジェクトに従った画面遷移を行う。
             ctx.setException(e.getCause());
             res = e.getResponse();
+            
+            // 原因例外がApplicationExceptionの場合はテンプレートエンジンで扱えるよう、
+            // メッセージを保持するオブジェクトに変換しリクエストスコープに格納する。
+            if (e.getCause() instanceof ApplicationException) {
+                final WebConfig webConfig = WebConfigFinder.getWebConfig();
+                ctx.setRequestScopedVar(webConfig.getErrorMessageRequestAttributeName(),
+                        new ErrorMessages((ApplicationException) e.getCause()));
+            }
             
         } catch (Result.Error e) {
             // 共通ハンドラ等から送出される汎用例外。
