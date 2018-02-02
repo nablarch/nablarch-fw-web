@@ -20,6 +20,9 @@ public class WebConfig {
     private String doubleSubmissionTokenSessionAttributeName = "/" + ExecutionContext.FW_PREFIX
             + "session_token";
 
+    /** エラーメッセージをリクエストスコープに格納する際に使用するキー */
+    private String errorMessageRequestAttributeName = "errors";
+
     /**
      * 二重サブミット防止トークンをHTMLに埋め込む際にinput要素のname属性に設定する名前を取得する。
      * @return 二重サブミット防止トークンをHTMLに埋め込む際にinput要素のname属性に設定する名前
@@ -68,5 +71,23 @@ public class WebConfig {
     public void setDoubleSubmissionTokenSessionAttributeName(
             String doubleSubmissionTokenSessionAttributeName) {
         this.doubleSubmissionTokenSessionAttributeName = doubleSubmissionTokenSessionAttributeName;
+    }
+
+    /**
+     * エラーメッセージをリクエストスコープに格納する際に使用するキーを取得する。
+     *
+     * @return エラーメッセージをリクエストスコープに格納する際に使用するキー
+     */
+    public String getErrorMessageRequestAttributeName() {
+        return errorMessageRequestAttributeName;
+    }
+
+    /**
+     * エラーメッセージをリクエストスコープに格納する際に使用するキーを設定する。
+     *
+     * @param errorMessageRequestAttributeName エラーメッセージをリクエストスコープに格納する際に使用するキー
+     */
+    public void setErrorMessageRequestAttributeName(final String errorMessageRequestAttributeName) {
+        this.errorMessageRequestAttributeName = errorMessageRequestAttributeName;
     }
 }

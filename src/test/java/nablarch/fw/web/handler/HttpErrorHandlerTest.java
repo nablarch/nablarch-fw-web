@@ -1,6 +1,7 @@
 package nablarch.fw.web.handler;
 
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNull;
@@ -9,23 +10,37 @@ import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import nablarch.common.web.WebConfig;
+import nablarch.core.message.ApplicationException;
+import nablarch.core.message.BasicStringResource;
+import nablarch.core.message.Message;
+import nablarch.core.message.MessageLevel;
+import nablarch.core.repository.ObjectLoader;
 import nablarch.core.repository.SystemRepository;
 import nablarch.core.repository.di.DiContainer;
 import nablarch.core.repository.di.config.xml.XmlComponentDefinitionLoader;
+import nablarch.fw.ExecutionContext;
 import nablarch.fw.Handler;
 import nablarch.fw.Result.Error;
 import nablarch.fw.web.HttpErrorResponse;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpResponse;
+import nablarch.fw.web.MockHttpRequest;
+import nablarch.fw.web.interceptor.OnError;
+import nablarch.fw.web.message.ErrorMessages;
 import nablarch.fw.web.servlet.MockServletRequest;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 
 import nablarch.test.support.log.app.OnMemoryLogWriter;
+
+import org.junit.After;
 import org.junit.Test;
 
 public class HttpErrorHandlerTest {
@@ -45,7 +60,12 @@ public class HttpErrorHandlerTest {
         }));
         return ctx;
     }
-    
+
+    @After
+    public void tearDown() throws Exception {
+        SystemRepository.clear();
+    }
+
     /**
      * 後続のハンドラで例外が発生しなかった場合は、
      * 後続のハンドラが返したレスポンスがそのまま返されること。
@@ -458,6 +478,74 @@ public class HttpErrorHandlerTest {
         
         assertThat(response.getStatusCode(), is(409));
         assertThat(response.getContentPath().getPath(), is("/USER_ERROR.jsp"));
+        
+    }
+
+    @Test
+    public void ApplicationExceptionの場合リクエストスコープにメッセージの情報が格納されていること() {
+        // -------------------------------------------------- setup
+        final ExecutionContext context = new ExecutionContext();
+        context.addHandler(new Handler<Object, Object>() {
+            @OnError(type = ApplicationException.class, path = "dummy.html")
+            @Override
+            public Object handle(final Object o, final ExecutionContext context) {
+                final ApplicationException exception = new ApplicationException();
+                exception.addMessages(
+                        new Message(
+                                MessageLevel.ERROR,
+                                new BasicStringResource("id", Collections.singletonMap("ja", "メッセージ")
+                                ),
+                                new Object[0])
+                );
+                throw exception;
+            }
+        });
+
+        // -------------------------------------------------- execute
+        final HttpErrorHandler sut = new HttpErrorHandler();
+        sut.handle(new MockHttpRequest("GET /index.html HTTP/1.0 "), context);
+
+        // -------------------------------------------------- assert
+        final ErrorMessages messages = context.getRequestScopedVar("errors");
+        assertThat(messages.getAllMessages(), contains("メッセージ"));
+    }
+
+    @Test
+    public void ApplicationExceptionの場合でカスタマイズしている場合そのキー名でリクエストスコープにメッセージ情報が格納されていること() {
+        // -------------------------------------------------- setup
+        final ExecutionContext context = new ExecutionContext();
+        context.addHandler(new Handler<Object, Object>() {
+                               @OnError(type = ApplicationException.class, path = "dummy.html")
+                               @Override
+                               public Object handle(final Object o, final ExecutionContext context) {
+                                   final ApplicationException exception = new ApplicationException();
+                                   exception.addMessages(
+                                           new Message(
+                                                   MessageLevel.ERROR,
+                                                   new BasicStringResource("id", Collections.singletonMap("ja", "メッセージ")
+                                                   ),
+                                                   new Object[0])
+                                   );
+                                   throw exception;
+                               }
+                           }
+        );
+        SystemRepository.load(new ObjectLoader() {
+            @Override
+            public Map<String, Object> load() {
+                final WebConfig config = new WebConfig();
+                config.setErrorMessageRequestAttributeName("custom_errors");
+                return Collections.<String, Object>singletonMap("webConfig", config);
+            }
+        });
+
+        // -------------------------------------------------- execute
+        final HttpErrorHandler sut = new HttpErrorHandler();
+        sut.handle(new MockHttpRequest("GET /index.html HTTP/1.0 "), context);
+
+        // -------------------------------------------------- assert
+        final ErrorMessages messages = context.getRequestScopedVar("custom_errors");
+        assertThat(messages.getAllMessages(), contains("メッセージ"));
         
     }
 }
