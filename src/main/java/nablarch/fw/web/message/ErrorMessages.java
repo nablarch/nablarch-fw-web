@@ -24,7 +24,7 @@ public class ErrorMessages {
     private final List<String> globalMessages = new ArrayList<String>();
 
     /** propertyに対応したメッセージのリスト **/
-    private final PropertyMessages propertyMessage = new PropertyMessages();
+    private final PropertyMessages propertyMessages = new PropertyMessages();
 
 
     /**
@@ -42,7 +42,7 @@ public class ErrorMessages {
 
             if (message instanceof ValidationResultMessage) {
                 // プロパティに紐づくメッセージ
-                propertyMessage.addMessage(((ValidationResultMessage) message).getPropertyName(), messageText);
+                propertyMessages.addMessage(((ValidationResultMessage) message).getPropertyName(), messageText);
             } else {
                 // プロパティに紐付かないグローバルなメッセージ
                 globalMessages.add(messageText);
@@ -61,7 +61,7 @@ public class ErrorMessages {
      */
     public String getMessage(final String propertyName) {
         verifyPropertyName(propertyName);
-        return propertyMessage.getMessage(propertyName);
+        return propertyMessages.getMessage(propertyName);
     }
 
     /**
@@ -72,7 +72,7 @@ public class ErrorMessages {
      */
     public boolean hasError(final String propertyName) {
         verifyPropertyName(propertyName);
-        return propertyMessage.messageIndex.containsKey(propertyName);
+        return propertyMessages.messageIndex.containsKey(propertyName);
     }
 
     /**
@@ -94,7 +94,7 @@ public class ErrorMessages {
      * @return プロパティ対応したメッセージのリスト
      */
     public List<String> getPropertyMessages() {
-        return Collections.unmodifiableList(propertyMessage.messages);
+        return Collections.unmodifiableList(propertyMessages.messages);
     }
 
     /**
