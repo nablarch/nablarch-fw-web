@@ -26,7 +26,6 @@ public class ErrorMessages {
     /** propertyに対応したメッセージのリスト **/
     private final PropertyMessages propertyMessages = new PropertyMessages();
 
-
     /**
      * /**
      * {@link ApplicationException}からオブジェクトを構築する。
@@ -72,7 +71,7 @@ public class ErrorMessages {
      */
     public boolean hasError(final String propertyName) {
         verifyPropertyName(propertyName);
-        return propertyMessages.messageIndex.containsKey(propertyName);
+        return propertyMessages.contains(propertyName);
     }
 
     /**
@@ -147,6 +146,17 @@ public class ErrorMessages {
             final Integer index = messageIndex.get(propertyName);
             return index != null ? messages.get(index) : null;
         }
+
+        /**
+         * プロパティ名に対応したメッセージを含むかどうかを判定する。
+         *
+         * @param propertyName プロパティ名
+         * @return 指定されたプロパティ名を含む場合{@code true}
+         */
+        private boolean contains(final String propertyName) {
+            return messageIndex.containsKey(propertyName);
+        }
+        
     }
 
 }
