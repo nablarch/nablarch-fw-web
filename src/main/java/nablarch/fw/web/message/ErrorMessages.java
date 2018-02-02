@@ -23,7 +23,7 @@ public class ErrorMessages {
     /** グローバルなメッセージのリスト */
     private final List<String> globalMessages = new ArrayList<String>();
 
-    /** propertyに対応したメッセージのリスト **/
+    /** プロパティ名に紐づくメッセージを保持するオブジェクト **/
     private final PropertyMessages propertyMessages = new PropertyMessages();
 
     /**
