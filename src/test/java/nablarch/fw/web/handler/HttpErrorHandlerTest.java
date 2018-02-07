@@ -1,12 +1,10 @@
 package nablarch.fw.web.handler;
 
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -16,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.junit.After;
+import org.junit.Test;
 
 import nablarch.common.web.WebConfig;
 import nablarch.core.message.ApplicationException;
@@ -28,20 +29,18 @@ import nablarch.core.repository.di.DiContainer;
 import nablarch.core.repository.di.config.xml.XmlComponentDefinitionLoader;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.Handler;
-import nablarch.fw.Result.Error;
+import nablarch.fw.NoMoreHandlerException;
+import nablarch.fw.results.ServiceUnavailable;
 import nablarch.fw.web.HttpErrorResponse;
 import nablarch.fw.web.HttpRequest;
+import nablarch.fw.web.HttpRequestHandler;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.MockHttpRequest;
 import nablarch.fw.web.interceptor.OnError;
 import nablarch.fw.web.message.ErrorMessages;
 import nablarch.fw.web.servlet.MockServletRequest;
 import nablarch.fw.web.servlet.ServletExecutionContext;
-
 import nablarch.test.support.log.app.OnMemoryLogWriter;
-
-import org.junit.After;
-import org.junit.Test;
 
 public class HttpErrorHandlerTest {
     
@@ -547,5 +546,131 @@ public class HttpErrorHandlerTest {
         final ErrorMessages messages = context.getRequestScopedVar("custom_errors");
         assertThat(messages.getAllMessages(), contains("メッセージ"));
         
+    }
+
+    @Test
+    public void エラーメッセージがリクエストスコープに無ければ空のエラーメッセージが設定されること() {
+
+        final ExecutionContext context = new ExecutionContext();
+        context.addHandler(new HttpRequestHandler() {
+            @Override
+            public HttpResponse handle(HttpRequest request, ExecutionContext context) {
+                return new HttpResponse("index.html");
+            }
+        });
+
+        HttpErrorHandler handler = new HttpErrorHandler();
+        handler.handle(new MockHttpRequest(), context);
+
+        ErrorMessages errors = context.getRequestScopedVar("errors");
+        assertThat(errors.getAllMessages(), is(empty()));
+    }
+
+    @Test
+    public void NoMoreHandlerExceptionがスローされた場合は空のエラーメッセージが設定されること() {
+
+        final ExecutionContext context = new ExecutionContext();
+        context.addHandler(new HttpRequestHandler() {
+            @Override
+            public HttpResponse handle(HttpRequest request, ExecutionContext context) {
+                throw new NoMoreHandlerException();
+            }
+        });
+
+        HttpErrorHandler handler = new HttpErrorHandler();
+        handler.handle(new MockHttpRequest(), context);
+
+        ErrorMessages errors = context.getRequestScopedVar("errors");
+        assertThat(errors.getAllMessages(), is(empty()));
+    }
+
+    @Test
+    public void 原因例外にApplicationExceptionが設定されていないHttpErrorResponseがスローされた場合は空のエラーメッセージが設定されること() {
+
+        final ExecutionContext context = new ExecutionContext();
+        context.addHandler(new HttpRequestHandler() {
+            @Override
+            public HttpResponse handle(HttpRequest request, ExecutionContext context) {
+                throw new HttpErrorResponse(new Exception());
+            }
+        });
+
+        HttpErrorHandler handler = new HttpErrorHandler();
+        handler.handle(new MockHttpRequest(), context);
+
+        ErrorMessages errors = context.getRequestScopedVar("errors");
+        assertThat(errors.getAllMessages(), is(empty()));
+    }
+
+    @Test
+    public void Result_Errorがスローされた場合は空のエラーメッセージが設定されること() {
+
+        final ExecutionContext context = new ExecutionContext();
+        context.addHandler(new HttpRequestHandler() {
+            @Override
+            public HttpResponse handle(HttpRequest request, ExecutionContext context) {
+                throw new ServiceUnavailable();
+            }
+        });
+
+        HttpErrorHandler handler = new HttpErrorHandler();
+        handler.handle(new MockHttpRequest(), context);
+
+        ErrorMessages errors = context.getRequestScopedVar("errors");
+        assertThat(errors.getAllMessages(), is(empty()));
+    }
+
+    @Test
+    public void RuntimeExceptionがスローされた場合は空のエラーメッセージが設定されること() {
+
+        final ExecutionContext context = new ExecutionContext();
+        context.addHandler(new HttpRequestHandler() {
+            @Override
+            public HttpResponse handle(HttpRequest request, ExecutionContext context) {
+                throw new RuntimeException();
+            }
+        });
+
+        HttpErrorHandler handler = new HttpErrorHandler();
+        handler.handle(new MockHttpRequest(), context);
+
+        ErrorMessages errors = context.getRequestScopedVar("errors");
+        assertThat(errors.getAllMessages(), is(empty()));
+    }
+
+    @Test
+    public void StackOverflowErrorがスローされた場合は空のエラーメッセージが設定されること() {
+
+        final ExecutionContext context = new ExecutionContext();
+        context.addHandler(new HttpRequestHandler() {
+            @Override
+            public HttpResponse handle(HttpRequest request, ExecutionContext context) {
+                throw new StackOverflowError();
+            }
+        });
+
+        HttpErrorHandler handler = new HttpErrorHandler();
+        handler.handle(new MockHttpRequest(), context);
+
+        ErrorMessages errors = context.getRequestScopedVar("errors");
+        assertThat(errors.getAllMessages(), is(empty()));
+    }
+
+    @Test
+    public void java_lang_Errorがスローされた場合は空のエラーメッセージが設定されること() {
+
+        final ExecutionContext context = new ExecutionContext();
+        context.addHandler(new HttpRequestHandler() {
+            @Override
+            public HttpResponse handle(HttpRequest request, ExecutionContext context) {
+                throw new Error();
+            }
+        });
+
+        HttpErrorHandler handler = new HttpErrorHandler();
+        handler.handle(new MockHttpRequest(), context);
+
+        ErrorMessages errors = context.getRequestScopedVar("errors");
+        assertThat(errors.getAllMessages(), is(empty()));
     }
 }
