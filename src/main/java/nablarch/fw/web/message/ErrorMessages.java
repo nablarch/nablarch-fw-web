@@ -17,6 +17,9 @@ import nablarch.core.validation.ValidationResultMessage;
  */
 public class ErrorMessages {
 
+    /** 空のインスタンス */
+    private static final ErrorMessages EMPTY_INSTANCE = new ErrorMessages();
+
     /** 全てのメッセージのリスト */
     private final List<String> allMessages = new ArrayList<String>();
 
@@ -47,6 +50,23 @@ public class ErrorMessages {
                 globalMessages.add(messageText);
             }
         }
+    }
+
+    /**
+     * 空の{@link ErrorMessages}を構築するコンストラクタ。
+     */
+    private ErrorMessages() {
+        //nop
+    }
+
+    /**
+     * 空の{@link ErrorMessages}インスタンスを返す。
+     * {@link nablarch.fw.web.handler.HttpErrorHandler HttpErrorHandler}から使用されることを想定。
+     * 
+     * @return 空のインスタンス
+     */
+    public static ErrorMessages empty() {
+        return EMPTY_INSTANCE;
     }
 
     /**

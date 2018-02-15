@@ -113,6 +113,12 @@ public class HttpErrorHandler implements HttpRequestHandler {
             FailureLogUtil.logFatal(e, ctx.getDataProcessedWhenThrown(e), null);
             ctx.setException(e);
             res = HttpResponse.Status.INTERNAL_SERVER_ERROR.handle(req, ctx);
+        } finally {
+            final WebConfig webConfig = WebConfigFinder.getWebConfig();
+            final String varName = webConfig.getErrorMessageRequestAttributeName();
+            if (ctx.getRequestScopedVar(varName) == null) {
+                ctx.setRequestScopedVar(varName, ErrorMessages.empty());
+            }
         }
         
         if (res.isBodyEmpty()) {
