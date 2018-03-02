@@ -44,7 +44,7 @@ import nablarch.fw.web.HttpResponse;
  * 本ハンドラは、{@code NablarchTagHandler}の手前に設定すること。
  *
  * @author Kiyohito Itoh
- * @deprecated POST再送信を防止するには、業務アクションにてリダイレクトのレスポンスを返すことで実現してください。
+ * @deprecated アプリケーションで実装したほうが分かりやすく簡単に実装できるため、POST再送信を防止するには業務アクションにてリダイレクトのレスポンスを返すことで実現すること。
  */
 @Deprecated
 public class PostResubmitPreventHandler implements HttpRequestHandler {
