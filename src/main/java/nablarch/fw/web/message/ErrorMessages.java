@@ -30,7 +30,6 @@ public class ErrorMessages {
     private final PropertyMessages propertyMessages = new PropertyMessages();
 
     /**
-     * /**
      * {@link ApplicationException}からオブジェクトを構築する。
      *
      * @param applicationException エラーメッセージを持つアプリケーション例外
