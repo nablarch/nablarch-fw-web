@@ -60,7 +60,7 @@ public @interface UseToken {
      *
      */
     public static class Impl
-            extends Interceptor.Impl<HttpRequest, HttpResponse, OnDoubleSubmission> {
+            extends Interceptor.Impl<HttpRequest, HttpResponse, UseToken> {
 
         /**
          * トークンを生成して元のハンドラを実行する。
