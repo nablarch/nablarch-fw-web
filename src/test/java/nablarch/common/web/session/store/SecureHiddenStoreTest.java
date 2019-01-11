@@ -1,42 +1,43 @@
-package nablarch.common.web.session.store;
+package com.nablarch.example.app.web.session.store;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-
-import java.io.Serializable;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletResponse;
-
+import com.nablarch.example.app.web.session.MockHttpServletRequest;
 import mockit.Mocked;
+import nablarch.common.encryption.AesEncryptor;
+import nablarch.common.encryption.AesEncryptor.AesContext;
 import nablarch.common.encryption.Encryptor;
-import nablarch.common.web.session.MockHttpServletRequest;
+import nablarch.common.web.session.EncodeException;
 import nablarch.common.web.session.SessionEntry;
 import nablarch.common.web.session.encoder.JavaSerializeEncryptStateEncoder;
 import nablarch.common.web.session.encoder.JavaSerializeStateEncoder;
 import nablarch.common.web.session.encoder.JaxbStateEncoder;
+import nablarch.common.web.session.store.HiddenStore;
 import nablarch.core.util.StringUtil;
 import nablarch.fw.web.servlet.ServletExecutionContext;
-
+import org.junit.Before;
 import org.junit.Test;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
 /**
- * {@link HiddenStore}のテスト。
- * @author Kiyohito Itoh
+ * {@link SecureHiddenStore}のテスト。
+ *
+ * {@link HiddenStore}との互換性を確認するため、{@link HiddenStore}のテストコードをそのまま流用している。
+ * {@link SecureHiddenStore}独自実装部分のテストについては、本クラスの後半に記載している。
+ *
+ * @author Tsuyoshi Kawasaki
  */
-public class HiddenStoreTest {
+public class SecureHiddenStoreTest {
 
     @Mocked
     private ServletContext unusedHttpContext;
@@ -44,13 +45,22 @@ public class HiddenStoreTest {
     @Mocked
     private HttpServletResponse unusedHttpResponse;
 
+    private SecureHiddenStore store;
+
+    @Before
+    public void setUp() {
+        store = new SecureHiddenStore();
+        store.setStateEncoder(new JavaSerializeStateEncoder());
+        store.setEncryptor(new AesEncryptor());
+    }
+
     /**
      * デフォルト設定で動作すること。
      */
     @Test
     public void testDefaultSettings() {
 
-        HiddenStore store = new HiddenStore();
+
         store.setStateEncoder(new JavaSerializeStateEncoder());
 
         List<SessionEntry> inEntries = Arrays.asList(
@@ -88,8 +98,8 @@ public class HiddenStoreTest {
     @Test
     public void testEncryptSettings() {
 
-        HiddenStore store = new HiddenStore();
-        store.setStateEncoder(new JavaSerializeEncryptStateEncoder<Serializable>());
+
+        store.setStateEncoder(new JavaSerializeEncryptStateEncoder());
 
         List<SessionEntry> inEntries = Arrays.asList(
                 new SessionEntry("key1", "val1", store),
@@ -126,7 +136,6 @@ public class HiddenStoreTest {
     @Test
     public void testCustomSettings() {
 
-        HiddenStore store = new HiddenStore();
         JaxbStateEncoder encoder = new JaxbStateEncoder();
         store.setStateEncoder(encoder);
         store.setParameterName("_HIDDEN_STORE_");
@@ -166,7 +175,6 @@ public class HiddenStoreTest {
     @Test
     public void testLoad() {
 
-        HiddenStore store = new HiddenStore();
         store.setStateEncoder(new JavaSerializeStateEncoder());
 
         String unusedId = createSessionId();
@@ -194,7 +202,6 @@ public class HiddenStoreTest {
     @Test
     public void testSave() {
 
-        HiddenStore store = new HiddenStore();
         store.setStateEncoder(new JavaSerializeStateEncoder());
 
         String unusedId = createSessionId();
@@ -215,14 +222,13 @@ public class HiddenStoreTest {
     @Test
     public void testDelete() {
 
-        HiddenStore sut = new HiddenStore();
-        sut.setParameterName("test-invalidate");
+        store.setParameterName("test-invalidate");
 
         final String unusedId = "unused";
         final ServletExecutionContext context = createExeCtxt();
         context.setRequestScopedVar("test-invalidate", "test-value");
 
-        sut.delete(unusedId, context);
+        store.delete(unusedId, context);
 
         assertThat(context.getRequestScopedVar("test-invalidate"), is(nullValue()));
     }
@@ -233,14 +239,13 @@ public class HiddenStoreTest {
     @Test
     public void testInvalidate() {
 
-        HiddenStore sut = new HiddenStore();
-        sut.setParameterName("test-invalidate");
+        store.setParameterName("test-invalidate");
 
         final String unusedId = "unused";
         final ServletExecutionContext context = createExeCtxt();
         context.setRequestScopedVar("test-invalidate", "test-value");
 
-        sut.invalidate(unusedId, context);
+        store.invalidate(unusedId, context);
 
         assertThat(context.getRequestScopedVar("test-invalidate"), is(nullValue()));
     }
@@ -307,4 +312,137 @@ public class HiddenStoreTest {
         }
         return null;
     }
+
+    //---- ここから新規追加テスト
+
+    /** 保存時、データ全体に暗号化が施されること。*/
+    @Test
+    public void testEncryption() throws UnsupportedEncodingException {
+        SecureHiddenStore store = new SecureHiddenStore();
+        store.setStateEncoder(new JavaSerializeStateEncoder());
+        // なんでもCAFEBABEに変換するEncryptor
+        FixedBytesEncryptor fixedBytesEncryptor = new FixedBytesEncryptor();
+        store.setEncryptor(fixedBytesEncryptor);
+
+        List<SessionEntry> inEntries = Collections.singletonList(
+                new SessionEntry("key1", "val1", store));
+
+        String sessionId = createSessionId();
+        ServletExecutionContext outCtxt = createExeCtxt();
+        store.save(sessionId, inEntries, outCtxt);
+
+        assertThat("暗号化部品が実行されていること", fixedBytesEncryptor.encryptionExecuted, is(true));
+
+        String value = outCtxt.getRequestScopedVar("nablarch_hiddenStore");
+        byte[] encryptedBytes = DatatypeConverter.parseBase64Binary(value);
+        assertArrayEquals("データが暗号化されていること", FixedBytesEncryptor.FIXED_BYTES, encryptedBytes);
+    }
+
+    // なんでも固定のバイト列に置き換えるテスト用Encryptor
+    private static class FixedBytesEncryptor implements Encryptor<Serializable> {
+
+        private static final byte[] FIXED_BYTES = { (byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE };
+
+        private static final Serializable FIXED_CONTEXT = "FIXED_CONTEXT";
+
+        boolean encryptionExecuted = false;
+
+        @Override
+        public Serializable generateContext() {
+            return "unused"; // 本クラスはContextを使用しない
+        }
+
+        @Override
+        public byte[] encrypt(Serializable context, byte[] src) throws IllegalArgumentException {
+            encryptionExecuted = true;
+            return FIXED_BYTES.clone();
+        }
+
+        @Override
+        public byte[] decrypt(Serializable context, byte[] src) throws IllegalArgumentException {
+            throw new AssertionError("本クラスのテストでは使用されないメソッド");
+        }
+    }
+
+    /** セッションIDが不正な場合、例外が発生すること。*/
+    @Test
+    public void testInvalidSessionId() {
+        store.setStateEncoder(new JavaSerializeStateEncoder());
+
+        List<SessionEntry> inEntries = Collections.singletonList(
+                new SessionEntry("key1", "val1", store));
+
+        String sessionId = createSessionId();
+        ServletExecutionContext outCtxt = createExeCtxt();
+        store.save(sessionId, inEntries, outCtxt);
+
+        String value = outCtxt.getRequestScopedVar("nablarch_hiddenStore");
+        assertNotNull(value);
+
+        ServletExecutionContext inCtxt = createExeCtxt();
+        inCtxt.getServletRequest().getParameterMap().put(
+                "nablarch_hiddenStore", new String[] {value});
+        String invalidSessionId = createSessionId();
+        assertNotEquals("保存時と復元時でセッションIDが異なる",
+                invalidSessionId, sessionId);
+        try {
+            // 保存時と異なるセッションIDを用いて復元を試みる。
+            store.load(invalidSessionId, inCtxt);
+            fail();
+        } catch (EncodeException e) {
+            assertThat(e.getMessage(), containsString("Invalid Session ID detected."));
+        }
+
+    }
+
+    /** 復元対象のデータがBase64として不正な場合、例外が発生すること*/
+    @Test(expected = EncodeException.class)
+    public void testInvalidBase64Data() {
+        ServletExecutionContext inCtxt = createExeCtxt();
+        inCtxt.getServletRequest().getParameterMap().put(
+                "nablarch_hiddenStore", new String[] {"不正なHIDDENストアの値"});
+        String sessionId = createSessionId();
+        store.load(sessionId, inCtxt);
+    }
+
+    /** 復元対象のデータが復号化できない不正なデータである場合、例外が発生すること*/
+    @Test(expected = EncodeException.class)
+    public void testInvalidEncryptedData() {
+        ServletExecutionContext inCtxt = createExeCtxt();
+        inCtxt.getServletRequest().getParameterMap().put(
+                "nablarch_hiddenStore", new String[] { DatatypeConverter.printBase64Binary("不正なHIDDENストアの値".getBytes(Charset.forName("UTF8")))});
+        String sessionId = createSessionId();
+        store.load(sessionId, inCtxt);
+    }
+
+
+    /** 復元対象のデータの鍵が合わない不正なデータである場合、例外が発生すること*/
+    @Test(expected = EncodeException.class)
+    public void testInvalidKeyData() {
+
+        ServletExecutionContext outCtxt = createExeCtxt();
+        {
+            List<SessionEntry> inEntries = Collections.singletonList(
+                    new SessionEntry("key1", "val1", store));
+
+            String sessionId = createSessionId();
+
+            // 別の鍵を持つSecureHiddenStoreで暗号化
+            SecureHiddenStore another = new SecureHiddenStore();
+            another.setStateEncoder(new JavaSerializeStateEncoder());
+            another.setEncryptor(new AesEncryptor());
+            another.save(sessionId, inEntries, outCtxt);
+        }
+
+        String value = outCtxt.getRequestScopedVar("nablarch_hiddenStore");
+        assertNotNull(value);
+
+        ServletExecutionContext inCtxt = createExeCtxt();
+
+        inCtxt.getServletRequest().getParameterMap().put(
+                "nablarch_hiddenStore", new String[] { value });
+        String sessionId = createSessionId();
+        store.load(sessionId, inCtxt);
+    }
+
 }
