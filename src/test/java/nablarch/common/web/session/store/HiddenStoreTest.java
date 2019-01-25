@@ -29,6 +29,10 @@ import static org.junit.Assert.*;
 
 /**
  * {@link HiddenStore}のテスト。
+ *
+ * 互換性を確認するため、5u13以前のHiddenStoreクラスのテストコードをそのまま流用している。
+ * 5u14で独自に実装した部分のテストについては、本クラスの後半に記載している。
+ *
  * @author Tsuyoshi Kawasaki
  */
 public class HiddenStoreTest {
@@ -307,7 +311,7 @@ public class HiddenStoreTest {
         return null;
     }
 
-    //---- ここから新規追加テスト
+    //---- ここから5u14で新規に追加したテスト
 
     /** 保存時、データ全体に暗号化が施されること。*/
     @Test

@@ -20,12 +20,12 @@ import java.util.List;
 
 /**
  * HTMLのinputタグ(type="hidden")を格納先とする{@link SessionStore}拡張クラス。
- * {@link nablarch.common.web.session.store.HiddenStore}に以下の追加変更を行っている。
+ * 5u13以前のHiddenStoreクラスに以下の追加変更を行っている。
  * <pre>
  *     <li>保存するデータをひとつづつ暗号化するのではなく、保存するデータ全体をまとめて暗号化する</li>
  *     <li>保存するデータにセッションIDを含めておき、復元時のセッションIDと一致することを確認する</li>
  * </pre>
- * {@link nablarch.common.web.session.store.HiddenStore}とは直列化、暗号化の方法など
+ * 5u13以前のHiddenStoreクラスとは直列化、暗号化の方法など
  * 内部的な処理やデータ構造は異なるが、外部的な振る舞いは互換性がある。
  *
  * デフォルトのストア名は"hidden"である。
@@ -118,7 +118,6 @@ public class HiddenStore extends SessionStore {
             byte[] serialized = encryptor.decrypt(context, encrypted);
             return deserializeAndValidateSessionId(serialized, currentSessionId);
         } catch (Exception e) {
-            // SessionStoreHandlerの例外判定でこの例外の型を使用するので、HiddenStoreにある例外を使用する。
             throw new HiddenStoreLoadFailedException(e);
         }
     }
