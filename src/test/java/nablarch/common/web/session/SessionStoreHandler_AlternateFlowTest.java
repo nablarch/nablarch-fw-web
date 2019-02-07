@@ -1,8 +1,7 @@
 package nablarch.common.web.session;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.EOFException;
 import java.io.NotSerializableException;
@@ -49,7 +48,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import mockit.Capturing;
-import mockit.Expectations;
 import mockit.Mock;
 import mockit.Mocked;
 import mockit.Verifications;
@@ -933,6 +931,7 @@ public class SessionStoreHandler_AlternateFlowTest {
 
         final ServletExecutionContext servCtx = new ServletExecutionContext(servletReq, httpResponse, servletContext);
 
+
         HttpResponse res = servCtx.addHandler(handler)
                                   .addHandler(new Handler<HttpRequest, HttpResponse>() {
                                       @Override
@@ -952,14 +951,34 @@ public class SessionStoreHandler_AlternateFlowTest {
         assertThat("想定したステータスコードのレスポンスが返却されること", res.getStatusCode(), is(200));
         assertThat("想定したコンテンツパスのレスポンスが返却されること", res.getContentPath()
                                                    .getPath(), is("success"));
-
         final String storeValue = servCtx.getRequestScopedVar("nablarch_hiddenStore");
         servCtx.getHttpRequest().setParam("nablarch_hiddenStore", storeValue);
-        final List<SessionEntry> sessionEntryList = hiddenStore.load(sessionId, servCtx);
+        // SessionStoreHandlerが設定するSessionIdの取得
+        final List<Cookie> cookies = new ArrayList<Cookie>();
+        new Verifications() {{
+            httpResponse.addCookie(withCapture(cookies));
+            assertNotNull("cookieが設定されていること", getSessionId(cookies));
+        }};
+        final List<SessionEntry> sessionEntryList = hiddenStore.load(getSessionId(cookies), servCtx);
         assertThat("key1は即削除しているので追加されているエントリーは1つだけ", sessionEntryList, IsCollectionWithSize.hasSize(1));
         assertThat("追加されているのはkey2のセッション情報のみ", sessionEntryList.get(0), allOf(
                 HasPropertyWithValue.hasProperty("key", is("key2")),
                 HasPropertyWithValue.hasProperty("value", is("value2"))
         ));
+    }
+
+    /**
+     * CookieからセッションIDを取得する。
+     *
+     * @param cookies Cookieのリスト
+     * @return SessionID
+     */
+    private String getSessionId(List<Cookie> cookies) {
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("NABLARCH_SID")) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 }
