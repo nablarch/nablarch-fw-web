@@ -129,7 +129,7 @@ public class SessionStoreTest {
         assertEquals("\uD83C\uDF63\uD83C\uDF63", unmarshalled.get(3).getKey());
         assertEquals("\uD83C\uDF7A\uD83C\uDF7A", unmarshalled.get(3).getValue());
         assertEquals("testInnerClass", unmarshalled.get(4).getKey());
-        assertEquals("hogera_value", ((TestInnerClass)unmarshalled.get(4).getValue()).getTestValue());
+        assertEquals("hogera_value", ((TestInnerClass) unmarshalled.get(4).getValue()).getTestValue());
         assertNull(unmarshalled.get(2).getValue());
     }
 
