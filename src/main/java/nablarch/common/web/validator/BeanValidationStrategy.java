@@ -43,6 +43,7 @@ public class BeanValidationStrategy implements ValidationStrategy {
 
     /** バリデーションエラー時にBeanをリクエストスコープにコピーするかどうか */
     private boolean copyBeanToRequestScopeOnError = false;
+    private BeanValidationFormFactory formFactory = new SimpleRefrectionBeanValidationFormFactory();
 
     /**
      * {@code BeanValidationStrategy}を生成する。
@@ -57,7 +58,8 @@ public class BeanValidationStrategy implements ValidationStrategy {
         Map<String, String[]> rawRequestParamMap = request.getParamMap();
         Map<String, String[]> requestParamMap = getMapWithConvertedKey(annotation.prefix(), rawRequestParamMap);
 
-        Serializable bean = BeanUtil.createAndCopy(annotation.form(), requestParamMap);
+        Serializable bean = formFactory.create(annotation.form());
+        BeanUtil.copy(annotation.form(), bean, requestParamMap);
         Validator validator = ValidatorUtil.getValidator();
         Set<ConstraintViolation<Serializable>> results = validator.validate(bean);
         if (!results.isEmpty()) {
@@ -164,5 +166,9 @@ public class BeanValidationStrategy implements ValidationStrategy {
      */
     public void setCopyBeanToRequestScopeOnError(boolean copyBeanToRequestScopeOnError) {
         this.copyBeanToRequestScopeOnError = copyBeanToRequestScopeOnError;
+    }
+
+    public void setFormFactory(BeanValidationFormFactory formFactory) {
+        this.formFactory = formFactory;
     }
 }
