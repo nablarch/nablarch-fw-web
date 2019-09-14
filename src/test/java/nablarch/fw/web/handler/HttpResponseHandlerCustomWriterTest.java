@@ -1,6 +1,7 @@
 package nablarch.fw.web.handler;
 
 import junit.framework.AssertionFailedError;
+import nablarch.TestUtil;
 import nablarch.core.ThreadContext;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpRequest;
@@ -76,7 +77,7 @@ public class HttpResponseHandlerCustomWriterTest {
      */
     @Test
     public void testNoCustomResponseWriter() {
-        HttpServer server = new HttpServer();
+        HttpServer server = TestUtil.createHttpServer();
         // HttpResponseHandlerにCustomResponseWriterを設定する
         HttpResponseHandler sut = server.getHandlerOf(HttpResponseHandler.class);
         sut.setCustomResponseWriter(new CustomResponseWriter() {

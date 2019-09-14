@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Locale;
 
+import nablarch.TestUtil;
 import nablarch.core.ThreadContext;
 import nablarch.core.log.LogUtil;
 import nablarch.core.log.basic.LogLevel;
@@ -64,7 +65,7 @@ public class HttpErrorHandler_IllegalCaseTest {
 
     @Test
     public void testHandlingOfOutOfMemoryError() {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
             .addHandler(new HttpRequestHandler() {
                 public HttpResponse handle(HttpRequest      request,
                                            ExecutionContext context) {
@@ -82,7 +83,7 @@ public class HttpErrorHandler_IllegalCaseTest {
 
     @Test
     public void testHandlingOfErrorInServletForward() {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
             .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
             .addHandler(new HttpRequestHandler() {
                 public HttpResponse handle(HttpRequest      request,
@@ -100,7 +101,7 @@ public class HttpErrorHandler_IllegalCaseTest {
 
     @Test
     public void testHandlingOfStackOverFlowError() {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
             .addHandler(new HttpRequestHandler() {
                 public HttpResponse handle(HttpRequest      request,
                                            ExecutionContext context) {
@@ -130,7 +131,7 @@ public class HttpErrorHandler_IllegalCaseTest {
         System.clearProperty("nablarch.appLog.filePath");
         LogUtil.removeAllObjectsBoundToContextClassLoader();
 
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
             .addHandler(new HttpRequestHandler() {
                 public HttpResponse handle(HttpRequest      request,
                                            ExecutionContext context) {
@@ -170,7 +171,7 @@ public class HttpErrorHandler_IllegalCaseTest {
         ThreadContext.setLanguage(Locale.JAPANESE);
 
 
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
             .addHandler(new HttpRequestHandler() {
                 public HttpResponse handle(HttpRequest      request,
                                            ExecutionContext context) {
@@ -202,7 +203,7 @@ public class HttpErrorHandler_IllegalCaseTest {
 
     @Test
     public void testHandlingOfThreadDeath() {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
             .addHandler(new HttpRequestHandler() {
                 public HttpResponse handle(HttpRequest      request,
                                            ExecutionContext context) {

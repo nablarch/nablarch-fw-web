@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import mockit.Expectations;
 import mockit.Mocked;
+import nablarch.TestUtil;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpRequestHandler;
@@ -30,7 +31,7 @@ public class ServletExecutionContextTest {
     @Test
     public void testSessionInvalidation() {
         final List<String> holder = new ArrayList<String>();
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
                 .addHandler("//1", new HttpRequestHandler() {
                     public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
                         assertFalse("初期状態はセッションなし。", ctx.hasSession());

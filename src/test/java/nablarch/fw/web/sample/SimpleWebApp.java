@@ -1,5 +1,6 @@
 package nablarch.fw.web.sample;
 
+import nablarch.TestUtil;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpResponse;
@@ -38,7 +39,7 @@ public class SimpleWebApp {
      * ポート8090上で起動する。
      */
     public static final void main (String[] argsv) {
-        new HttpServer()
+        TestUtil.createHttpServer()
             .setPort(8090)
             .setWarBasePath("classpath://nablarch/fw/web/sample/")
             .addHandler("/app/", new SimpleWebApp())

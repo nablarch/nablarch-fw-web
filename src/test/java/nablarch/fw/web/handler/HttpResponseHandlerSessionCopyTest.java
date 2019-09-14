@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Scanner;
 import javax.servlet.http.HttpServletRequest;
 
+import nablarch.TestUtil;
 import nablarch.common.web.session.SessionManager;
 import nablarch.common.web.session.SessionStore;
 import nablarch.common.web.session.SessionStoreHandler;
@@ -96,7 +97,7 @@ public class HttpResponseHandlerSessionCopyTest {
      */
     @Test
     public void testSessionCopy() {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
 
                 .setWarBasePath("classpath://nablarch/fw/web/handler/httpresponsehandler/session")
                 .addHandler(new HttpRequestHandler() {
@@ -126,7 +127,7 @@ public class HttpResponseHandlerSessionCopyTest {
      */
     @Test
     public void testSessionDeleteAndCopy() {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
 
                 .setWarBasePath("classpath://nablarch/fw/web/handler/httpresponsehandler/session")
                 .addHandler(new HttpRequestHandler() {
@@ -158,7 +159,7 @@ public class HttpResponseHandlerSessionCopyTest {
     @Test
     public void testForwardPathIsNull() {
 
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
 
                 .setWarBasePath("classpath://nablarch/fw/web/handler/httpresponsehandler/session")
                 .addHandler(new HttpRequestHandler() {
@@ -219,7 +220,7 @@ public class HttpResponseHandlerSessionCopyTest {
     @Test
     public void testForwardPathNotIncludeDot() {
 
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
 
                 .setWarBasePath("classpath://nablarch/fw/web/handler/httpresponsehandler/session")
                 .addHandler(new HttpRequestHandler() {
@@ -260,7 +261,7 @@ public class HttpResponseHandlerSessionCopyTest {
      */
     @Test
     public void testRequestScopeIncludeSameName() {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
 
                 .setWarBasePath("classpath://nablarch/fw/web/handler/httpresponsehandler/session")
                 .addHandler(new HttpRequestHandler() {

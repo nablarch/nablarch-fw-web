@@ -1,6 +1,7 @@
 package nablarch.fw.web.handler;
 
 import junit.framework.AssertionFailedError;
+import nablarch.TestUtil;
 import nablarch.common.handler.threadcontext.ThreadContextHandler;
 import nablarch.common.web.handler.HttpAccessLogHandler;
 import nablarch.common.web.handler.threadcontext.LanguageAttributeInHttpCookie;
@@ -90,7 +91,7 @@ public class HttpResponseHandlerTest {
     @Test
     public void testDoServletForwardForSocketException() {
 
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
             // ファイルで分けた場合のルートコンテキスト
             .setWarBasePath("classpath://nablarch/fw/web/handler/httpresponsehandler/socketexception")
             .addHandler("/*.do", new Object() {
@@ -134,7 +135,7 @@ public class HttpResponseHandlerTest {
         
         LanguageAttributeInHttpCookie attribute = SystemRepository.get("languageAttribute");
         
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
             // ファイルで分けた場合のルートコンテキスト
             .setWarBasePath("classpath://nablarch/fw/web/handler/httpresponsehandler/filename")
             .addHandler(new ThreadContextHandler(attribute))
@@ -299,7 +300,7 @@ public class HttpResponseHandlerTest {
         
         LanguageAttributeInHttpCookie attribute = SystemRepository.get("languageAttribute");
         
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
             // ディレクトリで分けた場合のルートコンテキスト
             .setWarBasePath("classpath://nablarch/fw/web/handler/httpresponsehandler/directory")
             .addHandler(new ThreadContextHandler(attribute))
@@ -464,7 +465,7 @@ public class HttpResponseHandlerTest {
         
         LanguageAttributeInHttpCookie attribute = SystemRepository.get("languageAttribute");
         
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
             // ディレクトリで分けた場合のルートコンテキスト
             .setWarBasePath("classpath://nablarch/fw/web/handler/httpresponsehandler/directory")
             .addHandler(new ThreadContextHandler(attribute))
@@ -624,7 +625,7 @@ public class HttpResponseHandlerTest {
      */
     @Test
     public void testHandlingOfCharacterEncoding() throws Exception {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
             .addHandler(new Object() {
                 public HttpResponse getTest1(HttpRequest req, ExecutionContext ctx) {
                     return new HttpResponse()
@@ -691,7 +692,7 @@ public class HttpResponseHandlerTest {
      */
     @Test
     public void testHandlingOfNoContentLengthSmall() throws Exception {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
             .addHandler(new Object() {
                 public HttpResponse getTest1(HttpRequest req, ExecutionContext ctx) {
                     return new HttpResponse()
@@ -716,7 +717,7 @@ public class HttpResponseHandlerTest {
      */
     @Test
     public void testHandlingOfNoContentLengthLarge() throws Exception {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
             .addHandler(new Object() {
                 public HttpResponse getTest1(HttpRequest req, ExecutionContext ctx) {
                     return new HttpResponse()
@@ -741,7 +742,7 @@ public class HttpResponseHandlerTest {
     @Test
     public void testHandlingOfContentLengthSmall() throws Exception {
         
-        HttpServer server = new HttpServer();
+        HttpServer server = TestUtil.createHttpServer();
         server.getHandlerOf(HttpResponseHandler.class).setForceFlushAfterWritingHeaders(false);
         server.addHandler(new Object() {
                 public HttpResponse getTest1(HttpRequest req, ExecutionContext ctx) {
@@ -768,7 +769,7 @@ public class HttpResponseHandlerTest {
     @Test
     public void testHandlingOfContentLengthLarge() throws Exception {
         
-        HttpServer server = new HttpServer();
+        HttpServer server = TestUtil.createHttpServer();
         server.getHandlerOf(HttpResponseHandler.class).setForceFlushAfterWritingHeaders(false);
         server.addHandler(new Object() {
                 public HttpResponse getTest1(HttpRequest req, ExecutionContext ctx) {
@@ -817,7 +818,7 @@ public class HttpResponseHandlerTest {
             add(entry2);
         }});
         
-        HttpServer server = new HttpServer();
+        HttpServer server = TestUtil.createHttpServer();
         server.getHandlerOf(HttpResponseHandler.class).setDownloadFileNameEncoderFactory(f);
         server.addHandler(new Object() {
             public HttpResponse getTest1(HttpRequest req, ExecutionContext ctx) {
@@ -879,7 +880,7 @@ public class HttpResponseHandlerTest {
             
         assertEquals(disposition, res.getContentDisposition());
 
-        server = new HttpServer();
+        server = TestUtil.createHttpServer();
         server.getHandlerOf(HttpResponseHandler.class).setDownloadFileNameEncoderFactory(f);
         server.addHandler(new Object() {
                     public HttpResponse getTest1(HttpRequest req, ExecutionContext ctx) {
@@ -906,7 +907,7 @@ public class HttpResponseHandlerTest {
     /** リダイレクトの場合、リダイレクト先のURLにjsessionidが付与されること。 */
     @Test
     public void testJsessionidAddedWhenRedirected() {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
                 .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
                 .addHandler(new SessionConcurrentAccessHandler())
                 .addHandler("/redirect", new HttpRequestHandler() {
@@ -934,7 +935,7 @@ public class HttpResponseHandlerTest {
     /** 5u13から導入された形式のリダイレクトの場合、リダイレクト先のURLにjsessionidが付与されないこと。 */
     @Test
     public void testJsessionidNotAddedWhenRedirectedSince5u13NewStyle() {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
                 .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
                 .addHandler("/redirect", new HttpRequestHandler() {
                     public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
@@ -961,7 +962,7 @@ public class HttpResponseHandlerTest {
      */
     @Test
     public void testRedirectWithStatusCode303() throws Exception {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
                 .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
                 .addHandler("/redirect", new HttpRequestHandler() {
                     public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
@@ -981,7 +982,7 @@ public class HttpResponseHandlerTest {
      */
     @Test
     public void testRedirectWithStatusCode301() throws Exception {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
                 .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
                 .addHandler("/redirect", new HttpRequestHandler() {
                     public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
@@ -1001,7 +1002,7 @@ public class HttpResponseHandlerTest {
      */
     @Test
     public void testRedirectWithStatusCode307() throws Exception {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
                 .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
                 .addHandler("/redirect", new HttpRequestHandler() {
                     public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
@@ -1021,7 +1022,7 @@ public class HttpResponseHandlerTest {
      */
     @Test
     public void testRedirectWithStatusCodeInvalid() throws Exception {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
                 .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
                 .addHandler("/redirect", new HttpRequestHandler() {
                     public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
@@ -1040,7 +1041,7 @@ public class HttpResponseHandlerTest {
      */
     @Test
     public void testStatusCode100() throws Exception {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
                 .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
                 .addHandler("/status100", new HttpRequestHandler() {
                     public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
@@ -1147,7 +1148,7 @@ public class HttpResponseHandlerTest {
      * @return ハンドラ設定済みのHTTP Server
      */
     private HttpServer prepareHandlerForStatusConvert(){
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
         .setWarBasePath("classpath://nablarch/fw/web/handler/httpresponsehandler/dummy")
             .addHandler(new HttpAccessLogHandler())
             .addHandler("/*.do", new Object() {

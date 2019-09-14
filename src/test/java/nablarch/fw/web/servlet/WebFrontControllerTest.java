@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import nablarch.TestUtil;
 import nablarch.core.ThreadContext;
 import nablarch.core.repository.SystemRepository;
 import nablarch.core.repository.di.DiContainer;
@@ -62,7 +63,7 @@ public class WebFrontControllerTest {
         DiContainer container = new DiContainer(loader);
         SystemRepository.load(container);
         
-        new HttpServer(); // 例外が発生しなければOK
+        TestUtil.createHttpServer(); // 例外が発生しなければOK
     }
     
     @Test
@@ -75,7 +76,7 @@ public class WebFrontControllerTest {
         WebFrontController controller =  SystemRepository.get("webFrontController");
         assertNotNull(controller);
         
-        HttpServer server = new HttpServer();
+        HttpServer server = TestUtil.createHttpServer();
         server.setHandlerQueue(controller.getHandlerQueue());
         server.startLocal();
         

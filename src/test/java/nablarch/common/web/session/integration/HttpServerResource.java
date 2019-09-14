@@ -1,6 +1,7 @@
 package nablarch.common.web.session.integration;
 
 import mockit.Verifications;
+import nablarch.TestUtil;
 import nablarch.core.util.StringUtil;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.Handler;
@@ -77,7 +78,7 @@ public class HttpServerResource extends ExternalResource {
 
     @Override
     protected void before() throws Throwable {
-        server = new HttpServer().setWarBasePath(warBasePath).clearHandlers();
+        server = TestUtil.createHttpServer().setWarBasePath(warBasePath).clearHandlers();
         testHandlers = new ArrayList<TestHandler>();
     }
 

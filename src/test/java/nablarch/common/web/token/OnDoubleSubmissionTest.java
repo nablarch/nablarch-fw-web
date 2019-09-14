@@ -1,5 +1,6 @@
 package nablarch.common.web.token;
 
+import nablarch.TestUtil;
 import nablarch.core.message.ApplicationException;
 import nablarch.core.repository.SystemRepository;
 import nablarch.fw.ExecutionContext;
@@ -58,7 +59,7 @@ public class OnDoubleSubmissionTest {
 
         final List<Boolean> asserted = new ArrayList<Boolean>();
 
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
         .addHandler(new Handler<HttpRequest, HttpResponse>() {
             @Override
             public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
@@ -89,7 +90,7 @@ public class OnDoubleSubmissionTest {
 
         final List<Boolean> asserted = new ArrayList<Boolean>();
 
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
         .addHandler(new HttpErrorHandler())
         .addHandler(new Handler<HttpRequest, HttpResponse>() {
             @Override
@@ -129,7 +130,7 @@ public class OnDoubleSubmissionTest {
 
         final List<Boolean> asserted = new ArrayList<Boolean>();
 
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
         .addHandler(new Handler<HttpRequest, HttpResponse>() {
             @Override
             public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
@@ -167,7 +168,7 @@ public class OnDoubleSubmissionTest {
 
         final List<Boolean> asserted = new ArrayList<Boolean>();
 
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
         .addHandler(new Handler<HttpRequest, HttpResponse>() {
             @Override
             public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
@@ -206,7 +207,7 @@ public class OnDoubleSubmissionTest {
 
         final List<Boolean> asserted = new ArrayList<Boolean>();
 
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
         .addHandler(new Handler<HttpRequest, HttpResponse>() {
             @Override
             public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
