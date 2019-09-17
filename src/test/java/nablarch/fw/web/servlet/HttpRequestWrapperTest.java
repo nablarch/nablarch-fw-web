@@ -14,6 +14,7 @@ import nablarch.fw.web.useragent.UserAgentParser;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import java.io.IOException;
@@ -507,6 +508,21 @@ public class HttpRequestWrapperTest {
         new Expectations() {{
             nablarchHttpServletRequestWrapper.getInputStream();
             result = new ServletInputStream() {
+                @Override
+                public boolean isFinished() {
+                    return false;
+                }
+
+                @Override
+                public boolean isReady() {
+                    return false;
+                }
+
+                @Override
+                public void setReadListener(ReadListener readListener) {
+
+                }
+
                 @Override
                 public int read() throws IOException {
                     return 0;

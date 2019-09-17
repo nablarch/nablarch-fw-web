@@ -1,20 +1,13 @@
 package nablarch.fw.web.servlet;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import javax.servlet.*;
+import javax.servlet.http.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * @author Kiyohito Itoh
@@ -78,6 +71,11 @@ public class MockServletRequest implements HttpServletRequest {
         return contentLength;
     }
 
+    @Override
+    public long getContentLengthLong() {
+        return 0;
+    }
+
     private int contentLength = -1;
 
     public void setContentLength(int contentLength) {
@@ -112,6 +110,21 @@ public class MockServletRequest implements HttpServletRequest {
     public void setInputStream(final InputStream in) {
         this.inputStream = new ServletInputStream() {
             @Override
+            public boolean isFinished() {
+                return false;
+            }
+
+            @Override
+            public boolean isReady() {
+                return false;
+            }
+
+            @Override
+            public void setReadListener(ReadListener readListener) {
+
+            }
+
+            @Override
             public int read() throws IOException {
                 return in.read();
             }
@@ -140,6 +153,41 @@ public class MockServletRequest implements HttpServletRequest {
      */
     public int getLocalPort() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+        return null;
+    }
+
+    @Override
+    public AsyncContext startAsync() throws IllegalStateException {
+        return null;
+    }
+
+    @Override
+    public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
+        return null;
+    }
+
+    @Override
+    public boolean isAsyncStarted() {
+        return false;
+    }
+
+    @Override
+    public boolean isAsyncSupported() {
+        return false;
+    }
+
+    @Override
+    public AsyncContext getAsyncContext() {
+        return null;
+    }
+
+    @Override
+    public DispatcherType getDispatcherType() {
+        return null;
     }
 
     /**
@@ -452,6 +500,11 @@ public class MockServletRequest implements HttpServletRequest {
         return session;
     }
 
+    @Override
+    public String changeSessionId() {
+        return null;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -486,6 +539,36 @@ public class MockServletRequest implements HttpServletRequest {
      */
     public boolean isRequestedSessionIdFromUrl() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean authenticate(HttpServletResponse httpServletResponse) throws IOException, ServletException {
+        return false;
+    }
+
+    @Override
+    public void login(String s, String s1) throws ServletException {
+
+    }
+
+    @Override
+    public void logout() throws ServletException {
+
+    }
+
+    @Override
+    public Collection<Part> getParts() throws IOException, ServletException {
+        return null;
+    }
+
+    @Override
+    public Part getPart(String s) throws IOException, ServletException {
+        return null;
+    }
+
+    @Override
+    public <T extends HttpUpgradeHandler> T upgrade(Class<T> aClass) throws IOException, ServletException {
+        return null;
     }
 
     /**

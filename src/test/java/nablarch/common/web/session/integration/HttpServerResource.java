@@ -113,7 +113,7 @@ public class HttpServerResource extends ExternalResource {
             System.out.println(request);
             System.out.println("************************************************************");
 
-            HttpResponse response = server.handle(request, null);
+            HttpResponse response = server.handle(request, new ExecutionContext());
 
             new Verifications() {{
                 byte[] bytes;
