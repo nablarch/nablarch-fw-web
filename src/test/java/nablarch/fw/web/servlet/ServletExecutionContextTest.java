@@ -75,14 +75,14 @@ public class ServletExecutionContextTest {
                 .startLocal();
 
         HttpResponse res = server.handle(
-                new MockHttpRequest("GET /1 HTTP/1.1"), null
+                new MockHttpRequest("GET /1 HTTP/1.1"), new ExecutionContext()
         );
         Assert.assertEquals(200, res.getStatusCode());
         Assert.assertEquals(1, holder.size());
         Assert.assertEquals("0001", holder.get(0));
 
         res = server.handle(
-                new MockHttpRequest("GET /2 HTTP/1.1"), null
+                new MockHttpRequest("GET /2 HTTP/1.1"), new ExecutionContext()
         );
         Assert.assertEquals(200, res.getStatusCode());
     }

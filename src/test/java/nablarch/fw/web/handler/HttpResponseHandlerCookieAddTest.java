@@ -67,7 +67,7 @@ public class HttpResponseHandlerCookieAddTest {
                     }
                 })
                 .startLocal()
-                .handle(new MockHttpRequest("GET / HTTP/1.1"), null);
+                .handle(new MockHttpRequest("GET / HTTP/1.1"), new ExecutionContext());
 
         new Verifications() {{
             byte[] bytes;
@@ -107,7 +107,7 @@ public class HttpResponseHandlerCookieAddTest {
                     }
                 })
                 .startLocal()
-                .handle(new MockHttpRequest("GET / HTTP/1.1"), null);
+                .handle(new MockHttpRequest("GET / HTTP/1.1"), new ExecutionContext());
 
         new Verifications() {{
             byte[] bytes;
