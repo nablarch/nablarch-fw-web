@@ -119,6 +119,7 @@ public class HttpCookieTest {
      * @throws Exception
      */
     @Test
+    @Ignore("Servlet APIのバージョンが3.0以上のため")
     public void testIsHttpOnly_error() throws Exception {
         sut = new HttpCookie();
 
@@ -137,6 +138,7 @@ public class HttpCookieTest {
      * @throws Exception
      */
     @Test
+    @Ignore("Servlet APIのバージョンが3.0以上のため")
     public void testSetHttpOnly_error() throws Exception {
         sut = new HttpCookie();
         try {
