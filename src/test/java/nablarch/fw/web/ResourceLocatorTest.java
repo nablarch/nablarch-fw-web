@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import nablarch.TestUtil;
 import nablarch.core.ThreadContext;
 import nablarch.core.util.Builder;
 import nablarch.fw.ExecutionContext;
@@ -381,7 +382,7 @@ public class ResourceLocatorTest {
 
     @Test
     public void testLocateServletWithAbsoluteForwardName() throws Exception {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
         .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
         .setServletContextPath("/")
         .addHandler(new InternalMonitor())
@@ -454,7 +455,7 @@ public class ResourceLocatorTest {
 
     @Test
     public void testLocateServletWithRelativeForwardName() {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
         .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
         .setServletContextPath("/")
         .addHandler(new InternalMonitor())
@@ -529,7 +530,7 @@ public class ResourceLocatorTest {
      */
     @Test
     public void testRedirection() {
-        HttpServer server = new HttpServer()
+        HttpServer server = TestUtil.createHttpServer()
         .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
         .setServletContextPath("/app")
         .addHandler("/test/Greeting", new HttpRequestHandler() {

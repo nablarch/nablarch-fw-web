@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.Collection;
 
+import nablarch.TestUtil;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.Handler;
 import nablarch.fw.web.HttpRequest;
@@ -38,7 +39,7 @@ public class ServletIOHandlerTest {
             }
         };
         
-        HttpServer handler = new HttpServer().setHandlerQueue((Collection) Arrays.asList(new Handler[] {
+        HttpServer handler = TestUtil.createHttpServer().setHandlerQueue((Collection) Arrays.asList(new Handler[] {
             new HttpResponseHandler().setDownloadFileNameEncoderFactory(zapEncoderFactory)
           , new HttpRequestHandler() {
                 public HttpResponse handle(HttpRequest req, ExecutionContext ignored) {

@@ -1,5 +1,6 @@
 package nablarch.fw.web.servlet;
 
+import nablarch.TestUtil;
 import nablarch.core.repository.SystemRepository;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpResponse;
@@ -39,7 +40,7 @@ public class HttpRequestWrapperOnContainerTest {
     @Test
     public void testOnServletContainer() throws Exception {
 
-        HttpServer server = new HttpServer();
+        HttpServer server = TestUtil.createHttpServer();
         server.setWarBasePath("classpath://");
         server.addHandler(new Object() {
             public HttpResponse getTest(HttpRequestWrapper req, ExecutionContext ctx) {
@@ -98,7 +99,7 @@ public class HttpRequestWrapperOnContainerTest {
     @Test
     public void testInputStream() throws Exception {
 
-        HttpServer server = new HttpServer();
+        HttpServer server = TestUtil.createHttpServer();
         server.setWarBasePath("classpath://");
         server.addHandler(new Object() {
             public HttpResponse postTest(HttpRequestWrapper req, ExecutionContext ctx) throws Exception {

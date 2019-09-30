@@ -132,7 +132,7 @@ public abstract class SessionStore {
                 } else {
                     byte[] encoded = stateEncoder.encode(obj);
                     dos.writeInt(encoded.length);
-                    dos.writeUTF(obj.getClass().getCanonicalName());
+                    dos.writeUTF(obj.getClass().getName());
                     dos.write(encoded);
                 }
             }

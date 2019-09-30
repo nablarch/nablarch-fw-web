@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,6 +76,16 @@ public class SessionStoreTest {
     private SessionManager manager;
     private HiddenStore store;
 
+    // テスト用内部クラス
+    static class TestInnerClass implements Serializable {
+        private String testValue;
+        TestInnerClass(String testValue) {
+            this.testValue = testValue;
+        }
+        public String getTestValue(){
+            return this.testValue;
+        }
+    }
 
     @Test
     public void testThatItOffersFeaturesOfSerializationAndDeserializationToItsSubTypes() {
@@ -90,6 +101,7 @@ public class SessionStoreTest {
             add(new SessionEntry("fuga", "fuga_value", store));
             add(new SessionEntry("piyo", null, store));
             add(new SessionEntry("\uD83C\uDF63\uD83C\uDF63", "\uD83C\uDF7A\uD83C\uDF7A", store));
+            add(new SessionEntry("testInnerClass", new TestInnerClass("hogera_value"), store));
         }}, ctx);
 
         final String marshalled = ctx.getRequestScopedVar("serialized_session");
@@ -108,7 +120,7 @@ public class SessionStoreTest {
         ctx = new ServletExecutionContext(servletReq, httpResponse, servletContext);
 
         List<SessionEntry> unmarshalled = store.load(session.getOrGenerateId(), ctx);
-        assertEquals(4, unmarshalled.size());
+        assertEquals(5, unmarshalled.size());
         assertEquals("hoge", unmarshalled.get(0).getKey());
         assertEquals("hoge_value", unmarshalled.get(0).getValue());
         assertEquals("fuga", unmarshalled.get(1).getKey());
@@ -116,6 +128,8 @@ public class SessionStoreTest {
         assertEquals("piyo", unmarshalled.get(2).getKey());
         assertEquals("\uD83C\uDF63\uD83C\uDF63", unmarshalled.get(3).getKey());
         assertEquals("\uD83C\uDF7A\uD83C\uDF7A", unmarshalled.get(3).getValue());
+        assertEquals("testInnerClass", unmarshalled.get(4).getKey());
+        assertEquals("hogera_value", ((TestInnerClass) unmarshalled.get(4).getValue()).getTestValue());
         assertNull(unmarshalled.get(2).getValue());
     }
 

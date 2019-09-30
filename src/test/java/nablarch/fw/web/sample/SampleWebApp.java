@@ -2,6 +2,7 @@ package nablarch.fw.web.sample;
 
 import java.util.Map;
 
+import nablarch.TestUtil;
 import nablarch.core.db.connection.AppDbConnection;
 import nablarch.core.db.connection.DbConnectionContext;
 import nablarch.core.db.statement.SqlPStatement;
@@ -23,7 +24,7 @@ public class SampleWebApp {
      * ポート8090上で起動する。
      */
     public static final void main (String... args) {
-        new HttpServer()
+        TestUtil.createHttpServer()
             .setPort(8090)
             .setWarBasePath("classpath://nablarch/fw/web/sample/")
             .addHandler("/app/", new HttpRequestHandler() {
