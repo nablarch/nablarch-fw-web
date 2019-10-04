@@ -43,7 +43,7 @@ public class BeanValidationStrategy implements ValidationStrategy {
 
     /** バリデーションエラー時にBeanをリクエストスコープにコピーするかどうか */
     private boolean copyBeanToRequestScopeOnError = false;
-    private BeanValidationFormFactory formFactory = new SimpleRefrectionBeanValidationFormFactory();
+    private BeanValidationFormFactory formFactory = new SimpleReflectionBeanValidationFormFactory();
 
     /**
      * {@code BeanValidationStrategy}を生成する。

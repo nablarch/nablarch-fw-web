@@ -2,7 +2,7 @@ package nablarch.common.web.validator;
 
 import java.lang.reflect.InvocationTargetException;
 
-public class SimpleRefrectionBeanValidationFormFactory implements BeanValidationFormFactory {
+public class SimpleReflectionBeanValidationFormFactory implements BeanValidationFormFactory {
 
     @Override
     public <T> T create(Class<T> formClass) {
