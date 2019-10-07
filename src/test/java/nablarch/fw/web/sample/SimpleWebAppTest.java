@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
+import nablarch.TestUtil;
 import nablarch.core.ThreadContext;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpResponse;
@@ -20,7 +21,7 @@ public class SimpleWebAppTest {
     public void testGetIndexHtml() {
     	ThreadContext.setLanguage(null);
         HttpServer server =
-            new HttpServer()
+            TestUtil.createHttpServer()
             .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
             .addHandler("/", new SimpleWebApp())
             .startLocal();

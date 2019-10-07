@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import java.nio.charset.Charset;
 
+import nablarch.TestUtil;
 import nablarch.core.ThreadContext;
 import nablarch.core.repository.SystemRepository;
 import nablarch.core.util.StringUtil;
@@ -46,7 +47,7 @@ public class HttpResponseHandlerCookieAddTest {
     @Test
     public void doServletForward() {
 
-        new HttpServer()
+        TestUtil.createHttpServer()
                 .setWarBasePath("classpath://nablarch/fw/web/handler/httpresponsehandler/cookie")
                 .clearHandlers()
                 .addHandler(new HttpResponseHandler())
@@ -86,7 +87,7 @@ public class HttpResponseHandlerCookieAddTest {
     @Test
     public void doRedirect() {
 
-        new HttpServer()
+        TestUtil.createHttpServer()
                 .setWarBasePath("classpath://nablarch/fw/web/handler/httpresponsehandler/cookie")
                 .clearHandlers()
                 .addHandler(new HttpResponseHandler())

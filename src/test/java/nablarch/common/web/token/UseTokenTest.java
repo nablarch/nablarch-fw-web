@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.servlet.http.HttpSession;
 
+import nablarch.TestUtil;
 import org.junit.Test;
 
 import nablarch.common.web.WebConfig;
@@ -35,7 +36,7 @@ public class UseTokenTest {
         final AtomicReference<AssertionError> thrownAssertionError = new AtomicReference<AssertionError>();
         final AtomicBoolean assertionCalled = new AtomicBoolean(false);
 
-        HttpServer httpServer = new HttpServer()
+        HttpServer httpServer = TestUtil.createHttpServer()
                 //サーバー処理で発生したAssertionErrorをテスト実行のスレッドに渡すためのハンドラ
                 .addHandler(new Handler<HttpRequest, HttpResponse>() {
                     @Override

@@ -3,6 +3,7 @@ package nablarch.common.web.token;
 import static org.hamcrest.core.Is.*;
 import static org.junit.Assert.*;
 
+import nablarch.TestUtil;
 import org.junit.Test;
 
 import nablarch.common.web.MockHttpSession;
@@ -24,7 +25,7 @@ public class TokenUtilTest {
 
     @Test
     public void testIsValidTokenWithoutToken() {
-        HttpServer server = new HttpServer().addHandler(new Handler<HttpRequest, HttpResponse>() {
+        HttpServer server = TestUtil.createHttpServer().addHandler(new Handler<HttpRequest, HttpResponse>() {
             @Override
             public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
                 assertFalse("without token", TokenUtil.isValidToken(req, ctx));
@@ -38,7 +39,7 @@ public class TokenUtilTest {
 
     @Test
     public void testIsValidTokenForNoTokenParam() {
-        HttpServer server = new HttpServer().addHandler(new Handler<HttpRequest, HttpResponse>() {
+        HttpServer server = TestUtil.createHttpServer().addHandler(new Handler<HttpRequest, HttpResponse>() {
             @Override
             public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
                 TokenTestUtil.setTokenSession(ctx, TokenTestUtil.TOKEN);
@@ -54,7 +55,7 @@ public class TokenUtilTest {
     @Test
     public void testIsValidTokenForNoTokenSession() {
 
-        HttpServer server = new HttpServer().addHandler(new Handler<HttpRequest, HttpResponse>() {
+        HttpServer server = TestUtil.createHttpServer().addHandler(new Handler<HttpRequest, HttpResponse>() {
             @Override
             public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
                 TokenTestUtil.setTokenParam(req, TokenTestUtil.TOKEN);
@@ -70,7 +71,7 @@ public class TokenUtilTest {
     @Test
     public void testIsValidTokenForInvalidToken() {
 
-        HttpServer server = new HttpServer().addHandler(new Handler<HttpRequest, HttpResponse>() {
+        HttpServer server = TestUtil.createHttpServer().addHandler(new Handler<HttpRequest, HttpResponse>() {
             @Override
             public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
                 TokenTestUtil.setTokenParam(req, "aaa");
@@ -87,7 +88,7 @@ public class TokenUtilTest {
     @Test
     public void testIsValidTokenWithTokenParams() {
 
-        HttpServer server = new HttpServer().addHandler(new Handler<HttpRequest, HttpResponse>() {
+        HttpServer server = TestUtil.createHttpServer().addHandler(new Handler<HttpRequest, HttpResponse>() {
             @Override
             public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
                 WebConfig webConfig = WebConfigFinder.getWebConfig();
@@ -106,7 +107,7 @@ public class TokenUtilTest {
     @Test
     public void testIsValidTokenForValidToken() {
 
-        HttpServer server = new HttpServer().addHandler(new Handler<HttpRequest, HttpResponse>() {
+        HttpServer server = TestUtil.createHttpServer().addHandler(new Handler<HttpRequest, HttpResponse>() {
             @Override
             public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
                 TokenTestUtil.setTokenParam(req, TokenTestUtil.TOKEN);
