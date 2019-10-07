@@ -15,6 +15,7 @@ import javax.validation.Validator;
 
 import nablarch.common.web.interceptor.InjectForm;
 import nablarch.core.beans.BeanUtil;
+import nablarch.core.beans.CopyOptions;
 import nablarch.core.message.ApplicationException;
 import nablarch.core.message.Message;
 import nablarch.core.util.StringUtil;
@@ -43,6 +44,11 @@ public class BeanValidationStrategy implements ValidationStrategy {
 
     /** バリデーションエラー時にBeanをリクエストスコープにコピーするかどうか */
     private boolean copyBeanToRequestScopeOnError = false;
+
+    /**
+     * フォームファクトリ。
+     * （デフォルトでは単純にリフレクションでインスタンスを生成する）
+     */
     private BeanValidationFormFactory formFactory = new SimpleReflectionBeanValidationFormFactory();
 
     /**
@@ -59,7 +65,7 @@ public class BeanValidationStrategy implements ValidationStrategy {
         Map<String, String[]> requestParamMap = getMapWithConvertedKey(annotation.prefix(), rawRequestParamMap);
 
         Serializable bean = formFactory.create(annotation.form());
-        BeanUtil.copy(annotation.form(), bean, requestParamMap);
+        BeanUtil.copy(annotation.form(), bean, requestParamMap, CopyOptions.empty());
         Validator validator = ValidatorUtil.getValidator();
         Set<ConstraintViolation<Serializable>> results = validator.validate(bean);
         if (!results.isEmpty()) {
