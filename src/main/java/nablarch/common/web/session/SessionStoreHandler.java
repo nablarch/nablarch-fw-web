@@ -17,6 +17,8 @@ import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 
+import static nablarch.core.date.SystemTimeUtil.getDate;
+
 /**
  * ストアを選択できるセッション保存機能のためのハンドラ。
  *
@@ -47,8 +49,8 @@ public class SessionStoreHandler implements Handler<Object, Object> {
     public static final String IS_INVALIDATED_KEY
             = ExecutionContext.FW_PREFIX + "sessionStore_is_invalidated";
 
-    /** セッションの有効期限を格納するHttpSessionの名前 */
-    private static final String EXPIRATION_DATE_KEY = ExecutionContext.FW_PREFIX + "sessionStore_expiration_date";
+
+    private Expiration expiration = new HttpSessionManagedExpiration();
 
     /**
      * セッションがinvalidateされたかを取得する。
@@ -183,8 +185,8 @@ public class SessionStoreHandler implements Handler<Object, Object> {
                 maxAge = Math.max(maxAge, store.getExpiresMilliSeconds());
             }
         }
-        context.setSessionScopedVar(EXPIRATION_DATE_KEY, SystemTimeUtil.getTimestamp().getTime() + maxAge);
-
+        long expirationDateTime = SystemTimeUtil.getDate().getTime() + maxAge;
+        expiration.saveExpirationDateTime(session.getOrGenerateId(), expirationDateTime, context);
         setSessionTrackingCookie(session, context.getServletResponse());
     }
 
@@ -217,11 +219,16 @@ public class SessionStoreHandler implements Handler<Object, Object> {
      * @return セッションID
      */
     protected String readId(final ServletExecutionContext context) {
-        if (!isValidExpirationDate((Long) context.getSessionScopedVar(EXPIRATION_DATE_KEY))) {
+        long current = getDate().getTime();
+
+        String sessionId = getSessionId(context);
+        if (sessionId == null) {
             return null;
         }
-
-        return getSessionId(context);
+        if (expiration.isExpired(sessionId, current, context)) {
+            return null;
+        }
+        return sessionId;
     }
 
     /**
@@ -309,5 +316,9 @@ public class SessionStoreHandler implements Handler<Object, Object> {
      */
     public void setCookieSecure(final boolean cookieSecure) {
         this.cookieSecure = cookieSecure;
+    }
+
+    public void setExpiration(Expiration expiration) {
+        this.expiration = expiration;
     }
 }
