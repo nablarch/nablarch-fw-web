@@ -2,6 +2,9 @@ package nablarch.common.web.session;
 
 import nablarch.fw.ExecutionContext;
 
+/**
+ * HttpSessionを使用した{@link Expiration}実装クラス。
+ */
 public class HttpSessionManagedExpiration implements Expiration {
 
     /** セッションの有効期限を格納するHttpSessionの名前 */
