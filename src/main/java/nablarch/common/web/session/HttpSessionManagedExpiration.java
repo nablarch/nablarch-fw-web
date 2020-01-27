@@ -16,7 +16,7 @@ public class HttpSessionManagedExpiration implements Expiration {
         if (expiration == null) {
             return true;
         }
-        return expiration >= currentDateTime;
+        return expiration < currentDateTime;
     }
 
     @Override

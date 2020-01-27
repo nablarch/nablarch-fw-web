@@ -8,12 +8,12 @@ import nablarch.fw.ExecutionContext;
 public interface Expiration {
 
     /**
-     * 有効期限内か否かを判定する。
+     * 有効期限切れか否かを判定する。
      *
      * @param sessionID       セッションID
      * @param currentDateTime 現在日時
      * @param context         実行コンテキスト
-     * @return 有効期限内の場合、true
+     * @return 有効期限を超えセッションが無効になっている場合、true
      */
     boolean isExpired(String sessionID, long currentDateTime, ExecutionContext context);
 
