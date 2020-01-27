@@ -7,6 +7,9 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
 
 import javax.servlet.http.HttpSession;
 
+/**
+ * HttpSessionを使った{@link TokenManager}実装クラス
+ */
 public class HttpSessionTokenManager implements TokenManager {
 
     @Override
