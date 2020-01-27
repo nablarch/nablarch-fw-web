@@ -1,12 +1,5 @@
 package nablarch.common.web.session;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import nablarch.common.web.session.store.HiddenStore.HiddenStoreLoadFailedException;
 import nablarch.core.date.SystemTimeUtil;
 import nablarch.core.util.StringUtil;
@@ -16,6 +9,12 @@ import nablarch.fw.web.HttpCookie;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.servlet.ServletExecutionContext;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ストアを選択できるセッション保存機能のためのハンドラ。
@@ -28,16 +27,16 @@ public class SessionStoreHandler implements Handler<Object, Object> {
     /** セッションマネージャ */
     private SessionManager sessionManager;
 
-    /** クッキーの名称。*/
+    /** クッキーの名称。 */
     private String cookieName = "NABLARCH_SID";
 
     /** クッキーのpath属性。 */
     private String cookiePath = "/";
 
-    /** クッキーのdomain属性。*/
+    /** クッキーのdomain属性。 */
     private String cookieDomain;
 
-    /** クッキーにsecure属性を指定するかどうか。*/
+    /** クッキーにsecure属性を指定するかどうか。 */
     private boolean cookieSecure = false;
 
     /**
@@ -47,11 +46,12 @@ public class SessionStoreHandler implements Handler<Object, Object> {
     public static final String IS_INVALIDATED_KEY
             = ExecutionContext.FW_PREFIX + "sessionStore_is_invalidated";
 
-    /** セッションの有効期限を格納するHttpSessionの名前 */
-    private static final String EXPIRATION_DATE_KEY = ExecutionContext.FW_PREFIX + "sessionStore_expiration_date";
+    /** 有効期限 */
+    private Expiration expiration = new HttpSessionManagedExpiration();
 
     /**
      * セッションがinvalidateされたかを取得する。
+     *
      * @param ctx コンテキスト
      * @return セッションがinvalidateされた場合はtrue
      */
@@ -69,9 +69,9 @@ public class SessionStoreHandler implements Handler<Object, Object> {
      * </pre>
      * それ以外は、指定された例外をそのまま再送出する。
      *
-     * @param data 入力データ
+     * @param data    入力データ
      * @param context 実行コンテキスト
-     * @param e {@link RuntimeException}
+     * @param e       {@link RuntimeException}
      * @return レスポンスオブジェクト
      */
     protected HttpResponse handleLoadFailed(Object data, ExecutionContext context, RuntimeException e) {
@@ -88,7 +88,7 @@ public class SessionStoreHandler implements Handler<Object, Object> {
 
         Session session = null;
         List<String> entryKeys = new ArrayList<String>();
-        
+
         // セッションIDがあれば、ストアから読み出しセッションストアにセットする。
         final ServletExecutionContext servletContext = (ServletExecutionContext) context;
         final String sessionId = readId(servletContext);
@@ -173,7 +173,7 @@ public class SessionStoreHandler implements Handler<Object, Object> {
     /**
      * セッションIDを書き出す。
      *
-     * @param session  セッション
+     * @param session セッション
      * @param context 実行コンテキスト
      */
     protected void writeId(final Session session, final ServletExecutionContext context) {
@@ -183,15 +183,15 @@ public class SessionStoreHandler implements Handler<Object, Object> {
                 maxAge = Math.max(maxAge, store.getExpiresMilliSeconds());
             }
         }
-        context.setSessionScopedVar(EXPIRATION_DATE_KEY, SystemTimeUtil.getTimestamp().getTime() + maxAge);
-
+        long expirationDateTime = SystemTimeUtil.getDate().getTime() + maxAge;
+        expiration.saveExpirationDateTime(session.getOrGenerateId(), expirationDateTime, context);
         setSessionTrackingCookie(session, context.getServletResponse());
     }
 
     /**
      * セッションIDを保持するためのクッキーをレスポンスのSet-Cookieヘッダに追加する。
      *
-     * @param session セッション
+     * @param session  セッション
      * @param response サーブレットレスポンス
      */
     protected void setSessionTrackingCookie(Session session, HttpServletResponse response) {
@@ -217,22 +217,16 @@ public class SessionStoreHandler implements Handler<Object, Object> {
      * @return セッションID
      */
     protected String readId(final ServletExecutionContext context) {
-        if (!isValidExpirationDate((Long) context.getSessionScopedVar(EXPIRATION_DATE_KEY))) {
+        long current = SystemTimeUtil.getDate().getTime();
+
+        String sessionId = getSessionId(context);
+        if (sessionId == null) {
             return null;
         }
-
-        return getSessionId(context);
-    }
-
-    /**
-     * 指定された有効期限内か否かを判定する。
-     *
-     * @param expirationDate 有効期限
-     * @return 有効期限内であれば{@code true}
-     */
-    private boolean isValidExpirationDate(final Long expirationDate) {
-        final Long timestamp = SystemTimeUtil.getTimestamp().getTime();
-        return expirationDate != null && expirationDate >= timestamp;
+        if (expiration.isExpired(sessionId, current, context)) {
+            return null;
+        }
+        return sessionId;
     }
 
     /**
@@ -266,7 +260,6 @@ public class SessionStoreHandler implements Handler<Object, Object> {
 
     /**
      * セッションIDを保持するクッキーの名称を設定する。
-     *
      * デフォルトは "NABLARCH_SID"
      *
      * @param cookieName クッキー名
@@ -277,7 +270,6 @@ public class SessionStoreHandler implements Handler<Object, Object> {
 
     /**
      * セッションIDを保持するクッキーのpath属性を設定する。
-     *
      * デフォルトではホスト配下の全てのパスを送信対象とする。
      *
      * @param cookiePath クッキーパス
@@ -288,7 +280,6 @@ public class SessionStoreHandler implements Handler<Object, Object> {
 
     /**
      * セッションIDを保持するクッキーのdomain属性を設定する。
-     *
      * デフォルトでは未指定。
      * この場合、当該のクッキーは発行元ホストのみに送信される。
      *
@@ -300,14 +291,21 @@ public class SessionStoreHandler implements Handler<Object, Object> {
 
     /**
      * セッショントラッキングIDを保持するクッキーにsecure属性を指定するかどうかを設定する。
-     *
      * trueに設定した場合、当該のクッキーはSSL接続されたリクエストでのみ送信される。
-     *
      * デフォルトはfalse。
      *
      * @param cookieSecure セキュア属性を付けたいならばtrue
      */
     public void setCookieSecure(final boolean cookieSecure) {
         this.cookieSecure = cookieSecure;
+    }
+
+    /**
+     * 有効期限を設定する。
+     *
+     * @param expiration 有効期限
+     */
+    public void setExpiration(Expiration expiration) {
+        this.expiration = expiration;
     }
 }
