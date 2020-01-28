@@ -5,6 +5,8 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
 
 /**
  * 二重サブミットトークンの管理を行うクラス
+ *
+ * @author Tsuyoshi Kawasaki
  */
 public interface TokenManager {
 

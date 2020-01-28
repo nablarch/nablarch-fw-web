@@ -9,6 +9,8 @@ import javax.servlet.http.HttpSession;
 
 /**
  * HttpSessionを使った{@link TokenManager}実装クラス
+ *
+ * @author Tsuyoshi Kawasaki
  */
 public class HttpSessionTokenManager implements TokenManager {
 
