@@ -45,23 +45,9 @@ public final class TokenUtil {
         if (token == null) {
             token = getTokenGenerator().generate();
             request.setAttribute(webConfig.getDoubleSubmissionTokenRequestAttributeName(), token);
-            final HttpSession session = getNativeSession(request);
-            synchronized (session) {
-                session.setAttribute(webConfig.getDoubleSubmissionTokenSessionAttributeName(),
-                        token);
-            }
+            getTokenManager().saveToken(token, request);
         }
         return token;
-    }
-
-    /**
-     * {@link HttpSession}を取得する。
-     * {@link HttpSession}が存在しない場合は生成する。
-     * @param request リクエスト
-     * @return * {@link HttpSession}
-     */
-    private static HttpSession getNativeSession(NablarchHttpServletRequestWrapper request) {
-        return request.getSession(true).getDelegate();
     }
 
     /**
@@ -91,33 +77,26 @@ public final class TokenUtil {
         WebConfig webConfig = WebConfigFinder.getWebConfig();
         final String[] tokenParam = request
                 .getParam(webConfig.getDoubleSubmissionTokenParameterName());
-        boolean validToken = true;
-        final HttpSession session = getNativeSession(context);
-        if (session == null) {
-            return false;
-        }
+
+        final boolean validToken;
         if (tokenParam != null && tokenParam.length == 1) {
             final String clientToken = tokenParam[0];
-            final String serverToken = (String) session
-                    .getAttribute(webConfig.getDoubleSubmissionTokenSessionAttributeName());
-            validToken = serverToken != null && serverToken.equals(clientToken);
+            validToken = getTokenManager().isValidToken(clientToken, (ServletExecutionContext) context);
         } else {
             validToken = false;
         }
-        session.removeAttribute(webConfig.getDoubleSubmissionTokenSessionAttributeName());
         return validToken;
     }
 
     /**
-     * HTTPサーブレットセッションオブジェクトを獲得する。
-     *
-     * HTTPセッションが既にinvalidateされている場合などの理由で取得できない場合は
-     * null を返す。
-     *
-     * @param ctx 実行コンテキスト
-     * @return HttpSession オブジェクト
+     * {@link TokenManager}を取得する。
+     * @return トークンマネージャ
      */
-    private static HttpSession getNativeSession(ExecutionContext ctx) {
-        return ((ServletExecutionContext) ctx).getNativeHttpSession(false);
+    private static TokenManager getTokenManager() {
+        final TokenManager tokenManager = SystemRepository.get("tokenManager");
+        if (tokenManager == null) {
+            return new HttpSessionTokenManager();
+        }
+        return tokenManager;
     }
 }
