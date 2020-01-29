@@ -8,7 +8,7 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
 import javax.servlet.http.HttpSession;
 
 /**
- * HttpSessionを使った{@link TokenManager}実装クラス
+ * HttpSessionを使った{@link TokenManager}実装クラス。
  *
  * @author Tsuyoshi Kawasaki
  */
