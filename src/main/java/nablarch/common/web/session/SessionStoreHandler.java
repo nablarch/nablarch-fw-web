@@ -89,9 +89,11 @@ public class SessionStoreHandler implements Handler<Object, Object> {
         Session session = null;
         List<String> entryKeys = new ArrayList<String>();
 
+        long current = SystemTimeUtil.getDate().getTime();
+
         // セッションIDがあれば、ストアから読み出しセッションストアにセットする。
         final ServletExecutionContext servletContext = (ServletExecutionContext) context;
-        final String sessionId = readId(servletContext);
+        final String sessionId = readId(servletContext, current);
         if (sessionId != null) {
             session = sessionManager.create(context);
             try {
@@ -107,9 +109,9 @@ public class SessionStoreHandler implements Handler<Object, Object> {
 
         final Object res = context.handleNext(data);
 
-        if (sessionId != null && servletContext.getNativeHttpSession(false) == null) {
-            // 往路処理でセッションが存在していたが、復路処理までの間にセッションが破棄された場合
-            // (HttpSessionが存在しなくなった場合)は、セッションストアの保存処理は行わない。
+        if (sessionId != null && expiration.isExpired(sessionId, current, context)) {
+            // 往路処理でセッションが存在していたが、復路処理までの間にセッションが破棄された場合は、
+            // セッションストアの保存処理は行わない。
             return res;
         }
 
@@ -216,9 +218,7 @@ public class SessionStoreHandler implements Handler<Object, Object> {
      * @param context 実行コンテキスト
      * @return セッションID
      */
-    protected String readId(final ServletExecutionContext context) {
-        long current = SystemTimeUtil.getDate().getTime();
-
+    protected String readId(final ServletExecutionContext context, long current) {
         String sessionId = getSessionId(context);
         if (sessionId == null) {
             return null;
