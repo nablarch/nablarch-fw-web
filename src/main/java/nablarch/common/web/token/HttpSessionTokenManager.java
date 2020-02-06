@@ -36,4 +36,9 @@ public class HttpSessionTokenManager implements TokenManager {
         return clientToken.equals(serverToken);
 
     }
+
+    @Override
+    public void initialize() {
+        //何もしない
+    }
 }
