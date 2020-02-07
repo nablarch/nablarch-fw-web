@@ -1,5 +1,6 @@
 package nablarch.common.web.token;
 
+import nablarch.core.repository.initialization.Initializable;
 import nablarch.fw.web.servlet.NablarchHttpServletRequestWrapper;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 
@@ -8,7 +9,7 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
  *
  * @author Tsuyoshi Kawasaki
  */
-public interface TokenManager {
+public interface TokenManager extends Initializable {
 
     /**
      * トークンを保存する。
