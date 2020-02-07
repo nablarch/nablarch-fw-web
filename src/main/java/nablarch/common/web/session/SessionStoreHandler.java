@@ -109,7 +109,7 @@ public class SessionStoreHandler implements Handler<Object, Object> {
 
         final Object res = context.handleNext(data);
 
-        if (sessionId != null && expiration.isExpired(sessionId, current, context)) {
+        if (sessionId != null && !expiration.isDeterminable(sessionId, context)) {
             // 往路処理でセッションが存在していたが、復路処理までの間にセッションが破棄された場合は、
             // セッションストアの保存処理は行わない。
             return res;

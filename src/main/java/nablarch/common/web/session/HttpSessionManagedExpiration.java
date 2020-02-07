@@ -1,6 +1,7 @@
 package nablarch.common.web.session;
 
 import nablarch.fw.ExecutionContext;
+import nablarch.fw.web.servlet.ServletExecutionContext;
 
 /**
  * HttpSessionを使用した{@link Expiration}実装クラス。
@@ -24,4 +25,8 @@ public class HttpSessionManagedExpiration implements Expiration {
         context.setSessionScopedVar(EXPIRATION_DATE_KEY, expirationDateTime);
     }
 
+    @Override
+    public boolean isDeterminable(String sessionId, ExecutionContext context) {
+        return ((ServletExecutionContext) context).getNativeHttpSession(false) != null;
+    }
 }
