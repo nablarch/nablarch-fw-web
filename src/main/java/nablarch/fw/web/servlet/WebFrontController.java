@@ -67,6 +67,11 @@ public class WebFrontController
 extends HandlerQueueManager<WebFrontController>
 implements Filter {
     /**
+     * セッション生成を防止する機能を有効にするかどうかのフラグ。
+     */
+    private boolean preventSessionCreation;
+
+    /**
      * デフォルトコンストラクタ
      */
     public WebFrontController() {
@@ -90,9 +95,9 @@ implements Filter {
                          ServletResponse servletResponse,
                          FilterChain     chain)
     throws ServletException, IOException {
-        
+
         ServletExecutionContext context = new ServletExecutionContext(
-                (HttpServletRequest) servletRequest,
+                applyPreventingSessionCreation((HttpServletRequest) servletRequest),
                 (HttpServletResponse) servletResponse,
                 config.getServletContext());
         
@@ -100,7 +105,21 @@ implements Filter {
         context.setHandlerQueue(this.handlerQueue)
                .handleNext(request);
     }
-    
+
+    /**
+     * セッション生成防止機能が有効な場合は、指定したリクエストオブジェクトにセッション生成防止機能を適用する。
+     * <p/>
+     * 機能が無効の場合は、受け取ったリクエストオブジェクトをそのまま返します。
+     *
+     * @param request 適用対象のリクエストオブジェクト
+     * @return 必要に応じてセッション生成防止機能が適用されたリクエストオブジェクト
+     */
+    private HttpServletRequest applyPreventingSessionCreation(HttpServletRequest request) {
+        return isPreventSessionCreation()
+                ? new PreventSessionCreationHttpServletRequestWrapper(request)
+                : request;
+    }
+
     /**
      * {@inheritDoc}
      * 本クラスの実装では、リポジトリ上にコンポーネント"webFrontController"
@@ -150,5 +169,21 @@ implements Filter {
     @Published(tag = "architect")
     public void destroy() {
         config = null;
+    }
+
+    /**
+     * セッション生成を防止する機能が有効になっているかどうかを確認する。
+     * @return 設定が有効の場合は {@code true}
+     */
+    public boolean isPreventSessionCreation() {
+        return preventSessionCreation;
+    }
+
+    /**
+     * セッション生成を防止する機能を有効にするかどうかを設定する。
+     * @param preventSessionCreation 有効にする場合は {@code true}
+     */
+    public void setPreventSessionCreation(boolean preventSessionCreation) {
+        this.preventSessionCreation = preventSessionCreation;
     }
 }
