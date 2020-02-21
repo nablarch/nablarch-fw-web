@@ -1,16 +1,21 @@
 package nablarch.fw.web.servlet;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import mockit.Mocked;
+import mockit.Verifications;
 import nablarch.TestUtil;
+import nablarch.common.web.session.MockHttpServletRequest;
 import nablarch.core.ThreadContext;
 import nablarch.core.repository.SystemRepository;
 import nablarch.core.repository.di.DiContainer;
 import nablarch.core.repository.di.config.xml.XmlComponentDefinitionLoader;
 import nablarch.fw.ExecutionContext;
+import nablarch.fw.Handler;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.HttpServer;
 import nablarch.fw.web.MockHttpRequest;
@@ -19,10 +24,21 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
+
 /**
  * @author Kiyohito Itoh
  */
 public class WebFrontControllerTest {
+    @Mocked
+    public Handler<Object, ?> handler;
+    @Mocked
+    public HttpServletResponse response;
+    @Mocked
+    public FilterChain filterChain;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -82,6 +98,43 @@ public class WebFrontControllerTest {
         
         HttpResponse res = server.handle(new MockHttpRequest("GET / HTTP/1.1"), new ExecutionContext());
         assertEquals(404, res.getStatusCode());
+    }
+
+    @Test
+    public void testNotPreventedSessionCreationIfDisable() throws Exception {
+        WebFrontController sut = new WebFrontController();
+        sut.setServletFilterConfig(new MockServletFilterConfig());
+        sut.setHandlerQueue(Collections.singletonList(handler));
+
+        sut.setPreventSessionCreation(false);
+        sut.doFilter(new MockHttpServletRequest().getMockInstance(), response, filterChain);
+
+        new Verifications() {{
+            ExecutionContext context;
+            handler.handle(any, context = withCapture());
+
+            ServletRequest servletRequest = ((ServletExecutionContext) context).getServletRequest().getRequest();
+            assertThat(servletRequest, is(notNullValue()));
+            assertThat(servletRequest, is(not(instanceOf(PreventSessionCreationHttpServletRequestWrapper.class))));
+        }};
+    }
+
+    @Test
+    public void testPreventedSessionCreationIfEnable() throws Exception {
+        WebFrontController sut = new WebFrontController();
+        sut.setServletFilterConfig(new MockServletFilterConfig());
+        sut.setHandlerQueue(Collections.singletonList(handler));
+
+        sut.setPreventSessionCreation(true);
+        sut.doFilter(new MockHttpServletRequest().getMockInstance(), response, filterChain);
+
+        new Verifications() {{
+            ExecutionContext context;
+            handler.handle(any, context = withCapture());
+
+            ServletRequest servletRequest = ((ServletExecutionContext) context).getServletRequest().getRequest();
+            assertThat(servletRequest, is(instanceOf(PreventSessionCreationHttpServletRequestWrapper.class)));
+        }};
     }
 
     @After
