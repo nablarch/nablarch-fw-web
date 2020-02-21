@@ -18,11 +18,25 @@ public class PreventSessionCreationHttpServletRequestWrapper extends HttpServlet
         super(request);
     }
 
+    /**
+     * このクラスは{@link HttpSession}を生成できないようにしているため、このメソッドは常に例外をスローします。
+     * @return このメソッドが {@link HttpSession}を返すことはありません
+     * @throws RuntimeException このメソッドを実行した場合
+     */
     @Override
     public HttpSession getSession() {
         return this.getSession(true);
     }
 
+    /**
+     * このクラスは{@link HttpSession}を生成できないようにしているため、引数に{@code true}を渡した場合は例外をスローします。
+     * <p/>
+     * 引数に{@code false}を渡した場合は、常に{@code null}を返します。
+     *
+     * @param create {@code true} を渡した場合は例外をスローします
+     * @return 引数に{@code false}を渡した場合のみ、{@code null}を返します
+     * @throws RuntimeException 引数に{@code true}を渡した場合
+     */
     @Override
     public HttpSession getSession(boolean create) {
         if (create) {
