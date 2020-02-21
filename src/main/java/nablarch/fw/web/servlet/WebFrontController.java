@@ -115,7 +115,7 @@ implements Filter {
      * @return 必要に応じてセッション生成防止機能が適用されたリクエストオブジェクト
      */
     private HttpServletRequest applyPreventingSessionCreation(HttpServletRequest request) {
-        return isPreventSessionCreation()
+        return preventSessionCreation
                 ? new PreventSessionCreationHttpServletRequestWrapper(request)
                 : request;
     }
@@ -169,14 +169,6 @@ implements Filter {
     @Published(tag = "architect")
     public void destroy() {
         config = null;
-    }
-
-    /**
-     * セッション生成を防止する機能が有効になっているかどうかを確認する。
-     * @return 設定が有効の場合は {@code true}
-     */
-    public boolean isPreventSessionCreation() {
-        return preventSessionCreation;
     }
 
     /**
