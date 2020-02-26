@@ -1,9 +1,5 @@
 package nablarch.fw.web.servlet;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-
 import nablarch.core.log.Logger;
 import nablarch.core.log.LoggerManager;
 import nablarch.core.log.app.FailureLogUtil;
@@ -13,8 +9,17 @@ import nablarch.core.repository.SystemRepository;
 import nablarch.core.repository.di.ComponentDefinitionLoader;
 import nablarch.core.repository.di.DiContainer;
 import nablarch.core.repository.di.config.DuplicateDefinitionPolicy;
+import nablarch.core.repository.di.config.externalize.CompositeExternalizedLoader;
+import nablarch.core.repository.di.config.externalize.ExternalizedComponentDefinitionLoader;
+import nablarch.core.repository.di.config.externalize.OsEnvironmentVariableExternalizedLoader;
+import nablarch.core.repository.di.config.externalize.SystemPropertyExternalizedLoader;
 import nablarch.core.repository.di.config.xml.XmlComponentDefinitionLoader;
 import nablarch.fw.web.handler.HttpAccessLogUtil;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import java.util.Arrays;
 
 /**
  * コンテキストの初期化を行う。<br/>
@@ -80,7 +85,12 @@ public class NablarchServletContextListener implements ServletContextListener {
 
         // リポジトリ初期化
         ComponentDefinitionLoader loader = new XmlComponentDefinitionLoader(configFile, policy);
-        DiContainer container = new DiContainer(loader, isStaticPropertyAllowed);
+        ExternalizedComponentDefinitionLoader externalizedComponentDefinitionLoader
+            = new CompositeExternalizedLoader(Arrays.asList(
+                new OsEnvironmentVariableExternalizedLoader(),
+                new SystemPropertyExternalizedLoader()
+            ));
+        DiContainer container = new DiContainer(loader, isStaticPropertyAllowed, externalizedComponentDefinitionLoader);
         SystemRepository.load(container);
     }
 
