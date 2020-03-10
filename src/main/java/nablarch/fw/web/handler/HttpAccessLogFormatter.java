@@ -211,6 +211,7 @@ public class HttpAccessLogFormatter {
         logItems.put("$requestId$", new RequestIdItem());
         logItems.put("$userId$", new UserIdItem());
         logItems.put("$url$", new UrlItem());
+        logItems.put("$rawUrl$", new RawURLItem());
         logItems.put("$port$", new PortItem());
         logItems.put("$method$", new MethodItem());
         char maskingChar = getMaskingChar(props);
@@ -459,6 +460,17 @@ public class HttpAccessLogFormatter {
             return getServletRequest().getRequestURL().toString();
         }
         /**
+         * クエリ文字列付きのURLを取得する。
+         * @return クエリ文字列付きのURL
+         */
+        public String getRawUrl() {
+            String queryString = getServletRequest().getQueryString();
+
+            return queryString == null
+                    ? getUrl()
+                    : new StringBuilder(getUrl()).append("?").append(queryString).toString();
+        }
+        /**
          * ポート番号を取得する。
          * @return ポート番号
          */
@@ -643,6 +655,20 @@ public class HttpAccessLogFormatter {
          */
         public String get(HttpAccessLogContext context) {
             return context.getUrl();
+        }
+    }
+    /**
+     * クエリ文字列付きのURLを取得するクラス。
+     * @author Yutaka Kanayama
+     */
+    public static class RawURLItem implements LogItem<HttpAccessLogContext> {
+        /**
+         * クエリ文字列付きのURLを取得する。
+         * @param context HttpAccessLogContext
+         * @return クエリ文字列付きのURL
+         */
+        public String get(HttpAccessLogContext context) {
+            return context.getRawUrl();
         }
     }
     /**
