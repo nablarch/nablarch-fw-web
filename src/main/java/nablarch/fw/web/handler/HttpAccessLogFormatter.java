@@ -211,7 +211,7 @@ public class HttpAccessLogFormatter {
         logItems.put("$requestId$", new RequestIdItem());
         logItems.put("$userId$", new UserIdItem());
         logItems.put("$url$", new UrlItem());
-        logItems.put("$rawUrl$", new RawURLItem());
+        logItems.put("$rawUrl$", new RawUrlItem());
         logItems.put("$port$", new PortItem());
         logItems.put("$method$", new MethodItem());
         char maskingChar = getMaskingChar(props);
@@ -661,7 +661,7 @@ public class HttpAccessLogFormatter {
      * クエリ文字列付きのURLを取得するクラス。
      * @author Yutaka Kanayama
      */
-    public static class RawURLItem implements LogItem<HttpAccessLogContext> {
+    public static class RawUrlItem implements LogItem<HttpAccessLogContext> {
         /**
          * クエリ文字列付きのURLを取得する。
          * @param context HttpAccessLogContext
