@@ -120,7 +120,7 @@ public class HttpAccessLogFormatterTest extends LogTestSupport {
     }
 
     /**
-     * クエリ文字列付きのURLが正しく出力されること。
+     * クエリ文字列が正しく出力されること。
      */
     @Test
     public void testQueryString() {
@@ -129,7 +129,7 @@ public class HttpAccessLogFormatterTest extends LogTestSupport {
 
         System.setProperty("httpAccessLogFormatter.beginFormat",
                           "\n\tmethod      = [$method$]"
-                        + "\n\trawUrl      = [$rawUrl$]"
+                        + "\n\turl         = [$url$$query$]"
                         + "\n @@@@ BEGIN @@@@");
 
         HttpAccessLogFormatter formatter = new HttpAccessLogFormatter();
@@ -139,7 +139,7 @@ public class HttpAccessLogFormatterTest extends LogTestSupport {
         int index = 0;
 
         assertThat(splitMsg[index++], is("method      = [GET]"));
-        assertThat(splitMsg[index++], is("\trawUrl      = [request_url_test?req_param2=req_param2_test]"));
+        assertThat(splitMsg[index++], is("\turl         = [request_url_test?req_param2=req_param2_test]"));
     }
     /**
      * フォーマットの出力項目を入れ替えた場合に正しくフォーマットされること。
@@ -157,7 +157,7 @@ public class HttpAccessLogFormatterTest extends LogTestSupport {
               + "\n\tport        = [$port$]"
               + "\n\tmethod      = [$method$]"
               + "\n\turl         = [$url$]"
-              + "\n\trawUrl      = [$rawUrl$]"
+              + "\n\tquery       = [$query$]"
               + "\n\tuser_agent  = [$clientUserAgent$]" 
               + "\n\t> sid = [$sessionId$]" 
               + " @@@@ BEGIN @@@@");
@@ -193,7 +193,7 @@ public class HttpAccessLogFormatterTest extends LogTestSupport {
         assertThat(splitMsg[index++], is("\tport        = [9999]"));
         assertThat(splitMsg[index++], is("\tmethod      = [POST]"));
         assertThat(splitMsg[index++], is("\turl         = [request_url_test]"));
-        assertThat(splitMsg[index++], is("\trawUrl      = [request_url_test]"));
+        assertThat(splitMsg[index++], is("\tquery       = []"));
         assertThat(splitMsg[index++], is("\tuser_agent  = [test user agent]"));
         assertThat(splitMsg[index++], is("\t> sid = [session_id_test] @@@@ BEGIN @@@@"));
         
