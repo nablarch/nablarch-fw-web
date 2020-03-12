@@ -468,7 +468,7 @@ public class HttpAccessLogFormatter {
 
             return queryString == null
                     ? ""
-                    : new StringBuilder("?").append(queryString).toString();
+                    : "?" + queryString;
         }
         /**
          * ポート番号を取得する。
