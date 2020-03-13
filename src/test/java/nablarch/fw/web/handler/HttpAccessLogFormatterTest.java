@@ -62,6 +62,29 @@ public class HttpAccessLogFormatterTest extends LogTestSupport {
         return servletReq;
     }
 
+    private void initWithGetRequest() {
+        logContext = new HttpAccessLogContext();
+        MockHttpSession session = new MockHttpSession();
+        session.setId("session_id_test");
+        MockServletRequest servletReq = new MockServletRequest();
+        servletReq.setContextPath("");
+        servletReq.setSession(session);
+        servletReq.setRequestUrl("request_url_test");
+        servletReq.setQueryString("req_param2=req_param2_test");
+        servletReq.setMethod("GET");
+        servletReq.setServerPort(9999);
+        servletReq.setRemoteAddr("remote_addr_test");
+        servletReq.setRemoteHost("remote_host_test");
+        servletReq.addHeader("User-Agent", "test user agent");
+
+        ServletExecutionContext context = new ServletExecutionContext(servletReq, null, null);
+        logContext.setContext(context);
+        logContext.setRequest(context.getHttpRequest());
+        logContext.setDispatchingClass(NormalHandler.class.getName());
+        HttpResponse response = new HttpResponse(404, "/success.jsp");
+        logContext.setResponse(response);
+    }
+
     /**
      * Sessionが存在しない場合にSessionを作成しないことの確認。
      */
@@ -97,6 +120,28 @@ public class HttpAccessLogFormatterTest extends LogTestSupport {
     }
 
     /**
+     * クエリ文字列が正しく出力されること。
+     */
+    @Test
+    public void testQueryString() {
+
+        initWithGetRequest();
+
+        System.setProperty("httpAccessLogFormatter.beginFormat",
+                          "\n\tmethod      = [$method$]"
+                        + "\n\turl         = [$url$$query$]"
+                        + "\n @@@@ BEGIN @@@@");
+
+        HttpAccessLogFormatter formatter = new HttpAccessLogFormatter();
+
+        String message = formatter.formatBegin(logContext);
+        String[] splitMsg = message.split(Logger.LS);
+        int index = 0;
+
+        assertThat(splitMsg[index++], is("method      = [GET]"));
+        assertThat(splitMsg[index++], is("\turl         = [request_url_test?req_param2=req_param2_test]"));
+    }
+    /**
      * フォーマットの出力項目を入れ替えた場合に正しくフォーマットされること。
      */
     @Test
@@ -112,6 +157,7 @@ public class HttpAccessLogFormatterTest extends LogTestSupport {
               + "\n\tport        = [$port$]"
               + "\n\tmethod      = [$method$]"
               + "\n\turl         = [$url$]"
+              + "\n\tquery       = [$query$]"
               + "\n\tuser_agent  = [$clientUserAgent$]" 
               + "\n\t> sid = [$sessionId$]" 
               + " @@@@ BEGIN @@@@");
@@ -147,6 +193,7 @@ public class HttpAccessLogFormatterTest extends LogTestSupport {
         assertThat(splitMsg[index++], is("\tport        = [9999]"));
         assertThat(splitMsg[index++], is("\tmethod      = [POST]"));
         assertThat(splitMsg[index++], is("\turl         = [request_url_test]"));
+        assertThat(splitMsg[index++], is("\tquery       = []"));
         assertThat(splitMsg[index++], is("\tuser_agent  = [test user agent]"));
         assertThat(splitMsg[index++], is("\t> sid = [session_id_test] @@@@ BEGIN @@@@"));
         
