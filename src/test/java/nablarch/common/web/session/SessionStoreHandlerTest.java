@@ -87,6 +87,7 @@ public class SessionStoreHandlerTest {
                 sessionStoreHandler.setCookiePath("/app");
                 sessionStoreHandler.setCookieName("SESSION_TRACKING_ID");
                 sessionStoreHandler.setCookieSecure(true);
+                sessionStoreHandler.setExpiration(new HttpSessionManagedExpiration());
 
                 repos.put("sessionManager", sessionManager);
                 repos.put("sessionStoreHandler", sessionStoreHandler);
