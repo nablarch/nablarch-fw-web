@@ -7,6 +7,9 @@
   <component name="validationStrategy" class="nablarch.common.web.validator.BeanValidationStrategy" >
     <!-- バリデーションエラー時にリクエストスコープに値をコピーする -->
     <property name="copyBeanToRequestScopeOnError" value="true"/>
+    <property name="formFactory">
+      <component class="nablarch.common.web.validator.SimpleReflectionBeanValidationFormFactory"/>
+    </property>
   </component>
 
   <!-- BeanValidationのメッセージ多国語対応の機能を有効にする -->

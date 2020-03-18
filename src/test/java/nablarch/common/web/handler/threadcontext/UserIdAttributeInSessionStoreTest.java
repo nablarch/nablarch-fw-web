@@ -1,0 +1,92 @@
+package nablarch.common.web.handler.threadcontext;
+
+import mockit.Expectations;
+import mockit.Mocked;
+import nablarch.common.handler.threadcontext.ThreadContextHandler;
+import nablarch.common.handler.threadcontext.UserIdAttribute;
+import nablarch.common.web.session.SessionUtil;
+import nablarch.core.ThreadContext;
+import nablarch.fw.ExecutionContext;
+import nablarch.fw.Handler;
+import nablarch.fw.Request;
+import org.junit.Test;
+
+import java.util.Map;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+public class UserIdAttributeInSessionStoreTest {
+
+    /**
+     * セッションストアからユーザIDが取得できない場合
+     * {@link UserIdAttribute#setAnonymousId(String)}で設定した値がスレッドコンテキストに設定されること
+     */
+    @Test
+    public void testUserIdAttributeOnGuestContext() {
+        ExecutionContext context = buildExecutionContext();
+        context.handleNext(new MockRequest());
+        assertThat(ThreadContext.getUserId(), is("guest"));
+
+    }
+
+    /**
+     * セッションストアからユーザIDを取得できた場合
+     * 取得した値がスレッドコンテキストに設定されること
+     *
+     * @param sessionUtil モック化セッションユーティリティ
+     */
+    @Test
+    public void testUserIdAttributeOnGuestContextOnLoginUserContext(@Mocked final SessionUtil sessionUtil) {
+        final ExecutionContext context = buildExecutionContext();
+        new Expectations() {{
+            SessionUtil.orNull(context, "user.id");
+            result = "user-id";
+        }};
+        context.handleNext(new MockRequest());
+        assertThat(ThreadContext.getUserId(), is("user-id"));
+    }
+
+    private ExecutionContext buildExecutionContext() {
+        ThreadContextHandler handler = new ThreadContextHandler(
+                new UserIdAttributeInSessionStore() {{
+                    setSessionKey("user.id");
+                    setAnonymousId("guest");
+                }}
+        );
+
+        return new ExecutionContext()
+                .clearHandlers()
+                .addHandler(handler)
+                .addHandler(new FinalHandler());
+    }
+
+    private static class MockRequest implements Request<String> {
+        @Override
+        public String getRequestPath() {
+            return null;
+        }
+
+        @Override
+        public Request<String> setRequestPath(String s) {
+            return null;
+        }
+
+        @Override
+        public String getParam(String s) {
+            return null;
+        }
+
+        @Override
+        public Map<String, String> getParamMap() {
+            return null;
+        }
+    }
+
+    private static class FinalHandler implements Handler<Request<String>, String> {
+        @Override
+        public String handle(final Request<String> request, final ExecutionContext context) {
+            return request.getParam("param");
+        }
+    }
+}
