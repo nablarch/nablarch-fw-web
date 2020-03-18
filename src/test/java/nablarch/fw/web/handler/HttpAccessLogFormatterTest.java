@@ -297,7 +297,16 @@ public class HttpAccessLogFormatterTest extends LogTestSupport {
     @Test(expected = IllegalArgumentException.class)
     public void testMaskingIllegalSettings() {
         System.setProperty("httpAccessLogFormatter.maskingChar", "aa");
-       new HttpAccessLogFormatter();
+        new HttpAccessLogFormatter();
+    }
+
+    /**
+     * マスキング文字が0文字の場合に例外が送出されること。
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testMaskingZeroIllegalSettings() {
+        System.setProperty("httpAccessLogFormatter.maskingChar", "");
+        new HttpAccessLogFormatter();
     }
 
     /**
