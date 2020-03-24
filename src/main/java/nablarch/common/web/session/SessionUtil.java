@@ -1,8 +1,12 @@
 package nablarch.common.web.session;
 
+import java.util.Map;
+
 import nablarch.core.repository.SystemRepository;
 import nablarch.core.util.annotation.Published;
 import nablarch.fw.ExecutionContext;
+import nablarch.fw.web.servlet.NablarchHttpServletRequestWrapper;
+import nablarch.fw.web.servlet.ServletExecutionContext;
 
 /**
  * セッションに関するユーティリティ。
@@ -227,4 +231,18 @@ public final class SessionUtil {
         }
         ctx.setSessionStoredVar(SessionStoreHandler.IS_INVALIDATED_KEY, Boolean.TRUE);
     }
+    
+	/**
+	 * セッションIDを変更する。
+	 *
+	 * @param ctx 実行コンテキスト
+	 */
+	public static void changeSessionId(ExecutionContext ctx) {
+		NablarchHttpServletRequestWrapper nablarchHttpServletRequestWrapper = ((ServletExecutionContext) ctx).getServletRequest();
+
+		Map<String, Object> tempMap = ctx.getSessionStoreMap();
+		((ServletExecutionContext) ctx).invalidateSession();
+		nablarchHttpServletRequestWrapper.getSession(true);
+		ctx.setSessionStoreMap(tempMap);
+	}
 }

@@ -1,20 +1,31 @@
 package nablarch.common.web.session;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 
+import nablarch.common.web.session.integration.HttpServerResource;
 import nablarch.common.web.session.store.HiddenStore;
 import nablarch.common.web.session.store.HttpSessionStore;
+import nablarch.core.ThreadContext;
+import nablarch.core.date.BasicSystemTimeProvider;
 import nablarch.core.repository.ObjectLoader;
 import nablarch.core.repository.SystemRepository;
 import nablarch.fw.ExecutionContext;
+import nablarch.fw.handler.GlobalErrorHandler;
+import nablarch.fw.web.HttpRequest;
+import nablarch.fw.web.HttpResponse;
+import nablarch.fw.web.handler.HttpCharacterEncodingHandler;
+import nablarch.fw.web.handler.HttpResponseHandler;
+import nablarch.test.support.SystemRepositoryResource;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 
 import org.junit.AfterClass;
@@ -26,6 +37,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import mockit.Capturing;
+import mockit.Expectations;
 import mockit.Mocked;
 
 /**
@@ -40,9 +52,13 @@ public class SessionUtilTest {
 
     @Mocked
     private ServletContext servletContext;
-
+    
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+    
+    @Rule
+    public HttpServerResource httpServer
+            = new HttpServerResource("classpath://nablarch/common/web/session/integration/jsp");
     
     private static final Map<String, Object> sessionContent = new HashMap<String, Object>();
     private static SessionStoreHandler handler;
@@ -180,5 +196,64 @@ public class SessionUtilTest {
         SessionUtil.put(ctx, "test", "BBBBB");
         SessionEntry test = ctx.getRequestScopedVar("test");
         assertThat((String) test.getValue(), is("AAAAA"));
+    }
+    
+    @Test
+    public void testChangeSessionId() {
+    	setUpForChangeSessionId();
+        httpServer
+                .addTestHandler(new HttpServerResource.TestHandler() {
+                    @Override
+                    public HttpResponse handle(final HttpRequest request, final ExecutionContext context) {
+                    	context.setSessionStoredVar("key01", new SessionEntry("key01", "value01", store1));
+                    	context.setSessionStoredVar("key02", "value02");
+                    	String sessionIdOld = ((ServletExecutionContext) context).getServletRequest().getSession(true).getId();
+                    	SessionUtil.changeSessionId(context);
+                    	String sessionIdNew = ((ServletExecutionContext) context).getServletRequest().getSession(false).getId();
+                    	
+                    	assertThat(context.getSessionStoredVar("key01"), instanceOf(SessionEntry.class));
+                    	assertThat((String)context.getSessionStoredVar("key02"),  is("value02"));
+                    	assertNotEquals(sessionIdOld, sessionIdNew);
+                        
+                    	return new HttpResponse(200);
+                    }
+                }).test();
+    }
+    
+    public void setUpForChangeSessionId() {
+        ThreadContext.clear();
+        
+        SystemRepositoryResource systemRepository = new SystemRepositoryResource("db-default.xml");
+        final HiddenStore hiddenStore = new HiddenStore();
+        hiddenStore.setExpires(300L);
+
+        final HttpSessionStore httpSessionStore = new HttpSessionStore();
+        httpSessionStore.setExpires(300L);
+
+        final SessionManager sessionManager = new SessionManager();
+        sessionManager.setAvailableStores(Arrays.asList(hiddenStore, httpSessionStore));
+        sessionManager.setDefaultStoreName("hidden");
+
+        systemRepository.addComponent("sessionManager", sessionManager);
+        systemRepository.addComponent("systemTimeProvider", new BasicSystemTimeProvider());
+
+        final SessionStoreHandler sessionStoreHandler = new SessionStoreHandler();
+        sessionStoreHandler.setSessionManager(sessionManager);
+
+        httpServer
+                .addHandler(new GlobalErrorHandler())
+                .addHandler(new HttpCharacterEncodingHandler())
+                .addHandler(new HttpResponseHandler())
+                .addHandler(sessionStoreHandler);
+
+        final HttpResponse unused = new HttpResponse();
+        new Expectations(unused) {
+            {
+                HttpResponse.parse(anyString);
+                minTimes = 0;
+                HttpResponse.parse((byte[]) withNotNull());
+                minTimes = 0;
+            }
+        };
     }
 }
