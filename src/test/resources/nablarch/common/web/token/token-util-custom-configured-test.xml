@@ -10,5 +10,17 @@
 		<property name="doubleSubmissionTokenSessionAttributeName"
 			value="customizedSessionAttribute" />
 	</component>
+  <component name="tokenManager" class="nablarch.common.web.token.HttpSessionTokenManager"/>
+
+  <!-- 初期化が必要なコンポーネント -->
+  <component name="initializer"
+             class="nablarch.core.repository.initialization.BasicApplicationInitializer">
+    <property name="initializeList">
+      <list>
+        <!-- web/session-store.xml:DBストア-->
+        <component-ref name="tokenManager"/>
+      </list>
+    </property>
+  </component>
 
 </component-configuration>

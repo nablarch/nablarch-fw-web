@@ -29,6 +29,7 @@ public class MockServletRequest implements HttpServletRequest {
     private String remoteAddr;
     private String remoteHost;
     private String characterEncoding;
+    private String queryString;
     
     private Map<String, String[]> parameterMap = new HashMap<String, String[]>();
     private Map<String, Object> attributesMap = new HashMap<String, Object>();
@@ -391,11 +392,15 @@ public class MockServletRequest implements HttpServletRequest {
         throw new UnsupportedOperationException();
     }
 
+    public void setQueryString(String queryString) {
+        this.queryString = queryString;
+    }
+
     /**
      * {@inheritDoc}
      */
     public String getQueryString() {
-        throw new UnsupportedOperationException();
+        return queryString;
     }
 
     /**
