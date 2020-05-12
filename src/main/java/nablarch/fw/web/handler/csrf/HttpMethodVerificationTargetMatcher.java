@@ -9,7 +9,17 @@ import nablarch.fw.web.HttpRequest;
 
 /**
  * HTTPメソッドをもとにしてHTTPリクエストがCSRFトークンの検証対象となるか判定を行うクラス。
- * 
+ *
+ * <p>
+ * デフォルトでは以下のHTTPメソッドをCSRFトークンの検証対象外とする。
+ * <ul>
+ *     <li>GET</li>
+ *     <li>HEAD</li>
+ *     <li>TRACE</li>
+ *     <li>OPTIONS</li>
+ * </ul>
+ * </p>
+ *
  * @author Uragami Taichi
  *
  */
