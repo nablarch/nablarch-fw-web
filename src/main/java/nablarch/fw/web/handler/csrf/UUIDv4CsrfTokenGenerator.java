@@ -10,7 +10,6 @@ import nablarch.core.util.annotation.Published;
  * @author Uragami Taichi
  *
  */
-@Published(tag = "architect")
 public class UUIDv4CsrfTokenGenerator implements CsrfTokenGenerator {
 
     @Override

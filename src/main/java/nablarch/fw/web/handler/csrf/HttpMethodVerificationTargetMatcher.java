@@ -13,7 +13,6 @@ import nablarch.fw.web.HttpRequest;
  * @author Uragami Taichi
  *
  */
-@Published(tag = "architect")
 public class HttpMethodVerificationTargetMatcher implements VerificationTargetMatcher {
 
     /**
