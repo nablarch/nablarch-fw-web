@@ -26,7 +26,7 @@ public final class CsrfTokenUtil {
      * CSRFトークンをセッションストアから取得する。
      * 
      * @param context 実行コンテキスト
-     * @return CSRFトークン
+     * @return CSRFトークン。セッションストアに存在しない場合は{@code null}
      */
     public static String getCsrfToken(ExecutionContext context) {
         WebConfig webConfig = WebConfigFinder.getWebConfig();
