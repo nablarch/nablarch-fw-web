@@ -10,10 +10,7 @@ import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpRequestHandler;
 import nablarch.fw.web.HttpResponse;
-import nablarch.fw.web.handler.csrf.CsrfTokenGenerator;
-import nablarch.fw.web.handler.csrf.HttpMethodVerificationTargetMatcher;
-import nablarch.fw.web.handler.csrf.UUIDv4CsrfTokenGenerator;
-import nablarch.fw.web.handler.csrf.VerificationTargetMatcher;
+import nablarch.fw.web.handler.csrf.*;
 
 /**
  * CSRFトークンの検証を行うハンドラ。
@@ -27,7 +24,7 @@ import nablarch.fw.web.handler.csrf.VerificationTargetMatcher;
  * <li>取得できなかった場合はCSRFトークンを生成してセッションストアへ保存する</li>
  * <li>HTTPリクエストが検証対象かどうかを判定する</li>
  * <li>検証対象の場合はHTTPリクエストヘッダ、またはHTTPリクエストパラメータからCSRFトークンを取得して検証を行う</li>
- * <li>検証に失敗した場合は{@link CsrfTokenVerificationFailureException}をスローする</li>
+ * <li>検証に失敗した場合はBadRequest(400)のレスポンスを返す</li>
  * <li>検証に成功した場合は次のハンドラへ処理を移す</li>
  * </ol>
  * 
@@ -57,13 +54,18 @@ public class CsrfTokenVerificationHandler implements HttpRequestHandler {
      */
     private VerificationTargetMatcher verificationTargetMatcher = new HttpMethodVerificationTargetMatcher();
 
+    /**
+     * CSRFトークンの検証失敗時の処理を行うインタフェース
+     */
+    private VerificationFailureHandler verificationFailureHandler = new BadRequestVerificationFailureHandler();
+
     @Override
     public HttpResponse handle(HttpRequest request, ExecutionContext context) {
         String sessionAssociatedToken = getSessionAssociatedToken(context);
         if (isTargetOfVerification(request)) {
             String userSentToken = getUserSentToken(request);
             if (!verifyToken(userSentToken, sessionAssociatedToken)) {
-                throw new CsrfTokenVerificationFailureException();
+                return verificationFailureHandler.handle(request, context, userSentToken, sessionAssociatedToken);
             }
         }
         HttpResponse response = context.handleNext(request);
@@ -153,5 +155,14 @@ public class CsrfTokenVerificationHandler implements HttpRequestHandler {
      */
     public void setVerificationTargetMatcher(VerificationTargetMatcher verificationTargetMatcher) {
         this.verificationTargetMatcher = verificationTargetMatcher;
+    }
+
+    /**
+     * CSRFトークンの検証失敗時の処理を行うインタフェースを設定する。
+     *
+     * @param verificationFailureHandler CSRFトークンの検証失敗時の処理を行うインタフェース
+     */
+    public void setVerificationFailureHandler(VerificationFailureHandler verificationFailureHandler) {
+        this.verificationFailureHandler = verificationFailureHandler;
     }
 }

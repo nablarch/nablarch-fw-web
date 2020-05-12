@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.Cookie;
 
+import nablarch.fw.web.handler.csrf.VerificationFailureHandler;
+import org.apache.tools.ant.taskdefs.condition.Http;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,7 +23,6 @@ import mockit.integration.junit4.JMockit;
 import nablarch.common.web.MockHttpSession;
 import nablarch.common.web.WebConfig;
 import nablarch.common.web.csrf.CsrfTokenUtil;
-import nablarch.common.web.csrf.CsrfTokenVerificationFailureException;
 import nablarch.common.web.session.SessionEntry;
 import nablarch.common.web.session.SessionManager;
 import nablarch.common.web.session.SessionStore;
@@ -193,11 +194,11 @@ public class CsrfTokenVerificationHandlerTest {
         servletReq.setCookies(cookies.toArray(new Cookie[0]));
         context.addHandler(new AlwaysFailure());
         String invalidCsrfToken = "invalid csrf token";
-        try {
-            context.handleNext(new MockHttpRequest("POST / HTTP/1.1")
-                    .setParam(webConfig.getCsrfTokenParameterName(), invalidCsrfToken));
-        } catch (CsrfTokenVerificationFailureException expected) {
-        }
+
+        HttpResponse response = context.handleNext(new MockHttpRequest("POST / HTTP/1.1")
+                .setParam(webConfig.getCsrfTokenParameterName(), invalidCsrfToken));
+        assertEquals(400, response.getStatusCode());
+        assertTrue(response.isBodyEmpty());
     }
 
     /**
@@ -213,11 +214,10 @@ public class CsrfTokenVerificationHandlerTest {
 
         servletReq.setCookies(cookies.toArray(new Cookie[0]));
         context.addHandler(new AlwaysFailure());
-        try {
-            context.handleNext(new MockHttpRequest("POST / HTTP/1.1")
+        HttpResponse response = context.handleNext(new MockHttpRequest("POST / HTTP/1.1")
                     .setParam(webConfig.getCsrfTokenParameterName(), new String[0]));
-        } catch (CsrfTokenVerificationFailureException expected) {
-        }
+        assertEquals(400, response.getStatusCode());
+        assertTrue(response.isBodyEmpty());
     }
 
     /**
@@ -342,10 +342,9 @@ public class CsrfTokenVerificationHandlerTest {
         sut.setVerificationTargetMatcher(verificationTargetMatcher2);
 
         context.addHandler(new AlwaysFailure());
-        try {
-            context.handleNext(new MockHttpRequest("GET / HTTP/1.1"));
-        } catch (CsrfTokenVerificationFailureException expected) {
-        }
+        HttpResponse response = context.handleNext(new MockHttpRequest("GET / HTTP/1.1"));
+        assertEquals(400, response.getStatusCode());
+        assertTrue(response.isBodyEmpty());
     }
 
     /**
@@ -455,6 +454,41 @@ public class CsrfTokenVerificationHandlerTest {
         //警告ログが出力されていることを検証
         OnMemoryLogWriter.assertLogContains("writer.memory",
                 "A request scoped variable named 'nablarch_request_for_csrf_token_to_be_regenerated' has unexpected value. 'nablarch_request_for_csrf_token_to_be_regenerated' must be Bolean.TRUE.");
+    }
+
+    /**
+     *  {@link VerificationFailureHandler}の実装を切り替えられることをテストする。
+     */
+    @Test
+    public void testSetVerificationFailureHandler() {
+
+        VerificationFailureHandler handler = new VerificationFailureHandler() {
+            @Override
+            public HttpResponse handle(
+                    HttpRequest request, ExecutionContext context,
+                    String userSentToken, String sessionAssociatedToken) {
+                assertNotNull(request);
+                assertNotNull(context);
+                return new HttpResponse(200).write(userSentToken + sessionAssociatedToken);
+            }
+        };
+        sut.setVerificationFailureHandler(handler);
+
+        context.addHandler(new GetCsrfToken());
+        HttpResponse response1 = context.handleNext(new MockHttpRequest("GET / HTTP/1.1"));
+        List<Cookie> cookies = servletRes.getCookies();
+
+        resetRequest();
+
+        servletReq.setCookies(cookies.toArray(new Cookie[0]));
+        context.addHandler(new AlwaysFailure());
+        String invalidCsrfToken = "invalid csrf token";
+        String expectedBodyString = invalidCsrfToken + response1.getBodyString();
+
+        HttpResponse response2 = context.handleNext(new MockHttpRequest("POST / HTTP/1.1")
+                .setParam(webConfig.getCsrfTokenParameterName(), invalidCsrfToken));
+        assertEquals(200, response2.getStatusCode());
+        assertEquals(expectedBodyString, response2.getBodyString());
     }
 
     private static class GetCsrfToken implements HttpRequestHandler {
