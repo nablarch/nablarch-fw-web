@@ -151,7 +151,7 @@ public class WebConfig {
     /**
      * CSRFトークンをセッションスコープに格納する際に使用するキーを設定する。
      * 
-     * @param csrfTokenSessionAttributeName CSRFトークンをセッションスコープに格納する際に使用するキー
+     * @param csrfTokenSessionStoredVarName CSRFトークンをセッションスコープに格納する際に使用するキー
      */
     public void setCsrfTokenSessionStoredVarName(String csrfTokenSessionStoredVarName) {
         this.csrfTokenSessionStoredVarName = csrfTokenSessionStoredVarName;
