@@ -2,7 +2,6 @@ package nablarch.fw.web.handler;
 
 import nablarch.common.web.WebConfig;
 import nablarch.common.web.WebConfigFinder;
-import nablarch.common.web.csrf.CsrfTokenVerificationFailureException;
 import nablarch.common.web.session.SessionUtil;
 import nablarch.core.log.Logger;
 import nablarch.core.log.LoggerManager;
