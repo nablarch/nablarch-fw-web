@@ -2,8 +2,6 @@ package nablarch.fw.web.handler.csrf;
 
 import java.util.UUID;
 
-import nablarch.core.util.annotation.Published;
-
 /**
  * バージョン4のUUIDを使用してCSRFトークンの生成を行うクラス。
  * 
