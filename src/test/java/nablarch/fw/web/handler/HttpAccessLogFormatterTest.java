@@ -290,7 +290,25 @@ public class HttpAccessLogFormatterTest extends LogTestSupport {
             }
         }
     }
-    
+
+    /**
+     * マスキング文字が2文字以上の場合に例外が送出されること。
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testMaskingIllegalSettings() {
+        System.setProperty("httpAccessLogFormatter.maskingChar", "aa");
+        new HttpAccessLogFormatter();
+    }
+
+    /**
+     * マスキング文字が0文字の場合に例外が送出されること。
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testMaskingZeroIllegalSettings() {
+        System.setProperty("httpAccessLogFormatter.maskingChar", "");
+        new HttpAccessLogFormatter();
+    }
+
     /**
      * リクエストパラメータとセッション情報のセパレータが指定された場合に、正しくフォーマットできること。
      */
