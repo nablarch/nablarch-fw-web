@@ -57,7 +57,7 @@ public final class TokenUtil {
      */
     public static TokenGenerator getTokenGenerator() {
         final TokenGenerator generator = (TokenGenerator) SystemRepository.getObject(TOKEN_GENERATOR_NAME);
-        return generator != null ? generator : new RandomTokenGenerator();
+        return generator != null ? generator : new UUIDV4TokenGenerator();
     }
 
     /**
