@@ -27,7 +27,8 @@ public class SecureHandler implements HttpRequestHandler {
                     new FrameOptionsHeader(),
                     new XssProtectionHeader(),
                     new ContentTypeOptionsHeader(),
-                    new ReferrerPolicyHeader());
+                    new ReferrerPolicyHeader(),
+                    new CacheControlHeader());
 
     @Override
     public HttpResponse handle(final HttpRequest request, final ExecutionContext context) {
