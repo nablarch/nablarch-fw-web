@@ -8,10 +8,7 @@ import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpRequestHandler;
 import nablarch.fw.web.HttpResponse;
-import nablarch.fw.web.handler.secure.ContentTypeOptionsHeader;
-import nablarch.fw.web.handler.secure.FrameOptionsHeader;
-import nablarch.fw.web.handler.secure.SecureResponseHeader;
-import nablarch.fw.web.handler.secure.XssProtectionHeader;
+import nablarch.fw.web.handler.secure.*;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 
 /**
@@ -29,7 +26,8 @@ public class SecureHandler implements HttpRequestHandler {
             Arrays.asList(
                     new FrameOptionsHeader(),
                     new XssProtectionHeader(),
-                    new ContentTypeOptionsHeader());
+                    new ContentTypeOptionsHeader(),
+                    new ReferrerPolicyHeader());
 
     @Override
     public HttpResponse handle(final HttpRequest request, final ExecutionContext context) {

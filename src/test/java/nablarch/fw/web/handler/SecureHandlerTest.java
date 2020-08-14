@@ -62,7 +62,7 @@ public class SecureHandlerTest {
     };
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         new Expectations() {{
             mockServletRequest.getRequestURI();
             result = "/sampleapp/action/sample";
@@ -74,17 +74,21 @@ public class SecureHandlerTest {
     }
 
     /**
-     * X-Frame-Optionsヘッダが設定されること。
+     * デフォルト設定のテスト。
      */
     @Test
-    public void defaultFrameOptions() throws Exception {
+    public void defaultSettings() {
 
         final HttpResponse result = sut.handle(mockHttpRequest, context);
 
+        assertThat(result.getHeaderMap().size(), is(6));
         assertThat(result.getHeaderMap(), CoreMatchers.<Map<String, String>>allOf(
+                IsMapContaining.hasEntry("Content-Length", "0"),
+                IsMapContaining.hasEntry("Content-Type", "text/plain;charset=UTF-8"),
                 IsMapContaining.hasEntry("X-Frame-Options", "SAMEORIGIN"),
                 IsMapContaining.hasEntry("X-XSS-Protection", "1; mode=block"),
-                IsMapContaining.hasEntry("X-Content-Type-Options", "nosniff")
+                IsMapContaining.hasEntry("X-Content-Type-Options", "nosniff"),
+                IsMapContaining.hasEntry("Referrer-Policy", "strict-origin-when-cross-origin")
         ));
     }
 
@@ -92,7 +96,7 @@ public class SecureHandlerTest {
      * 出力対象外の場合、そのヘッダは出力されないこと
      */
     @Test
-    public void withoutFrameOptions() throws Exception {
+    public void withoutFrameOptions() {
 
         final FrameOptionsHeader frameOption = new FrameOptionsHeader();
         frameOption.setOption("NONE");
