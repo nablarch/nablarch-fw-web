@@ -9,6 +9,9 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
 
 /**
  * クッキーを使用してタイムゾーンの保持を行うクラス。
+ *
+ * Servlet APIがサポートしていれば、クッキーにhttpOnly属性を設定する。
+ *
  * @author Kiyohito Itoh
  */
 @Published(tag = "architect")
@@ -57,15 +60,6 @@ public class TimeZoneAttributeInHttpCookie extends TimeZoneAttributeInHttpSuppor
      */
     public void setCookieSecure(boolean secure) {
         cookieSupport.setCookieSecure(secure);
-    }
-
-    /**
-     * 保持するクッキーのhttpOnly属性有無を指定する。
-     * （デフォルトではサポートしていればhttpOnly属性を設定する）
-     * @param httpOnly httpOnly属性を設定するか否か（真の場合、httpOnly属性を設定する）
-     */
-    public void setCookieHttpOnly(boolean httpOnly) {
-        cookieSupport.setCookieHttpOnly(httpOnly);
     }
 
     @Override
