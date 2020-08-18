@@ -10,7 +10,7 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
 /**
  * クッキーに対するアクセスをサポートするクラス。
  *
- * Servlet APIがサポートしていれば、クッキーにhttpOnly属性を設定する。
+ * クッキーのhttpOnly属性はアプリケーションで使用しているServlet APIがサポートしている場合のみ設定する。
  *
  * @author Kiyohito Itoh
  */
@@ -30,6 +30,9 @@ public class CookieSupport {
 
     /** secure属性の有無（デフォルト無し）*/
     private boolean secure = false;
+
+    /** httpOnly属性の有無（デフォルトあり） */
+    private boolean httpOnly = true;
 
     /**
      * コンストラクタ。
@@ -81,6 +84,15 @@ public class CookieSupport {
     }
 
     /**
+     * 保持するクッキーのhttpOnly属性有無を指定する。
+     * （デフォルトではサポートしていればhttpOnly属性を設定する）
+     * @param httpOnly httpOnly属性を設定するか否か（真の場合、httpOnly属性を設定する）
+     */
+    public void setCookieHttpOnly(boolean httpOnly) {
+        this.httpOnly = httpOnly;
+    }
+
+    /**
      * 指定された値をクッキーに設定するための{@link Cookie}を作成する。
      * <p/>
      * クッキーのパス階層が指定されていない場合はコンテキストパスをパス階層に指定する。
@@ -108,7 +120,7 @@ public class CookieSupport {
         }
         httpCookie.setSecure(secure);
         if (httpCookie.supportsHttpOnly()) {
-            httpCookie.setHttpOnly(true);
+            httpCookie.setHttpOnly(httpOnly);
         }
 
         return httpCookie.convertServletCookies().get(0);
