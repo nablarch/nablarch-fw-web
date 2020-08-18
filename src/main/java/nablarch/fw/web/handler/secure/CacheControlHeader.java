@@ -10,7 +10,7 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
  *
  * Cache-Controlレスポンスヘッダを個別に指定したいケースに対応するため、
  * Cache-Controlレスポンスヘッダが設定されてない場合のみ設定を行う。
- * 上書きは行わい。
+ * 上書きは行わない。
  *
  * @author Kiyohito Itoh
  */
