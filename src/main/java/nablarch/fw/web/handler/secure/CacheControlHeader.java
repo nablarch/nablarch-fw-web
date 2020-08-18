@@ -1,5 +1,6 @@
 package nablarch.fw.web.handler.secure;
 
+import nablarch.core.util.StringUtil;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 
@@ -16,15 +17,16 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
  */
 public class CacheControlHeader extends SecureResponseHeaderSupport {
 
+    private static final String NAME = "Cache-Control";
     /**
      * コンストラクタ。
      */
     public CacheControlHeader() {
-        super("Cache-Control", "no-store");
+        super(NAME, "no-store");
     }
 
     @Override
     public boolean isOutput(HttpResponse response, ServletExecutionContext context) {
-        return !response.getHeaderMap().containsKey(getName());
+        return StringUtil.isNullOrEmpty(response.getHeader(NAME));
     }
 }
