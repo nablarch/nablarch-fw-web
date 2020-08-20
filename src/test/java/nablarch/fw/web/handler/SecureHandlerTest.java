@@ -81,14 +81,15 @@ public class SecureHandlerTest {
 
         final HttpResponse result = sut.handle(mockHttpRequest, context);
 
-        assertThat(result.getHeaderMap().size(), is(6));
+        assertThat(result.getHeaderMap().size(), is(7));
         assertThat(result.getHeaderMap(), CoreMatchers.<Map<String, String>>allOf(
                 IsMapContaining.hasEntry("Content-Length", "0"),
                 IsMapContaining.hasEntry("Content-Type", "text/plain;charset=UTF-8"),
                 IsMapContaining.hasEntry("X-Frame-Options", "SAMEORIGIN"),
                 IsMapContaining.hasEntry("X-XSS-Protection", "1; mode=block"),
                 IsMapContaining.hasEntry("X-Content-Type-Options", "nosniff"),
-                IsMapContaining.hasEntry("Referrer-Policy", "strict-origin-when-cross-origin")
+                IsMapContaining.hasEntry("Referrer-Policy", "strict-origin-when-cross-origin"),
+                IsMapContaining.hasEntry("Cache-Control", "no-store")
         ));
     }
 
