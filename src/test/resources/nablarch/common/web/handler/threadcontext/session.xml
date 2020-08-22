@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+スレッドコンテキスト初期化ハンドラの設定ファイル
+-->
+<component-configuration
+    xmlns="http://tis.co.jp/nablarch/component-configuration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration  ../../component-configuration.xsd">
+  
+  <component name="languageAttribute"
+             class="nablarch.common.web.handler.threadcontext.LanguageAttributeInHttpSession">
+    <property name="defaultLanguage" value="es" />
+    <property name="supportedLanguages" value="en,it,ja,es,zh" />
+  </component>
+
+  <component name="timeZoneAttribute"
+             class="nablarch.common.web.handler.threadcontext.TimeZoneAttributeInHttpSession">
+    <property name="defaultTimeZone" value="Europe/Madrid" />
+    <property name="supportedTimeZones" value="America/New_York, Europe/Rome, Asia/Tokyo, Europe/Madrid, Asia/Shanghai" />
+  </component>
+  
+</component-configuration>
