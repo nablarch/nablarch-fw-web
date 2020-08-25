@@ -15,6 +15,9 @@ import java.sql.Statement;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
+/**
+ * {@link DbHealthChecker}のテスト。
+ */
 public class DbHealthCheckerTest {
 
     @Mocked
