@@ -1,5 +1,6 @@
 package nablarch.fw.web.handler.health;
 
+import nablarch.core.util.annotation.Published;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpResponse;
@@ -11,6 +12,7 @@ import java.util.List;
  *
  * @author Kiyohito Itoh
  */
+@Published(tag = "architect")
 public class HealthCheckResponseBuilder {
 
     private int healthyStatusCode = HttpResponse.Status.OK.getStatusCode();
