@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.*;
 
 /**
@@ -70,7 +71,7 @@ public class HealthCheckResponseBuilderTest {
         HttpResponse response = sut.build(null, null, result);
 
         assertThat(response.getStatusCode(), is(200));
-        assertThat(response.getContentType(), is("application/json"));
+        assertThat(response.getHeader("Content-Type"), is(nullValue()));
         assertThat(response.getBodyString(), is(""));
     }
 

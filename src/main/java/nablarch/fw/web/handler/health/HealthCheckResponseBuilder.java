@@ -40,8 +40,8 @@ public class HealthCheckResponseBuilder {
     public HttpResponse build(HttpRequest request, ExecutionContext context, HealthCheckResult result) {
         HttpResponse response = new HttpResponse();
         response.setStatusCode(result.isHealthy() ? healthyStatusCode : unhealthyStatusCode);
-        response.setContentType(getContentType());
         if (writeBody) {
+            response.setContentType(getContentType());
             response.write(buildResponseBody(request, context, result));
         }
         return response;
@@ -65,10 +65,10 @@ public class HealthCheckResponseBuilder {
      */
     protected String buildResponseBody(HttpRequest request, ExecutionContext context, HealthCheckResult result) {
         if (result.getTargets().isEmpty()) {
-            return String.format("{\"status\":\"%s\"}", status(result.isHealthy()));
+            return String.format("{\"status\":\"%s\"}", getStatus(result.isHealthy()));
         } else {
             return String.format("{\"status\":\"%s\",\"targets\":[%s]}",
-                    status(result.isHealthy()), targets(result.getTargets()));
+                    getStatus(result.isHealthy()), targets(result.getTargets()));
         }
 
     }
@@ -80,12 +80,17 @@ public class HealthCheckResponseBuilder {
                 sb.append(",");
             }
             sb.append(String.format("{\"name\":\"%s\",\"status\":\"%s\"}",
-                    target.getName(), status(target.isHealthy())));
+                    target.getName(), getStatus(target.isHealthy())));
         }
         return sb.toString();
     }
 
-    private String status(boolean isHealthy) {
+    /**
+     * ヘルスチェック結果に応じたステータスの表現を取得する。
+     * @param isHealthy ヘルスチェック結果。成功した場合はtrue
+     * @return ヘルスチェック結果に応じたステータスの表現
+     */
+    protected String getStatus(boolean isHealthy) {
         return isHealthy ? healthyStatus : unhealthyStatus;
     }
 
