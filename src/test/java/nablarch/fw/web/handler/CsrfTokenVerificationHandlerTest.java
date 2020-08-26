@@ -185,6 +185,9 @@ public class CsrfTokenVerificationHandlerTest {
      */
     @Test
     public void testInvalidCsrfToken() {
+
+        OnMemoryLogWriter.clear();
+
         context.addHandler(new GetCsrfToken());
         context.handleNext(new MockHttpRequest("GET / HTTP/1.1"));
         List<Cookie> cookies = servletRes.getCookies();
@@ -199,6 +202,9 @@ public class CsrfTokenVerificationHandlerTest {
                 .setParam(webConfig.getCsrfTokenParameterName(), invalidCsrfToken));
         assertEquals(400, response.getStatusCode());
         assertTrue(response.isBodyEmpty());
+
+        OnMemoryLogWriter.assertLogContains("writer.appLog",
+                "INFO stdout CSRF token verification failed. userSentToken=[invalid csrf token]");
     }
 
     /**
