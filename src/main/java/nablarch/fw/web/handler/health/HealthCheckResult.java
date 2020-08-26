@@ -1,5 +1,7 @@
 package nablarch.fw.web.handler.health;
 
+import nablarch.core.util.annotation.Published;
+
 import java.util.List;
 
 /**
@@ -7,11 +9,13 @@ import java.util.List;
  *
  * @author Kiyohito Itoh
  */
+@Published(tag = "architect")
 public class HealthCheckResult {
 
     /**
      * 対象ごとのヘルスチェック結果
      */
+    @Published(tag = "architect")
     public static class Target {
 
         private String name;
