@@ -6,7 +6,6 @@ import nablarch.fw.web.HttpRequest;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 
 /**
  * DBのヘルスチェックを行うクラス。
@@ -30,9 +29,7 @@ public class DbHealthChecker extends HealthChecker {
         Connection connection = null;
         try {
             connection = dataSource.getConnection();
-            PreparedStatement statement = connection.prepareStatement(dialect.getPingSql());
-            statement.execute();
-            statement.close();
+            connection.prepareStatement(dialect.getPingSql()).execute();
             return true;
         } finally {
             if (connection != null) {
