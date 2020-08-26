@@ -69,8 +69,7 @@
     <dependency>
       <groupId>com.nablarch.framework</groupId>
       <artifactId>nablarch-core-jdbc</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
