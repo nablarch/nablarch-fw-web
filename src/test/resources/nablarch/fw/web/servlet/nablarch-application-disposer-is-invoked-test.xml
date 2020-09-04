@@ -6,7 +6,7 @@
     <component name="disposable3" class="nablarch.fw.web.servlet.MockDisposable" />
 
     <component name="disposer" class="nablarch.core.repository.disposal.BasicApplicationDisposer">
-        <property name="disposables">
+        <property name="disposableList">
             <list>
                 <component-ref name="disposable1" />
                 <component-ref name="disposable2" />
