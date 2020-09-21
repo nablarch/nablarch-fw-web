@@ -28,13 +28,16 @@ public class DbHealthChecker extends HealthChecker {
     @Override
     protected boolean tryOut(HttpRequest request, ExecutionContext context) throws Exception {
         Connection connection = null;
+        PreparedStatement statement = null;
         try {
             connection = dataSource.getConnection();
-            PreparedStatement statement = connection.prepareStatement(dialect.getPingSql());
+            statement = connection.prepareStatement(dialect.getPingSql());
             statement.execute();
-            statement.close();
             return true;
         } finally {
+            if (statement != null) {
+                statement.close();
+            }
             if (connection != null) {
                 connection.close();
             }
