@@ -35,11 +35,14 @@ public class DbHealthChecker extends HealthChecker {
             statement.execute();
             return true;
         } finally {
-            if (statement != null) {
-                statement.close();
-            }
-            if (connection != null) {
-                connection.close();
+            try{
+                if (statement != null) {
+                    statement.close();
+                }
+            }finally {
+                if (connection != null) {
+                    connection.close();
+                }
             }
         }
     }
