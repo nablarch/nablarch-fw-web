@@ -50,8 +50,8 @@ public class RequestProcessorTest {
                     .addHandler(errorHandler)
                     .addHandler("/baseUriA//"   , handlerA)
                     .addHandler("/baseUriB//"   , handlerB)
-                    .addHandler("/baseUriA/app/", application)
-                    .addHandler("/baseUriB/app/", application);
+                    .addHandler("/baseUriA/app//", application)
+                    .addHandler("/baseUriB/app//", application);
         
         SystemRepository.load(new ObjectLoader() {
             @Override
@@ -169,7 +169,7 @@ public class RequestProcessorTest {
             }}))
             .addHandler(new ForwardingHandler())
             .addHandler(new HttpErrorHandler())
-            .addHandler("/app/user/", userService);
+            .addHandler("/app/user//", userService);
 
         req = new MockHttpRequest("POST /app/user/new HTTP/1.1");
         requestId.clear();
@@ -202,7 +202,7 @@ public class RequestProcessorTest {
               }}))             
              .addHandler(new ForwardingHandler())
              .addHandler(new HttpErrorHandler())
-             .addHandler("/app/user/", userService);
+             .addHandler("/app/user//", userService);
         
         res = ctx.handleNext(req);
         assertEquals(200, res.getStatusCode());
@@ -440,7 +440,7 @@ public class RequestProcessorTest {
         GET /baseUriB/app//index.html HTTP/1.1
         *************************************/
         res = context.handleNext(req);
-        assertEquals(404, res.getStatusCode());
+        assertEquals(200, res.getStatusCode());
         
         setUp();
         req = new MockHttpRequest(string());
@@ -611,7 +611,7 @@ public class RequestProcessorTest {
         
         entry = new RequestHandlerEntry<SimpleRequest, Object>().setRequestPattern("/baseUriA/");
         assertTrue (entry.isAppliedTo(new SimpleRequest("/baseUriA/"), ctx));
-        assertTrue (entry.isAppliedTo(new SimpleRequest("/baseUriA/foo.html"), ctx));
+        assertFalse(entry.isAppliedTo(new SimpleRequest("/baseUriA/foo.html"), ctx));
         assertFalse(entry.isAppliedTo(new SimpleRequest("/baseUriB/"), ctx));
         assertFalse(entry.isAppliedTo(new SimpleRequest("/baseUriA/hoge/fuga/"), ctx));
         assertFalse(entry.isAppliedTo(new SimpleRequest("/baseUriA/hoge/fuga/foo.html"), ctx));

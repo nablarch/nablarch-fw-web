@@ -23,7 +23,7 @@ public class SimpleWebAppTest {
         HttpServer server =
             TestUtil.createHttpServer()
             .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
-            .addHandler("/", new SimpleWebApp())
+            .addHandler("//", new SimpleWebApp())
             .startLocal();
         ExecutionContext ctx = new ExecutionContext();
         HttpResponse res = server.handle(new MockHttpRequest(string()), ctx);
