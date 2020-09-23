@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.Cookie;
 
 import nablarch.fw.web.handler.csrf.VerificationFailureHandler;
-import org.apache.tools.ant.taskdefs.condition.Http;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
