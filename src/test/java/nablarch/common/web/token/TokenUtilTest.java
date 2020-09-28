@@ -136,7 +136,7 @@ public class TokenUtilTest {
                 .getAttribute(webConfig.getDoubleSubmissionTokenSessionAttributeName()));
 
         String token = TokenUtil.generateToken(request);
-        assertThat(token.length(), is(16));
+        assertThat(token.length(), is(36));
 
         assertThat(request.getAttribute(webConfig.getDoubleSubmissionTokenRequestAttributeName())
                 .toString(), is(token));
@@ -144,7 +144,7 @@ public class TokenUtilTest {
                 .getAttribute(webConfig.getDoubleSubmissionTokenSessionAttributeName()).toString(),
                 is(token));
 
-        assertThat(TokenUtil.generateToken(request).length(), is(16));
+        assertThat(TokenUtil.generateToken(request).length(), is(36));
     }
 
     @Test

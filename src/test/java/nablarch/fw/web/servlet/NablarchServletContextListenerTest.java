@@ -288,6 +288,54 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
         }
     }
 
+    /**
+     * contextDestroyed() のときに {@link nablarch.core.repository.disposal.ApplicationDisposer} が実行されること。
+     */
+    @Test
+    public void testApplicationDisposerIsInvokedAtContextDestroyed() {
+        MockServletContext ctx = new MockServletContext();
+        ctx.getInitParams().put("di.config", "classpath:nablarch/fw/web/servlet/nablarch-application-disposer-is-invoked-test.xml");
+        ServletContextEvent ctxEvt = new ServletContextEvent(ctx);
+        ServletContextListener listener = new NablarchServletContextListener();
+
+        clear();
+        listener.contextInitialized(ctxEvt);
+
+        MockDisposable disposable1 = SystemRepository.get("disposable1");
+        MockDisposable disposable2 = SystemRepository.get("disposable2");
+        MockDisposable disposable3 = SystemRepository.get("disposable3");
+
+        listener.contextDestroyed(ctxEvt);
+
+        assertThat(disposable1.isDisposed(), is(true));
+        assertThat(disposable2.isDisposed(), is(true));
+        assertThat(disposable3.isDisposed(), is(true));
+    }
+
+    /**
+     * {@link nablarch.core.repository.disposal.ApplicationDisposer} のコンポーネントが存在するときだけ、
+     * 廃棄処理が実行されること。
+     */
+    @Test
+    public void testApplicationDisposerIsInvokedOnlyExistsComponent() {
+        MockServletContext ctx = new MockServletContext();
+        ctx.getInitParams().put("di.config", "classpath:nablarch/fw/web/servlet/nablarch-application-disposer-not-exists-test.xml");
+        ServletContextEvent ctxEvt = new ServletContextEvent(ctx);
+        ServletContextListener listener = new NablarchServletContextListener();
+
+        clear();
+        listener.contextInitialized(ctxEvt);
+
+        MockDisposable disposable1 = SystemRepository.get("disposable1");
+        MockDisposable disposable2 = SystemRepository.get("disposable2");
+        MockDisposable disposable3 = SystemRepository.get("disposable3");
+
+        listener.contextDestroyed(ctxEvt);
+
+        assertThat(disposable1.isDisposed(), is(false));
+        assertThat(disposable2.isDisposed(), is(false));
+        assertThat(disposable3.isDisposed(), is(false));
+    }
 
     public static final class Book {
         private String name;

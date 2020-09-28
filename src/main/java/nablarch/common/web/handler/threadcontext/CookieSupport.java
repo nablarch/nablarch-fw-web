@@ -4,10 +4,14 @@ import javax.servlet.http.Cookie;
 
 import nablarch.core.util.StringUtil;
 import nablarch.fw.ExecutionContext;
+import nablarch.fw.web.HttpCookie;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 
 /**
  * クッキーに対するアクセスをサポートするクラス。
+ *
+ * クッキーのhttpOnly属性はアプリケーションで使用しているServlet APIがサポートしている場合のみ設定する。
+ *
  * @author Kiyohito Itoh
  */
 public class CookieSupport {
@@ -26,6 +30,9 @@ public class CookieSupport {
 
     /** secure属性の有無（デフォルト無し）*/
     private boolean secure = false;
+
+    /** httpOnly属性の有無（デフォルトあり） */
+    private boolean httpOnly = true;
 
     /**
      * コンストラクタ。
@@ -75,7 +82,16 @@ public class CookieSupport {
     public void setCookieSecure(boolean secure) {
         this.secure = secure;
     }
-    
+
+    /**
+     * 保持するクッキーのhttpOnly属性有無を指定する。
+     * （デフォルトではサポートしていればhttpOnly属性を設定する）
+     * @param httpOnly httpOnly属性を設定するか否か（真の場合、httpOnly属性を設定する）
+     */
+    public void setCookieHttpOnly(boolean httpOnly) {
+        this.httpOnly = httpOnly;
+    }
+
     /**
      * 指定された値をクッキーに設定するための{@link Cookie}を作成する。
      * <p/>
@@ -85,25 +101,29 @@ public class CookieSupport {
      * @return {@link Cookie}
      */
     public Cookie createCookie(ServletExecutionContext ctx, String value) {
-        Cookie cookie = new Cookie(cookieName, value);
+        HttpCookie httpCookie = new HttpCookie();
+        httpCookie.put(cookieName, value);
         if (cookiePath != null) {
-            cookie.setPath(cookiePath);
+            httpCookie.setPath(cookiePath);
         } else {
             String contextPath = ctx.getServletRequest().getContextPath();
             if (StringUtil.isNullOrEmpty(contextPath)) {
                 contextPath = "/";
             }
-            cookie.setPath(contextPath);
+            httpCookie.setPath(contextPath);
         }
         if (cookieDomain != null) {
-            cookie.setDomain(cookieDomain);
+            httpCookie.setDomain(cookieDomain);
         }
         if (cookieMaxAge != null) {
-            cookie.setMaxAge(cookieMaxAge);
+            httpCookie.setMaxAge(cookieMaxAge);
         }
-        cookie.setSecure(secure);
+        httpCookie.setSecure(secure);
+        if (httpCookie.supportsHttpOnly()) {
+            httpCookie.setHttpOnly(httpOnly);
+        }
 
-        return cookie;
+        return httpCookie.convertServletCookies().get(0);
     }
     
     /**

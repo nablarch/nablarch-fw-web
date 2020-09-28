@@ -14,6 +14,7 @@ import nablarch.core.repository.di.ComponentDefinitionLoader;
 import nablarch.core.repository.di.DiContainer;
 import nablarch.core.repository.di.config.DuplicateDefinitionPolicy;
 import nablarch.core.repository.di.config.xml.XmlComponentDefinitionLoader;
+import nablarch.core.repository.disposal.ApplicationDisposer;
 import nablarch.fw.web.handler.HttpAccessLogUtil;
 
 /**
@@ -123,10 +124,14 @@ public class NablarchServletContextListener implements ServletContextListener {
     /**
      * {@inheritDoc}<br/>
      * <br/>
-     * ログの終了処理を行う。<br/>
+     * コンポーネントの廃棄処理と、ログの終了処理を行う。<br/>
      * ログの終了処理の直前にINFOレベルでログを出力する。
      */
     public void contextDestroyed(ServletContextEvent event) {
+        ApplicationDisposer disposer = SystemRepository.get("disposer");
+        if (disposer != null) {
+            disposer.dispose();
+        }
 
         LOGGER.logInfo("[" + NablarchServletContextListener.class.getName() + "#contextDestroyed]");
 
