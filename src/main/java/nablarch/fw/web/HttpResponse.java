@@ -19,6 +19,8 @@ import java.util.regex.Pattern;
 import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.Cookie;
 
+import nablarch.common.web.WebConfig;
+import nablarch.common.web.WebConfigFinder;
 import nablarch.core.util.StringUtil;
 import nablarch.core.util.annotation.Published;
 import nablarch.fw.ExecutionContext;
@@ -488,6 +490,7 @@ public class HttpResponse implements Result {
     /**
      * Content-Typeの値を取得する。
      * <p/>
+     * webConfigコンポーネントのSetContentTypeForResponseWithNoBodyフラグがtrueかつ、
      * Content-Typeが設定されていない場合は、"text/plain;charset=UTF-8"を設定して返す。
      * このメソッドの処理は以下のソースコードと等価である。
      * <code><pre>
@@ -498,9 +501,12 @@ public class HttpResponse implements Result {
      */
     @Published
     public String getContentType() {
-        String contentType = headers.get("Content-Type");
-        if (contentType == null) {
-            headers.put("Content-Type", "text/plain;charset=UTF-8");
+        WebConfig webConfig = WebConfigFinder.getWebConfig();
+        if (webConfig.getSetContentTypeForResponseWithNoBody()) {
+            String contentType = headers.get("Content-Type");
+            if (contentType == null) {
+                headers.put("Content-Type", "text/plain;charset=UTF-8");
+            }
         }
         return headers.get("Content-Type");
     }
@@ -512,6 +518,9 @@ public class HttpResponse implements Result {
     public Charset getCharset() {
         if (charset == null) {
             String contentType = getContentType();
+            if (contentType == null) {
+                contentType = "";
+            }
             Matcher mt = CHARSET_ATTR_IN_CONTENT_PATH.matcher(contentType);
             if (mt.matches()) {
                 charset = Charset.forName(mt.group(1));

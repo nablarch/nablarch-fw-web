@@ -35,6 +35,9 @@ public class WebConfig {
     /** CSRFトークンを保存するセッションストアの名前 */
     private String csrfTokenSavedStoreName;
 
+    /** ボディを持たないレスポンスでもContent-Typeを設定するか否か */
+    private boolean setContentTypeForResponseWithNoBody = false;
+
     /**
      * 二重サブミット防止トークンをHTMLに埋め込む際にinput要素のname属性に設定する名前を取得する。
      * @return 二重サブミット防止トークンをHTMLに埋め込む際にinput要素のname属性に設定する名前
@@ -173,5 +176,25 @@ public class WebConfig {
      */
     public void setCsrfTokenSavedStoreName(String csrfTokenSavedStoreName) {
         this.csrfTokenSavedStoreName = csrfTokenSavedStoreName;
+    }
+
+    /**
+     * ボディを持たないレスポンスでもContent-Typeを設定するか否かを取得する。
+     *
+     * @return ボディを持たないレスポンスでもContent-Typeを設定する場合はtrue
+     */
+    public boolean getSetContentTypeForResponseWithNoBody() {
+        return setContentTypeForResponseWithNoBody;
+    }
+
+    /**
+     * ボディを持たないレスポンスでもContent-Typeを設定するか否かを設定する。
+     *
+     * デフォルトはfalse。
+     *
+     * @param setContentTypeForResponseWithNoBody ボディを持たないレスポンスでもContent-Typeを設定する場合はtrue
+     */
+    public void setSetContentTypeForResponseWithNoBody(boolean setContentTypeForResponseWithNoBody) {
+        this.setContentTypeForResponseWithNoBody = setContentTypeForResponseWithNoBody;
     }
 }
