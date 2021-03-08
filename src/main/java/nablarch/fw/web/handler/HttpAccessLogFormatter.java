@@ -155,31 +155,50 @@ public class HttpAccessLogFormatter {
     private LogItem<HttpAccessLogContext>[] endLogItems;
 
     /**
-     * フォーマット済みのログ出力項目を初期化する。
+     * コンストラクタ。
      */
     public HttpAccessLogFormatter() {
+        initialize(AppLogUtil.getProps());
+    }
 
-        Map<String, String> props = AppLogUtil.getProps();
+    /**
+     * 初期化。
+     * @param props 各種ログ出力の設定情報
+     */
+    protected void initialize(Map<String, String> props) {
+        initializeEnabled(props);
+        initializeLogItems(props);
+    }
+
+    /**
+     * 設定情報各ログ出力が有効か否かを初期化する。
+     * @param props 各種ログ出力の設定情報
+     */
+    protected void initializeEnabled(Map<String, String> props) {
+        beginOutputEnabled = Boolean.parseBoolean(getProp(props, PROPS_BEGIN_OUTPUT_ENABLED, DEFAULT_BEGIN_OUTPUT_ENABLED));
+        parametersOutputEnabled = Boolean.parseBoolean(getProp(props, PROPS_PARAMETERS_OUTPUT_ENABLED, DEFAULT_PARAMETERS_OUTPUT_ENABLED));
+        dispatchingClassOutputEnabled = Boolean.parseBoolean(getProp(props, PROPS_DISPATCHING_CLASS_OUTPUT_ENABLED, DEFAULT_DISPATCHING_CLASS_OUTPUT_ENABLED));
+        endOutputEnabled = Boolean.parseBoolean(getProp(props, PROPS_END_OUTPUT_ENABLED, DEFAULT_END_OUTPUT_ENABLED));
+    }
+
+    /**
+     * フォーマット済みのログ出力項目を初期化する。
+     * @param props 各種ログ出力の設定情報
+     */
+    protected void initializeLogItems(Map<String, String> props) {
         Map<String, LogItem<HttpAccessLogContext>> logItems = getLogItems(props);
 
-        beginOutputEnabled = Boolean.valueOf(getProp(props, PROPS_BEGIN_OUTPUT_ENABLED, DEFAULT_BEGIN_OUTPUT_ENABLED));
-        if (beginOutputEnabled) {
+        if (isBeginOutputEnabled()) {
             beginLogItems = LogUtil.createFormattedLogItems(logItems, getProp(props, PROPS_BEGIN_FORMAT, DEFAULT_BEGIN_FORMAT));
         }
-
-        parametersOutputEnabled = Boolean.valueOf(getProp(props, PROPS_PARAMETERS_OUTPUT_ENABLED, DEFAULT_PARAMETERS_OUTPUT_ENABLED));
-        if (parametersOutputEnabled) {
+        if (isParametersOutputEnabled()) {
             parametersLogItems = LogUtil.createFormattedLogItems(logItems, getProp(props, PROPS_PARAMETERS_FORMAT, DEFAULT_PARAMETERS_FORMAT));
         }
-
-        dispatchingClassOutputEnabled = Boolean.valueOf(getProp(props, PROPS_DISPATCHING_CLASS_OUTPUT_ENABLED, DEFAULT_DISPATCHING_CLASS_OUTPUT_ENABLED));
-        if (dispatchingClassOutputEnabled) {
+        if (isDispatchingClassOutputEnabled()) {
             dispatchingClassLogItems = LogUtil.createFormattedLogItems(
                     logItems, getProp(props, PROPS_DISPATCHING_CLASS_FORMAT, DEFAULT_DISPATCHING_CLASS_FORMAT));
         }
-
-        endOutputEnabled = Boolean.valueOf(getProp(props, PROPS_END_OUTPUT_ENABLED, DEFAULT_END_OUTPUT_ENABLED));
-        if (endOutputEnabled) {
+        if (isEndOutputEnabled()) {
             endLogItems = LogUtil.createFormattedLogItems(logItems, getProp(props, PROPS_END_FORMAT, DEFAULT_END_FORMAT));
             containsMemoryItem = LogUtil.contains(endLogItems, MaxMemoryItem.class, FreeMemoryItem.class);
         }
@@ -410,6 +429,13 @@ public class HttpAccessLogFormatter {
 
         /**
          * {@link nablarch.fw.ExecutionContext}を設定する。
+         * @return {@link nablarch.fw.ExecutionContext}
+         */
+        public ServletExecutionContext getContext() {
+            return this.context;
+        }
+        /**
+         * {@link nablarch.fw.ExecutionContext}を設定する。
          * @param context {@link nablarch.fw.ExecutionContext}
          */
         public void setContext(ServletExecutionContext context) {
@@ -436,6 +462,13 @@ public class HttpAccessLogFormatter {
          */
         public void setRequest(HttpRequest request) {
             this.request = request;
+        }
+        /**
+         * HTTPレスポンスを取得する。
+         * @return HTTPレスポンス
+         */
+        public HttpResponse getResponse() {
+            return this.response;
         }
         /**
          * HTTPレスポンスを設定する。
@@ -800,7 +833,7 @@ public class HttpAccessLogFormatter {
          * @return ステータスコード
          */
         public String get(HttpAccessLogContext context) {
-            int statusCode = HttpResponseUtil.chooseResponseStatusCode(context.response, context.context);
+            int statusCode = HttpResponseUtil.chooseResponseStatusCode(context.getResponse(), context.getContext());
             return statusCode != -1 ? String.valueOf(statusCode) : "";
         }
     }
