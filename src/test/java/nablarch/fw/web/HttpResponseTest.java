@@ -37,6 +37,7 @@ public class HttpResponseTest {
         assertEquals(200       , res.getStatusCode());
         assertEquals("OK"      , res.getReasonPhrase());
         assertEquals("HTTP/1.1", res.getHttpVersion());
+        assertNull(res.getContentType());
         assertEquals(Charset.forName("UTF-8"), res.getCharset());
         /**************************************
         HTTP/1.1 200 OK
@@ -54,6 +55,9 @@ public class HttpResponseTest {
         assertEquals(Charset.forName("sjis"), res.getCharset());
         
         res.setContentType("text/plain ; charset= \"utf-8\" ");
+        assertEquals(Charset.forName("utf-8"), res.getCharset());
+
+        res.setContentType(null);
         assertEquals(Charset.forName("utf-8"), res.getCharset());
     }
 
@@ -183,6 +187,7 @@ public class HttpResponseTest {
             /**************************************
             HTTP/1.1 200 OK
             Content-Length: 13
+            Content-Type: text/plain;charset=UTF-8
             
             Hello world!
             *************************************/
@@ -221,6 +226,7 @@ public class HttpResponseTest {
         ************************/
         assertEquals(200                       , res.getStatusCode());
         assertEquals("OK"                      , res.getReasonPhrase());
+        assertNull(res.getContentType());
         assertEquals("HTTP/1.1"                , res.getHttpVersion());
     
         res = HttpResponse.parse(Hereis.string());
@@ -318,16 +324,26 @@ public class HttpResponseTest {
     }
 
     @Test
-    public void testGetContentTypeSetContentTypeNullSetContentTypeForResponseWithNoBodyDefault() {
+    public void testGetContentTypeSetContentTypeNullContentTypeForResponseWithNoBodyEnabledDefault() {
         HttpResponse res = new HttpResponse();
-        res.setHeader("Content-Type", null);
         assertNull(res.getContentType());
     }
 
     @Test
-    public void testGetContentTypeSetContentTypeNullWithSetContentTypeForResponseWithNoBodyFalse() {
+    public void testGetContentTypeExistBodyContentTypeForResponseWithNoBodyEnabledDefault() {
+        HttpResponse res = HttpResponse.parse(Hereis.string());
+        /***********************
+         HTTP/1.1 200 OK
+
+         Hello world!
+         ************************/
+        assertEquals("text/plain;charset=UTF-8", res.getContentType());
+    }
+
+    @Test
+    public void testGetContentTypeContentTypeWithContentTypeForResponseWithNoBodyEnabledTrue() {
         final WebConfig webConfig = new WebConfig();
-        webConfig.setSetContentTypeForResponseWithNoBody(false);
+        webConfig.setContentTypeForResponseWithNoBodyEnabled(true);
         SystemRepository.load(new ObjectLoader() {
             @Override
             public Map<String, Object> load() {
@@ -338,25 +354,6 @@ public class HttpResponseTest {
         });
 
         HttpResponse res = new HttpResponse();
-        res.setHeader("Content-Type", null);
-        assertNull(res.getContentType());
-    }
-
-    @Test
-    public void testGetContentTypeSetContentTypeNullWithSetContentTypeForResponseWithNoBodyTrue() {
-        final WebConfig webConfig = new WebConfig();
-        webConfig.setSetContentTypeForResponseWithNoBody(true);
-        SystemRepository.load(new ObjectLoader() {
-            @Override
-            public Map<String, Object> load() {
-                final Map<String, Object> result = new HashMap<String, Object>();
-                result.put("webConfig", webConfig);
-                return result;
-            }
-        });
-
-        HttpResponse res = new HttpResponse();
-        res.setHeader("Content-Type", null);
         assertEquals("text/plain;charset=UTF-8", res.getContentType());
     }
 

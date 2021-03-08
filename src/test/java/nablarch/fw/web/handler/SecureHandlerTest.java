@@ -1,6 +1,7 @@
 package nablarch.fw.web.handler;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
@@ -90,6 +91,8 @@ public class SecureHandlerTest {
                 IsMapContaining.hasEntry("Referrer-Policy", "strict-origin-when-cross-origin"),
                 IsMapContaining.hasEntry("Cache-Control", "no-store")
         ));
+        assertNull(result.getHeaderMap().get("Content-Type"));
+
     }
 
     /**

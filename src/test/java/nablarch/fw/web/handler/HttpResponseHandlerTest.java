@@ -48,10 +48,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * {@link HttpResponseHandlerTest}テスト。
@@ -790,6 +787,28 @@ public class HttpResponseHandlerTest {
         assertEquals(res.getHeader("Content-Length"), null);
     }
 
+    /**
+     * レスポンスオブジェクトのContentTypeが未設定の場合
+     */
+    @Test
+    public void testHandlingOfContentTypeNone() throws Exception {
+
+        HttpServer server = TestUtil.createHttpServer();
+        server.getHandlerOf(HttpResponseHandler.class).setForceFlushAfterWritingHeaders(false);
+        server.addHandler(new Object() {
+            public HttpResponse getTest1(HttpRequest req, ExecutionContext ctx) {
+                return new HttpResponse()
+                        .setStatusCode(200);
+            }
+        }).startLocal();
+
+        //------------------ writeのパターン ------------- //
+        HttpResponse res = server.handle(
+                new MockHttpRequest("GET /test1 HTTP/1.1")
+                , null
+        );
+        assertNull(res.getContentType());
+    }
     
     /**
      * ダウンロードファイル名(Content-Dispositionヘッダ)の
