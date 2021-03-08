@@ -99,6 +99,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * フォーマット済みのログ出力項目を初期化する。
      * @param props 各種ログ出力の設定情報
      */
+    @Override
     protected void initialize(Map<String, String> props) {
         initializeEnabled(props);
 
@@ -124,6 +125,11 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         }
     }
 
+    /**
+     * フォーマット対象のログ出力項目を取得する。
+     * @param props 各種ログ出力の設定情報
+     * @return フォーマット対象のログ出力項目
+     */
     protected Map<String, JsonLogObjectBuilder<HttpAccessLogContext>> getObjectBuilders(Map<String, String> props) {
 
         Map<String, JsonLogObjectBuilder<HttpAccessLogContext>> objectBuilders
@@ -205,6 +211,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * 出力対象にメモリ項目が含まれているか否かを判定する。
      * @return 出力対象にメモリ項目が含まれている場合はtrue
      */
+    @Override
     public boolean containsMemoryItem() {
         return containsMemoryItem;
     }
@@ -214,6 +221,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * @param context HttpAccessLogContext
      * @return フォーマット済みのメッセージ
      */
+    @Override
     public String formatBegin(HttpAccessLogContext context) {
         return support.getStructuredMessage(beginStructuredTargets, context);
     }
@@ -223,6 +231,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * @param context HttpAccessLogContext
      * @return フォーマット済みのメッセージ
      */
+    @Override
     public String formatParameters(HttpAccessLogContext context) {
         return support.getStructuredMessage(parametersStructuredTargets, context);
     }
@@ -232,6 +241,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * @param context HttpAccessLogContext
      * @return フォーマット済みのメッセージ
      */
+    @Override
     public String formatDispatchingClass(HttpAccessLogContext context) {
         return support.getStructuredMessage(dispatchingClassStructuredTargets, context);
     }
@@ -241,6 +251,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * @param context HttpAccessLogContext
      * @return フォーマット済みのメッセージ
      */
+    @Override
     public String formatEnd(HttpAccessLogContext context) {
         return support.getStructuredMessage(endStructuredTargets, context);
     }
