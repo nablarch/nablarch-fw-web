@@ -100,10 +100,15 @@ public class ResponseBody {
      * @return ボディの内容が設定されていなければtrue
      */
     public boolean isEmpty() {
-        return contentPath == null
-            && input       == null
-            && tempFile    == null
-            && buffer      == null;
+        if(contentPath != null || input !=null || tempFile != null){
+            return false;
+        }
+        // streamに書き込む前処理としてgetInputStream()を呼び出した時点でbufferはnullでなくなるため、
+        // 条件にbufferのポジションも使用する。
+        if(buffer != null && buffer.position() > 0){
+            return false;
+        }
+        return true;
     }
 
     /**

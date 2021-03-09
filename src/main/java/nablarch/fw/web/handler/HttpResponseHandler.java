@@ -462,7 +462,7 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
 
         String contentType = res.getContentType();
         if (contentType != null) {
-            ctx.getServletResponse().setContentType(res.getContentType());
+            ctx.getServletResponse().setContentType(contentType);
         }
 
         for (Map.Entry<String, String> header : res.getHeaderMap().entrySet()) {

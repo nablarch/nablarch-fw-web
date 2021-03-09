@@ -788,10 +788,34 @@ public class HttpResponseHandlerTest {
     }
 
     /**
-     * レスポンスオブジェクトのContentTypeが未設定の場合
+     * レスポンスオブジェクトのContentTypeが未設定かつBodyが空の場合
      */
     @Test
     public void testHandlingOfContentTypeNone() throws Exception {
+
+        HttpServer server = TestUtil.createHttpServer();
+        server.getHandlerOf(HttpResponseHandler.class).setForceFlushAfterWritingHeaders(false);
+        server.addHandler(new Object() {
+            public HttpResponse getTest1(HttpRequest req, ExecutionContext ctx) {
+                return new HttpResponse()
+                        .setStatusCode(200)
+                        .write("test string");
+            }
+        }).startLocal();
+
+        //------------------ writeのパターン ------------- //
+        HttpResponse res = server.handle(
+                new MockHttpRequest("GET /test1 HTTP/1.1")
+                , null
+        );
+        assertEquals(res.getContentType(), "text/plain;charset=UTF-8");
+    }
+
+    /**
+     * レスポンスオブジェクトのContentTypeが未設定かつBodyが空の場合
+     */
+    @Test
+    public void testHandlingOfBodyEmptyContentTypeNone() throws Exception {
 
         HttpServer server = TestUtil.createHttpServer();
         server.getHandlerOf(HttpResponseHandler.class).setForceFlushAfterWritingHeaders(false);

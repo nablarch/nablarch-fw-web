@@ -496,27 +496,28 @@ public class HttpResponse implements Result {
      * </pre></code>
      * <p/>
      *
-     * Content-Typeが設定されていない場合は、以下の振る舞いをする。<br />
-     * ・システムリポジトリ中の{@link WebConfig#getContentTypeForResponseWithNoBodyEnabled()} がtrueの場合
-     * "text/plain;charset=UTF-8"を設定する。<br />
-     *
-     * ・システムリポジトリ中の{@link WebConfig#getContentTypeForResponseWithNoBodyEnabled()} がfalseかつ、
-     * ボディが存在する場合は、"text/plain;charset=UTF-8"を設定する。<br />
+     * Content-Typeが設定されていない場合は、以下の処理を行う。<br />
+     * ・{@link WebConfig#getAddDefaultContentTypeForNoBodyResponse()} がtrueの場合、
+     * またはボディが存在する場合に"text/plain;charset=UTF-8"を設定する。<br />
      *
      * @return Contents-Typeの値
      */
     @Published
     public String getContentType() {
         String contentType = headers.get("Content-Type");
-        if (contentType == null && (isContentTypeForResponseWithNoBody() || (getBodyString().length() != 0))) {
+        if (contentType == null && isSetDefaultContentType()) {
             headers.put("Content-Type", "text/plain;charset=UTF-8");
         }
         return headers.get("Content-Type");
     }
 
-    private boolean isContentTypeForResponseWithNoBody(){
-        WebConfig webConfig = WebConfigFinder.getWebConfig();
-        return webConfig.getContentTypeForResponseWithNoBodyEnabled();
+    /**
+     * Content-Type設定されていない場合に、デフォルトのContent-Typeを付与するべきか否かを判定する。
+     *
+     * @return デフォルトのContent-Typeを付与すべき時はtrue。
+     */
+    private boolean isSetDefaultContentType() {
+        return WebConfigFinder.getWebConfig().getAddDefaultContentTypeForNoBodyResponse() || !isBodyEmpty();
     }
 
     /**
@@ -525,13 +526,16 @@ public class HttpResponse implements Result {
      */
     public Charset getCharset() {
         if (charset == null) {
-            charset = UTF_8;
             String contentType = getContentType();
             if (contentType != null) {
                 Matcher mt = CHARSET_ATTR_IN_CONTENT_PATH.matcher(contentType);
                 if (mt.matches()) {
                     charset = Charset.forName(mt.group(1));
+                } else {
+                    charset = UTF_8;
                 }
+            } else {
+                charset = UTF_8;
             }
         }
         return charset;

@@ -36,7 +36,7 @@ public class WebConfig {
     private String csrfTokenSavedStoreName;
 
     /** ボディを持たないレスポンスでもContent-Typeを設定するか否か */
-    private boolean contentTypeForResponseWithNoBodyEnabled = false;
+    private boolean addDefaultContentTypeForNoBodyResponse = false;
 
     /**
      * 二重サブミット防止トークンをHTMLに埋め込む際にinput要素のname属性に設定する名前を取得する。
@@ -183,8 +183,8 @@ public class WebConfig {
      *
      * @return ボディを持たないレスポンスでもContent-Typeを設定する場合はtrue
      */
-    public boolean getContentTypeForResponseWithNoBodyEnabled() {
-        return contentTypeForResponseWithNoBodyEnabled;
+    public boolean getAddDefaultContentTypeForNoBodyResponse() {
+        return addDefaultContentTypeForNoBodyResponse;
     }
 
     /**
@@ -192,9 +192,9 @@ public class WebConfig {
      *
      * デフォルトはfalse。
      *
-     * @param contentTypeForResponseWithNoBodyEnabled ボディを持たないレスポンスでもContent-Typeを設定する場合はtrue
+     * @param addDefaultContentTypeForNoBodyResponse ボディを持たないレスポンスでもContent-Typeを設定する場合はtrue
      */
-    public void setContentTypeForResponseWithNoBodyEnabled(boolean contentTypeForResponseWithNoBodyEnabled) {
-        this.contentTypeForResponseWithNoBodyEnabled = contentTypeForResponseWithNoBodyEnabled;
+    public void setAddDefaultContentTypeForNoBodyResponse(boolean addDefaultContentTypeForNoBodyResponse) {
+        this.addDefaultContentTypeForNoBodyResponse = addDefaultContentTypeForNoBodyResponse;
     }
 }

@@ -324,13 +324,13 @@ public class HttpResponseTest {
     }
 
     @Test
-    public void testGetContentTypeSetContentTypeNullContentTypeForResponseWithNoBodyEnabledDefault() {
+    public void testGetContentTypeNullAddDefaultContentTypeForNoBodyResponseDefault() {
         HttpResponse res = new HttpResponse();
         assertNull(res.getContentType());
     }
 
     @Test
-    public void testGetContentTypeExistBodyContentTypeForResponseWithNoBodyEnabledDefault() {
+    public void testGetContentTypeExistBodyWithAddDefaultContentTypeForNoBodyResponseDefault() {
         HttpResponse res = HttpResponse.parse(Hereis.string());
         /***********************
          HTTP/1.1 200 OK
@@ -341,9 +341,9 @@ public class HttpResponseTest {
     }
 
     @Test
-    public void testGetContentTypeContentTypeWithContentTypeForResponseWithNoBodyEnabledTrue() {
+    public void testGetContentTypeWithAddDefaultContentTypeForNoBodyResponseTrue() {
         final WebConfig webConfig = new WebConfig();
-        webConfig.setContentTypeForResponseWithNoBodyEnabled(true);
+        webConfig.setAddDefaultContentTypeForNoBodyResponse(true);
         SystemRepository.load(new ObjectLoader() {
             @Override
             public Map<String, Object> load() {
