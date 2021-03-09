@@ -324,6 +324,36 @@ public class HttpResponseTest {
     }
 
     @Test
+    public void testGetContentTypeAfterGetBodyStream() {
+        HttpResponse res = new HttpResponse();
+        res.getBodyStream();
+        assertNull(res.getContentType());
+    }
+
+    @Test
+    public void testGetContentTypeAfterSetContentPath() {
+        HttpResponse res = new HttpResponse();
+        res.setContentPath("");
+        assertEquals("application/octet-stream",res.getContentType());
+    }
+
+    @Test
+    public void testGetContentTypeAfterSetBodyStream() {
+        HttpResponse res = new HttpResponse();
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("テスト".getBytes());
+        res.setBodyStream(inputStream);
+        assertEquals("text/plain;charset=UTF-8",res.getContentType());
+    }
+
+    @Test
+    public void testGetContentTypeAfterWrite() {
+        HttpResponse res = new HttpResponse();
+        byte[] expectedBytes = "Hello world!".getBytes();
+        res.write(expectedBytes);
+        assertEquals("text/plain;charset=UTF-8",res.getContentType());
+    }
+
+    @Test
     public void testGetContentTypeNullAddDefaultContentTypeForNoBodyResponseDefault() {
         HttpResponse res = new HttpResponse();
         assertNull(res.getContentType());

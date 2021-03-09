@@ -517,7 +517,7 @@ public class HttpResponse implements Result {
      * @return デフォルトのContent-Typeを付与すべき時はtrue。
      */
     private boolean needsDefaultContentType() {
-        return WebConfigFinder.getWebConfig().getAddDefaultContentTypeForNoBodyResponse() || !isBodyEmpty();
+        return WebConfigFinder.getWebConfig().getAddDefaultContentTypeForNoBodyResponse() || !body.isEmptyOrBufferZeo();
     }
 
     /**
@@ -531,10 +531,9 @@ public class HttpResponse implements Result {
                 Matcher mt = CHARSET_ATTR_IN_CONTENT_PATH.matcher(contentType);
                 if (mt.matches()) {
                     charset = Charset.forName(mt.group(1));
-                } else {
-                    charset = UTF_8;
                 }
-            } else {
+            }
+            if (charset == null) {
                 charset = UTF_8;
             }
         }
