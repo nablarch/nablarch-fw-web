@@ -505,7 +505,7 @@ public class HttpResponse implements Result {
     @Published
     public String getContentType() {
         String contentType = headers.get("Content-Type");
-        if (contentType == null && isSetDefaultContentType()) {
+        if (contentType == null && needsDefaultContentType()) {
             headers.put("Content-Type", "text/plain;charset=UTF-8");
         }
         return headers.get("Content-Type");
@@ -516,7 +516,7 @@ public class HttpResponse implements Result {
      *
      * @return デフォルトのContent-Typeを付与すべき時はtrue。
      */
-    private boolean isSetDefaultContentType() {
+    private boolean needsDefaultContentType() {
         return WebConfigFinder.getWebConfig().getAddDefaultContentTypeForNoBodyResponse() || !isBodyEmpty();
     }
 
