@@ -517,7 +517,7 @@ public class HttpResponse implements Result {
      * @return デフォルトのContent-Typeを付与すべき時はtrue。
      */
     private boolean needsDefaultContentType() {
-        return WebConfigFinder.getWebConfig().getAddDefaultContentTypeForNoBodyResponse() || !body.isEmptyOrBufferZeo();
+        return WebConfigFinder.getWebConfig().getAddDefaultContentTypeForNoBodyResponse() || !isBodyEmpty();
     }
 
     /**

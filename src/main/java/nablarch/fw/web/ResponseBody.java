@@ -101,32 +101,9 @@ public class ResponseBody {
      */
     public boolean isEmpty() {
         return contentPath == null
-                && input       == null
-                && tempFile    == null
-                && buffer      == null;
-    }
-
-    /**
-     * ボディの内容が設定されていないないか、bufferに書き込まれている量が0の場合にtrueを返す。
-     * <p/>
-     * 「ボディが実質的に空文字列か否か」を判定したい場合に、isEmpty()は使用できないため、本メソッドは存在する。<br />
-     * streamに書き込む前処理としてgetInputStream()を呼び出した時点でbufferはnullでなくなる。<br />
-     * そのためisEmpty()で判定すると「ボディに何も書き込まれていなくても、ボディに値が存在する」と判定される。<br />
-     *
-     * @return ボディの内容が実質空の場合にtrue
-     */
-    public boolean isEmptyOrBufferZeo() {
-        if(contentPath != null || input !=null || tempFile != null){
-            //通常、本メソッドはcontentPath != null及びtempFile != nullの状態で呼びされない。
-            //本メソッドは、HttpResponse#getContentType()呼び出し時にContent-Typeが未設定の際に呼び出されるが、
-            //HttpResponseからcontentPath及びtempFileの値を本クラスに設定する際に
-            // Content-Typeも合わせて設定されるため。
-            return false;
-        }
-        if(buffer != null && buffer.position() > 0){
-            return false;
-        }
-        return true;
+            && input       == null
+            && tempFile    == null
+            && buffer      == null;
     }
 
     /**

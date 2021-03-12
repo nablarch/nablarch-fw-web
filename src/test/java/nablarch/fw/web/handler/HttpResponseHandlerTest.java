@@ -1,6 +1,5 @@
 package nablarch.fw.web.handler;
 
-import junit.framework.AssertionFailedError;
 import nablarch.TestUtil;
 import nablarch.common.handler.threadcontext.ThreadContextHandler;
 import nablarch.common.web.handler.HttpAccessLogHandler;
@@ -23,19 +22,15 @@ import nablarch.fw.web.download.encorder.DownloadFileNameEncoderEntry;
 import nablarch.fw.web.download.encorder.DownloadFileNameEncoderFactory;
 import nablarch.fw.web.download.encorder.MimeBDownloadFileNameEncoder;
 import nablarch.fw.web.download.encorder.UrlDownloadFileNameEncoder;
-import nablarch.fw.web.handler.responsewriter.CustomResponseWriter;
 import nablarch.fw.web.i18n.DirectoryBasedResourcePathRule;
 import nablarch.fw.web.i18n.FilenameBasedResourcePathRule;
 import nablarch.fw.web.i18n.MockServletContextCreator;
-import nablarch.fw.web.servlet.ServletExecutionContext;
 import nablarch.test.support.log.app.OnMemoryLogWriter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.ServletException;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -788,11 +783,10 @@ public class HttpResponseHandlerTest {
     }
 
     /**
-     * レスポンスオブジェクトのContentTypeが未設定かつBodyが空の場合
+     * レスポンスオブジェクトのContentTypeが未設定かつBodyが空で無い場合
      */
     @Test
     public void testHandlingOfContentTypeNone() throws Exception {
-
         HttpServer server = TestUtil.createHttpServer();
         server.getHandlerOf(HttpResponseHandler.class).setForceFlushAfterWritingHeaders(false);
         server.addHandler(new Object() {
@@ -808,7 +802,7 @@ public class HttpResponseHandlerTest {
                 new MockHttpRequest("GET /test1 HTTP/1.1")
                 , null
         );
-        assertEquals(res.getContentType(), "text/plain;charset=UTF-8");
+        assertEquals("text/plain;charset=UTF-8", res.getHeader("Content-Type"));
     }
 
     /**
@@ -816,7 +810,6 @@ public class HttpResponseHandlerTest {
      */
     @Test
     public void testHandlingOfBodyEmptyContentTypeNone() throws Exception {
-
         HttpServer server = TestUtil.createHttpServer();
         server.getHandlerOf(HttpResponseHandler.class).setForceFlushAfterWritingHeaders(false);
         server.addHandler(new Object() {
@@ -831,7 +824,7 @@ public class HttpResponseHandlerTest {
                 new MockHttpRequest("GET /test1 HTTP/1.1")
                 , null
         );
-        assertNull(res.getContentType());
+        assertNull(res.getHeader("Content-Type"));
     }
     
     /**

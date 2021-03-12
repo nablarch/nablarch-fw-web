@@ -256,13 +256,13 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
             if (res.isBodyEmpty() && isErrorResponse(res)) {
                 ctx.getServletResponse().sendError(res.getStatusCode());
             } else {
+                writeHeaders(res, ctx);
                 InputStream bodyStream = res.getBodyStream();
                 if (bodyStream == null) {
                     // file/classpathスキームのコンテントパスで参照先が存在しない
                     // 場合はシステムエラーとする。
                     bodyStream = getFatalErrorResponse().getBodyStream();
                 }
-                writeHeaders(res, ctx);
                 writeBody(bodyStream, ctx.getServletResponse());
             }
         } catch (IOException e) {
