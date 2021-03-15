@@ -226,9 +226,7 @@ public class HttpResponseTest {
         ************************/
         assertEquals(200                       , res.getStatusCode());
         assertEquals("OK"                      , res.getReasonPhrase());
-        // HttpResponse#parse()呼び出し時、Bodyに空文字列が設定されるため、
-        // 自動でContent-Typeの自動設定対象となる。
-        assertEquals("text/plain;charset=UTF-8", res.getContentType());
+        assertNull(res.getContentType());
         assertEquals("HTTP/1.1"                , res.getHttpVersion());
     
         res = HttpResponse.parse(Hereis.string());
@@ -323,6 +321,36 @@ public class HttpResponseTest {
         HttpResponse res = new HttpResponse();
         res.setHeader("Content-Type", "text/csv: charset=Shift_JIS");
        assertEquals("text/csv: charset=Shift_JIS", res.getContentType());
+    }
+
+    @Test
+    public void testGetContentTypeAfterGetBodyStream() {
+        HttpResponse res = new HttpResponse();
+        res.getBodyStream();
+        assertNull(res.getContentType());
+    }
+
+    @Test
+    public void testGetContentTypeAfterSetContentPath() {
+        HttpResponse res = new HttpResponse();
+        res.setContentPath("");
+        assertEquals("application/octet-stream",res.getContentType());
+    }
+
+    @Test
+    public void testGetContentTypeAfterSetBodyStream() {
+        HttpResponse res = new HttpResponse();
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("テスト".getBytes());
+        res.setBodyStream(inputStream);
+        assertEquals("text/plain;charset=UTF-8",res.getContentType());
+    }
+
+    @Test
+    public void testGetContentTypeAfterWrite() {
+        HttpResponse res = new HttpResponse();
+        byte[] expectedBytes = "Hello world!".getBytes();
+        res.write(expectedBytes);
+        assertEquals("text/plain;charset=UTF-8",res.getContentType());
     }
 
     @Test
