@@ -105,10 +105,7 @@ public class ResponseBody {
         }
         // streamに書き込む前処理としてgetInputStream()を呼び出した時点でbufferはnullでなくなるため、
         // 条件にbufferのポジションも使用する。
-        if(buffer == null || buffer.position() <= 0){
-            return false;
-        }
-        return true;
+        return buffer == null || buffer.position() <= 0;
     }
 
     /**
