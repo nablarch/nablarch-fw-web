@@ -73,6 +73,10 @@ public class ResponseBody {
     /** 内部バッファ(オンヒープ) */
     private ByteBuffer buffer = null;
 
+    /** 内部バッファのポジション。
+     * (ボディが空か否かの判定にBuffer#flip()前のポジションを使用するため、bufferに書き込み時にポジションをこの変数に待避する) */
+    private int bufferPosition = 0;
+
     /** 内部バッファ(一時ファイル) */
     private File tempFile = null;
 
@@ -103,9 +107,7 @@ public class ResponseBody {
         if(contentPath != null || input !=null || tempFile != null){
             return false;
         }
-        // streamに書き込む前処理としてgetInputStream()を呼び出した時点でbufferはnullでなくなるため、
-        // 条件にbufferのポジションも使用する。
-        return buffer == null || buffer.position() <= 0;
+        return buffer == null || bufferPosition <= 0;
     }
 
     /**
@@ -204,6 +206,7 @@ public class ResponseBody {
             expandTo(buffer.capacity() + bytes.remaining());
         }
         buffer.put(bytes);
+        bufferPosition = buffer.position();
     }
 
     /**
