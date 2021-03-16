@@ -797,7 +797,6 @@ public class HttpResponseHandlerTest {
             }
         }).startLocal();
 
-        //------------------ writeのパターン ------------- //
         HttpResponse res = server.handle(
                 new MockHttpRequest("GET /test1 HTTP/1.1")
                 , null
@@ -819,7 +818,6 @@ public class HttpResponseHandlerTest {
             }
         }).startLocal();
 
-        //------------------ writeのパターン ------------- //
         HttpResponse res = server.handle(
                 new MockHttpRequest("GET /test1 HTTP/1.1")
                 , null
