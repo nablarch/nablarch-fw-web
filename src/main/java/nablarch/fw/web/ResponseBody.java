@@ -73,6 +73,10 @@ public class ResponseBody {
     /** 内部バッファ(オンヒープ) */
     private ByteBuffer buffer = null;
 
+    /** 内部バッファのポジション。
+     * (ボディが空か否かの判定にBuffer#flip()前のポジションを使用するため、bufferに書き込み時にポジションをこの変数に待避する) */
+    private int bufferPosition = 0;
+
     /** 内部バッファ(一時ファイル) */
     private File tempFile = null;
 
@@ -100,10 +104,10 @@ public class ResponseBody {
      * @return ボディの内容が設定されていなければtrue
      */
     public boolean isEmpty() {
-        return contentPath == null
-            && input       == null
-            && tempFile    == null
-            && buffer      == null;
+        if(contentPath != null || input !=null || tempFile != null){
+            return false;
+        }
+        return buffer == null || bufferPosition <= 0;
     }
 
     /**
@@ -202,6 +206,7 @@ public class ResponseBody {
             expandTo(buffer.capacity() + bytes.remaining());
         }
         buffer.put(bytes);
+        bufferPosition = buffer.position();
     }
 
     /**

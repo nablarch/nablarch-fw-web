@@ -424,7 +424,7 @@ public class HttpErrorHandlerTest {
         String path = "classpath:nablarch/fw/web/handler/http-error-handler-test.xml";
         SystemRepository.load(new DiContainer(new XmlComponentDefinitionLoader(path)));
         
-        // 200
+        // 200 (デフォルトページ未設定)
         
         HttpServletRequest servletReq = createServletRequest("/NormalHandler/index.html");
         ServletExecutionContext context = createExecutionContext(servletReq);
@@ -437,6 +437,7 @@ public class HttpErrorHandlerTest {
         
         assertThat(response.getStatusCode(), is(200));
         assertNull(response.getContentPath());
+        assertThat(response.getBodyString(), is(""));
         
         // 404
         
@@ -450,6 +451,7 @@ public class HttpErrorHandlerTest {
         
         assertThat(response.getStatusCode(), is(404));
         assertThat(response.getContentPath().getPath(), is("/PAGE_NOT_FOUND_ERROR.jsp"));
+        assertThat(response.getBodyString(), is(not("")));
         
         // 403
         
@@ -463,6 +465,7 @@ public class HttpErrorHandlerTest {
         
         assertThat(response.getStatusCode(), is(403));
         assertThat(response.getContentPath().getPath(), is("/PERMISSION-ERROR.jsp"));
+        assertThat(response.getBodyString(), is(not("")));
         
         
         // 400系汎用エラー(ワイルドカード指定)
@@ -477,6 +480,7 @@ public class HttpErrorHandlerTest {
         
         assertThat(response.getStatusCode(), is(409));
         assertThat(response.getContentPath().getPath(), is("/USER_ERROR.jsp"));
+        assertThat(response.getBodyString(), is(not("")));
         
     }
 
