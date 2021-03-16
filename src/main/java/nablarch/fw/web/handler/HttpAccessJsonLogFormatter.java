@@ -173,7 +173,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * @param defaultTargets デフォルトの出力項目
      * @return フォーマット済みのログ出力項目
      */
-    protected List<JsonLogObjectBuilder<HttpAccessLogContext>> getStructuredTargets(
+    private List<JsonLogObjectBuilder<HttpAccessLogContext>> getStructuredTargets(
             Map<String, JsonLogObjectBuilder<HttpAccessLogContext>> objectBuilders,
             Map<String, String> props,
             String targetsPropName, String defaultTargets) {
@@ -265,6 +265,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_REQUEST_ID, ThreadContext.getRequestId());
         }
@@ -279,6 +280,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_USER_ID, ThreadContext.getUserId());
         }
@@ -293,6 +295,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_URL, context.getUrl());
         }
@@ -307,6 +310,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_QUERY, context.getQueryString());
         }
@@ -321,6 +325,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_PORT, context.getPort());
         }
@@ -335,6 +340,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_METHOD, context.getMethod());
         }
@@ -360,6 +366,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             Map<String, String[]> map = new HashMap<String, String[]>();
             for (Map.Entry<String, String[]> entry : context.getParameters().entrySet()) {
@@ -393,6 +400,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             Map<String, String> map = new HashMap<String, String>();
             for (Map.Entry<String, Object> entry : context.getSessionScopeMap().entrySet()) {
@@ -412,6 +420,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_DISPATCHING_CLASS, context.getDispatchingClass());
         }
@@ -426,6 +435,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_SESSION_ID, context.getSessionId());
         }
@@ -440,6 +450,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             int statusCode = context.getStatusCode();
             structuredObject.put(TARGET_NAME_STATUS_CODE, statusCode != -1 ? statusCode : null);
@@ -455,6 +466,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             int statusCode = HttpResponseUtil.chooseResponseStatusCode(context.getResponse(), context.getContext());
             structuredObject.put(TARGET_NAME_RESPONSE_STATUS_CODE, statusCode != -1 ? statusCode : null);
@@ -486,6 +498,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_CLIENT_IP_ADDRESS, context.getClientIpAddress());
         }
@@ -500,6 +513,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_CLIENT_HOST, context.getClientHost());
         }
@@ -514,6 +528,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_CLIENT_USER_AGENT, context.getServletRequest().getHeader("User-Agent"));
         }
@@ -528,6 +543,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_START_TIME,  new Date(context.getStartTime()));
         }
@@ -542,6 +558,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_END_TIME, new Date(context.getEndTime()));
         }
@@ -556,6 +573,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_EXECUTION_TIME, context.getExecutionTime());
         }
@@ -570,6 +588,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_MAX_MEMORY, context.getMaxMemory());
         }
@@ -583,6 +602,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_FREE_MEMORY, context.getFreeMemory());
         }
