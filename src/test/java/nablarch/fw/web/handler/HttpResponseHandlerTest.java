@@ -799,9 +799,9 @@ public class HttpResponseHandlerTest {
 
         HttpResponse res = server.handle(
                 new MockHttpRequest("GET /test1 HTTP/1.1")
-                , null
+                , new ExecutionContext()
         );
-        assertEquals("text/plain;charset=UTF-8", res.getHeader("Content-Type"));
+        assertEquals("text/plain;charset=utf-8", res.getHeader("Content-Type"));
     }
 
     /**
@@ -820,7 +820,7 @@ public class HttpResponseHandlerTest {
 
         HttpResponse res = server.handle(
                 new MockHttpRequest("GET /test1 HTTP/1.1")
-                , null
+                , new ExecutionContext()
         );
         assertNull(res.getHeader("Content-Type"));
     }
