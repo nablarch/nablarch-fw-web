@@ -1,6 +1,5 @@
 package nablarch.fw.web.handler;
 
-import junit.framework.AssertionFailedError;
 import nablarch.TestUtil;
 import nablarch.common.handler.threadcontext.ThreadContextHandler;
 import nablarch.common.web.handler.HttpAccessLogHandler;
@@ -23,19 +22,15 @@ import nablarch.fw.web.download.encorder.DownloadFileNameEncoderEntry;
 import nablarch.fw.web.download.encorder.DownloadFileNameEncoderFactory;
 import nablarch.fw.web.download.encorder.MimeBDownloadFileNameEncoder;
 import nablarch.fw.web.download.encorder.UrlDownloadFileNameEncoder;
-import nablarch.fw.web.handler.responsewriter.CustomResponseWriter;
 import nablarch.fw.web.i18n.DirectoryBasedResourcePathRule;
 import nablarch.fw.web.i18n.FilenameBasedResourcePathRule;
 import nablarch.fw.web.i18n.MockServletContextCreator;
-import nablarch.fw.web.servlet.ServletExecutionContext;
 import nablarch.test.support.log.app.OnMemoryLogWriter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.ServletException;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -48,10 +43,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * {@link HttpResponseHandlerTest}テスト。
@@ -790,6 +782,48 @@ public class HttpResponseHandlerTest {
         assertEquals(res.getHeader("Content-Length"), null);
     }
 
+    /**
+     * レスポンスオブジェクトのContentTypeが未設定かつBodyが空で無い場合
+     */
+    @Test
+    public void testHandlingOfContentTypeNone() throws Exception {
+        HttpServer server = TestUtil.createHttpServer();
+        server.getHandlerOf(HttpResponseHandler.class).setForceFlushAfterWritingHeaders(false);
+        server.addHandler(new Object() {
+            public HttpResponse getTest1(HttpRequest req, ExecutionContext ctx) {
+                return new HttpResponse()
+                        .setStatusCode(200)
+                        .write("test string");
+            }
+        }).startLocal();
+
+        HttpResponse res = server.handle(
+                new MockHttpRequest("GET /test1 HTTP/1.1")
+                , null
+        );
+        assertEquals("text/plain;charset=UTF-8", res.getHeader("Content-Type"));
+    }
+
+    /**
+     * レスポンスオブジェクトのContentTypeが未設定かつBodyが空の場合
+     */
+    @Test
+    public void testHandlingOfBodyEmptyContentTypeNone() throws Exception {
+        HttpServer server = TestUtil.createHttpServer();
+        server.getHandlerOf(HttpResponseHandler.class).setForceFlushAfterWritingHeaders(false);
+        server.addHandler(new Object() {
+            public HttpResponse getTest1(HttpRequest req, ExecutionContext ctx) {
+                return new HttpResponse()
+                        .setStatusCode(200);
+            }
+        }).startLocal();
+
+        HttpResponse res = server.handle(
+                new MockHttpRequest("GET /test1 HTTP/1.1")
+                , null
+        );
+        assertNull(res.getHeader("Content-Type"));
+    }
     
     /**
      * ダウンロードファイル名(Content-Dispositionヘッダ)の
