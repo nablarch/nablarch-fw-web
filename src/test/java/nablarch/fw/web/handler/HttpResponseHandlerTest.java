@@ -612,6 +612,38 @@ public class HttpResponseHandlerTest {
     }
     
     /**
+     * 一時ファイルが使われる場合(1MBytesを超えるレスポンスの場合)にレスポンスが出力されること。
+     */
+    @Test
+    public void testHandlingOfLargeResponse() throws Exception {
+        final int BODY_SIZE = 1024 * 1024 + 1;
+        HttpServer server = TestUtil.createHttpServer()
+                .addHandler(new Object() {
+                    public HttpResponse getTest1(HttpRequest req, ExecutionContext ctx) {
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < BODY_SIZE; i++) {
+                            sb.append("a");
+                        }
+                        return new HttpResponse()
+                                .setStatusCode(200)
+                                .write(sb.toString());
+                    }
+                }).startLocal();
+
+        HttpResponse res = server.handle(
+                new MockHttpRequest("GET /test1 HTTP/1.1")
+                , new ExecutionContext()
+        );
+
+        String line = new BufferedReader(
+                new InputStreamReader(res.getBodyStream(), Charset.forName("utf-8"))
+        ).readLine();
+        assertThat(line.length(),is(BODY_SIZE));
+        //明示的にContent-Typeを設定していない場合に、Content-Typeが自動設定されることを確認
+        assertNull(res.getHeader("Content-Type"));
+    }
+
+    /**
      * レスポンスオブジェクトのContent-Typeヘッダに文字セットが設定されていた場合は、
      * その文字セットに対応するコンバータを用いてエンコーディングされることを確認。  
      */
