@@ -3,8 +3,10 @@ package nablarch.fw.web.handler;
 import nablarch.core.ThreadContext;
 import nablarch.core.log.LogUtil.MapValueEditor;
 import nablarch.core.log.LogUtil.MaskingMapValueEditor;
+import nablarch.core.log.app.AppLogUtil;
 import nablarch.core.log.app.JsonLogFormatterSupport;
 import nablarch.core.log.basic.JsonLogObjectBuilder;
+import nablarch.core.text.json.JsonSerializationSettings;
 import nablarch.core.util.StringUtil;
 
 import java.util.*;
@@ -103,7 +105,8 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
     protected void initialize(Map<String, String> props) {
         initializeEnabled(props);
 
-        support = new JsonLogFormatterSupport(PROPS_PREFIX, null);
+        support = new JsonLogFormatterSupport(
+                new JsonSerializationSettings(props, PROPS_PREFIX, AppLogUtil.getFilePath()));
 
         Map<String, JsonLogObjectBuilder<HttpAccessLogContext>> objectBuilders = getObjectBuilders(props);
         containsMemoryItem = false;
