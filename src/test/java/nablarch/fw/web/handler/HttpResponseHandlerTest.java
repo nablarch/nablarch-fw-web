@@ -640,7 +640,7 @@ public class HttpResponseHandlerTest {
         ).readLine();
         assertThat(line.length(),is(BODY_SIZE));
         //明示的にContent-Typeを設定していない場合に、Content-Typeが自動設定されることを確認
-        assertEquals("text/plain;charset=UTF-8", res.getHeader("Content-Type"));
+        assertEquals("text/plain;charset=utf-8", res.getHeader("Content-Type"));
     }
 
     /**
