@@ -7,7 +7,6 @@ import nablarch.core.log.LogTestSupport;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.servlet.MockServletRequest;
 import nablarch.fw.web.servlet.ServletExecutionContext;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
@@ -30,17 +29,6 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
 
     @Before
     public void setup() {
-        System.clearProperty("httpAccessLogFormatter.beginOutputEnabled");
-        System.clearProperty("httpAccessLogFormatter.parametersOutputEnabled");
-        System.clearProperty("httpAccessLogFormatter.dispatchingClassOutputEnabled");
-        System.clearProperty("httpAccessLogFormatter.endOutputEnabled");
-        System.clearProperty("httpAccessLogFormatter.endTargets");
-        System.clearProperty("httpAccessLogFormatter.maskingPatterns");
-        ThreadContext.clear();
-    }
-
-    @After
-    public void teardown() {
         System.clearProperty("httpAccessLogFormatter.beginOutputEnabled");
         System.clearProperty("httpAccessLogFormatter.parametersOutputEnabled");
         System.clearProperty("httpAccessLogFormatter.dispatchingClassOutputEnabled");
