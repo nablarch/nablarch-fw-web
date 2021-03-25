@@ -171,7 +171,7 @@ public class HttpAccessLogFormatter {
     }
 
     /**
-     * 設定情報各ログ出力が有効か否かを初期化する。
+     * 各ログ出力が有効か否かを初期化する。
      * @param props 各種ログ出力の設定情報
      */
     protected void initializeEnabled(Map<String, String> props) {
