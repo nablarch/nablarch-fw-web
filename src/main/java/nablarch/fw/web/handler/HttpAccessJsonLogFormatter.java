@@ -546,6 +546,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_CONTENT_PATH, context.getContentPath());
         }
