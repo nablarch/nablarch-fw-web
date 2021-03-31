@@ -55,7 +55,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
 
         String message = formatter.formatBegin(logContext);
         assertThat(message.startsWith("$JSON$"), is(true));
-        assertThat(message.substring(6), isJson(allOf(
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
                 withJsonPath("$", hasEntry("label", "BEGIN")),
                 withJsonPath("$", hasEntry("requestId", "request_id_test")),
                 withJsonPath("$", hasEntry("userId", "user_id_test")),
@@ -86,7 +86,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
 
         String message = formatter.formatParameters(logContext);
         assertThat(message.startsWith("$JSON$"), is(true));
-        assertThat(message.substring(6), isJson(allOf(
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
                 withJsonPath("$", hasEntry("label", "PARAMETERS")),
                 withJsonPath("$.parameters.req_param1", hasSize(1)),
                 withJsonPath("$.parameters.req_param1[0]", equalTo("req_param1_test")),
@@ -114,7 +114,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
 
         String message = formatter.formatDispatchingClass(logContext);
         assertThat(message.startsWith("$JSON$"), is(true));
-        assertThat(message.substring(6), isJson(allOf(
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
                 withJsonPath("$", hasEntry("label", "DISPATCHING CLASS")),
                 withJsonPath("$", hasEntry("dispatchingClass", "nablarch.common.web.handler.NormalHandler")))));
     }
@@ -137,7 +137,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
 
         String message = formatter.formatEnd(logContext);
         assertThat(message.startsWith("$JSON$"), is(true));
-        assertThat(message.substring(6), isJson(allOf(
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
                 withJsonPath("$", hasEntry("label", "END")),
                 withJsonPath("$", hasEntry("requestId", "request_id_test")),
                 withJsonPath("$", hasEntry("userId", "user_id_test")),
@@ -172,7 +172,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
 
         String message = formatter.formatEnd(logContext);
         assertThat(message.startsWith("$JSON$"), is(true));
-        assertThat(message.substring(6), isJson(allOf(
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
                 withJsonPath("$", hasEntry("queryString", "")),
                 withJsonPath("$.sessionScope", hasEntry("sparam1", "sparam1_test")),
                 withJsonPath("$.sessionScope", hasEntry("sparam2", "sparam2_test")),
@@ -201,7 +201,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
 
         String message = formatter.formatEnd(logContext);
         assertThat(message.startsWith("$JSON$"), is(true));
-        assertThat(message.substring(6), isJson(allOf(
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
                 withJsonPath("$", hasEntry("responseStatusCode", 200)))));
 
         assertThat(formatter.containsMemoryItem(), is(false));
