@@ -46,8 +46,6 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      */
     @Test
     public void testFormatBegin() {
-//        System.setProperty("httpAccessLogFormatter.parametersOutputEnabled", "false");
-
         HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
 
         HttpAccessLogFormatter.HttpAccessLogContext logContext = createLogContext();
