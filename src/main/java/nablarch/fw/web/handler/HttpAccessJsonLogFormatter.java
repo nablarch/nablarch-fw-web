@@ -9,7 +9,13 @@ import nablarch.core.log.basic.JsonLogObjectBuilder;
 import nablarch.core.text.json.JsonSerializationSettings;
 import nablarch.core.util.StringUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -18,6 +24,8 @@ import java.util.regex.Pattern;
  */
 public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
 
+    /** ラベルの項目名 */
+    private static final String TARGET_NAME_LABEL = "label";
     /** リクエストIDの項目名 */
     private static final String TARGET_NAME_REQUEST_ID = "requestId";
     /** ユーザIDの項目名 */
@@ -70,16 +78,34 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
     /** リクエスト処理終了時の出力項目を取得する際に使用するプロパティ名 */
     private static final String PROPS_END_TARGETS = PROPS_PREFIX + "endTargets";
 
-    /** デフォルトのリクエスト処理開始時のフォーマット */
-    private static final String DEFAULT_BEGIN_TARGETS = "requestId,userId,sessionId,url,"
+    /** リクエスト処理開始時のラベルのプロパティ名 */
+    private static final String PROPS_BEGIN_LABEL = PROPS_PREFIX + "beginLabel";
+    /** hiddenパラメータ復号後のラベルのプロパティ名 */
+    private static final String PROPS_PARAMETERS_LABEL = PROPS_PREFIX + "parametersLabel";
+    /** ディスパッチ先クラス決定後のラベルのプロパティ名 */
+    private static final String PROPS_DISPATCHING_CLASS_LABEL = PROPS_PREFIX + "dispatchingClassLabel";
+    /** リクエスト処理終了時のラベルのプロパティ名 */
+    private static final String PROPS_END_LABEL = PROPS_PREFIX + "endLabel";
+
+    /** デフォルトのリクエスト処理開始時の出力項目 */
+    private static final String DEFAULT_BEGIN_TARGETS = "label,requestId,userId,sessionId,url,"
             + "method,port,clientIpAddress,clientHost";
-    /** デフォルトのhiddenパラメータ復号後のフォーマット */
-    private static final String DEFAULT_PARAMETERS_TARGETS = "parameters";
-    /** デフォルトのディスパッチ先クラス決定後のフォーマット */
-    private static final String DEFAULT_DISPATCHING_CLASS_TARGETS = "dispatchingClass";
-    /** デフォルトのリクエスト処理終了時のフォーマット */
-    private static final String DEFAULT_END_TARGETS = "requestId,userId,sessionId,url,"
+    /** デフォルトのhiddenパラメータ復号後の出力項目 */
+    private static final String DEFAULT_PARAMETERS_TARGETS = "label,parameters";
+    /** デフォルトのディスパッチ先クラス決定後の出力項目 */
+    private static final String DEFAULT_DISPATCHING_CLASS_TARGETS = "label,dispatchingClass";
+    /** デフォルトのリクエスト処理終了時の出力項目 */
+    private static final String DEFAULT_END_TARGETS = "label,requestId,userId,sessionId,url,"
             + "statusCode,contentPath,startTime,endTime,executionTime,maxMemory,freeMemory";
+
+    /** デフォルトのリクエスト処理開始時のラベル */
+    private static final String DEFAULT_BEGIN_LABEL = "BEGIN";
+    /** デフォルトのhiddenパラメータ復号後のラベル */
+    private static final String DEFAULT_PARAMETERS_LABEL = "PARAMETERS";
+    /** デフォルトのディスパッチ先クラス決定後のラベル */
+    private static final String DEFAULT_DISPATCHING_CLASS_LABEL = "DISPATCHING CLASS";
+    /** デフォルトのリクエスト処理終了時のラベル */
+    private static final String DEFAULT_END_LABEL = "END";
 
     /** リクエスト処理開始時のフォーマット済みのログ出力項目 */
     private List<JsonLogObjectBuilder<HttpAccessLogContext>> beginStructuredTargets;
@@ -112,18 +138,26 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         containsMemoryItem = false;
 
         if (isBeginOutputEnabled()) {
+            String label = getProp(props, PROPS_BEGIN_LABEL, DEFAULT_BEGIN_LABEL);
+            objectBuilders.put(TARGET_NAME_LABEL, new LabelBuilder(label));
             beginStructuredTargets = getStructuredTargets(objectBuilders, props, PROPS_BEGIN_TARGETS, DEFAULT_BEGIN_TARGETS);
         }
 
         if (isParametersOutputEnabled()) {
+            String label = getProp(props, PROPS_PARAMETERS_LABEL, DEFAULT_PARAMETERS_LABEL);
+            objectBuilders.put(TARGET_NAME_LABEL, new LabelBuilder(label));
             parametersStructuredTargets = getStructuredTargets(objectBuilders, props, PROPS_PARAMETERS_TARGETS, DEFAULT_PARAMETERS_TARGETS);
         }
 
         if (isDispatchingClassOutputEnabled()) {
+            String label = getProp(props, PROPS_DISPATCHING_CLASS_LABEL, DEFAULT_DISPATCHING_CLASS_LABEL);
+            objectBuilders.put(TARGET_NAME_LABEL, new LabelBuilder(label));
             dispatchingClassStructuredTargets = getStructuredTargets(objectBuilders, props, PROPS_DISPATCHING_CLASS_TARGETS, DEFAULT_DISPATCHING_CLASS_TARGETS);
         }
 
         if (isEndOutputEnabled()) {
+            String label = getProp(props, PROPS_END_LABEL, DEFAULT_END_LABEL);
+            objectBuilders.put(TARGET_NAME_LABEL, new LabelBuilder(label));
             endStructuredTargets = getStructuredTargets(objectBuilders, props, PROPS_END_TARGETS, DEFAULT_END_TARGETS);
         }
     }
@@ -257,6 +291,31 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
     @Override
     public String formatEnd(HttpAccessLogContext context) {
         return support.getStructuredMessage(endStructuredTargets, context);
+    }
+
+    /**
+     * ラベルを処理するクラス。
+     * @author Shuji Kitamura
+     */
+    private static class LabelBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+
+        private final String label;
+
+        /**
+         * コンストラクタ。
+         * @param label ラベル
+         */
+        LabelBuilder(String label) {
+            this.label = label;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
+            structuredObject.put(TARGET_NAME_LABEL, label);
+        }
     }
 
     /**
