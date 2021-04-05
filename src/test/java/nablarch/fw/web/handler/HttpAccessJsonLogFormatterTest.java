@@ -78,6 +78,31 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
     }
 
     /**
+     * {@link HttpAccessJsonLogFormatter#formatBegin}メソッドのテスト。
+     * <p>
+     * {@code targets} 指定ありの場合。
+     * </p>
+     */
+    @Test
+    public void testFormatBeginWithTarget() {
+        System.setProperty("httpAccessLogFormatter.beginTargets", "label,url");
+
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+
+        MockServletRequest servletReq = extractMockServletRequest(logContext);
+        servletReq.setRequestUrl("request_url_test");
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        String message = formatter.formatBegin(logContext);
+        assertThat(message.startsWith("$JSON$"), is(true));
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
+            withJsonPath("$.*", hasSize(2)),
+            withJsonPath("$", hasEntry("label", "BEGIN")),
+            withJsonPath("$", hasEntry("url", "request_url_test"))
+        )));
+    }
+
+    /**
      * {@link HttpAccessJsonLogFormatter#formatParameters}メソッドのテスト。
      */
     @Test
@@ -107,6 +132,25 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
     }
 
     /**
+     * {@link HttpAccessJsonLogFormatter#formatParameters}メソッドのテスト。
+     * <p>
+     * {@code targets} 指定ありの場合。
+     * </p>
+     */
+    @Test
+    public void testFormatParametersWithTargets() {
+        System.setProperty("httpAccessLogFormatter.parametersTargets", "label");
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        String message = formatter.formatParameters(createEmptyLogContext());
+        assertThat(message.startsWith("$JSON$"), is(true));
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
+            withJsonPath("$.*", hasSize(1)),
+            withJsonPath("$", hasEntry("label", "PARAMETERS"))
+        )));
+    }
+
+    /**
      * {@link HttpAccessJsonLogFormatter#formatDispatchingClass}メソッドのテスト。
      */
     @Test
@@ -124,6 +168,28 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
         assertThat(message.substring("$JSON$".length()), isJson(allOf(
                 withJsonPath("$", hasEntry("label", "DISPATCHING CLASS")),
                 withJsonPath("$", hasEntry("dispatchingClass", "nablarch.common.web.handler.NormalHandler")))));
+    }
+
+    /**
+     * {@link HttpAccessJsonLogFormatter#formatDispatchingClass}メソッドのテスト。
+     * <p>
+     * {@code targets} 指定ありの場合。
+     * </p>
+     */
+    @Test
+    public void testFormatDispatchingClassWithTargets() {
+        System.setProperty("httpAccessLogFormatter.dispatchingClassTargets", "dispatchingClass");
+
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+        logContext.setDispatchingClass(NormalHandler.class.getName());
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        String message = formatter.formatDispatchingClass(logContext);
+        assertThat(message.startsWith("$JSON$"), is(true));
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
+            withJsonPath("$.*", hasSize(1)),
+            withJsonPath("$", hasEntry("dispatchingClass", "nablarch.common.web.handler.NormalHandler"))
+        )));
     }
 
     /**
