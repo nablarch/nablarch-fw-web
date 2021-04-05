@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
 
+import java.text.SimpleDateFormat;
 import java.util.Map;
 
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.isJson;
@@ -45,7 +46,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      * {@link HttpAccessJsonLogFormatter#formatBegin}メソッドのテスト。
      */
     @Test
-    public void testFormatBegin() {
+    public void testFormatBegin() throws Exception {
         HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
 
         HttpAccessLogFormatter.HttpAccessLogContext logContext = createLogContext();
@@ -71,7 +72,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      * {@link HttpAccessJsonLogFormatter#formatParameters}メソッドのテスト。
      */
     @Test
-    public void testFormatParameters() {
+    public void testFormatParameters() throws Exception {
         System.setProperty("httpAccessLogFormatter.beginOutputEnabled", "false");
         System.setProperty("httpAccessLogFormatter.dispatchingClassOutputEnabled", "false");
         System.setProperty("httpAccessLogFormatter.endOutputEnabled", "false");
@@ -100,7 +101,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      * {@link HttpAccessJsonLogFormatter#formatDispatchingClass}メソッドのテスト。
      */
     @Test
-    public void testFormatDispatchingClass() {
+    public void testFormatDispatchingClass() throws Exception {
         System.setProperty("httpAccessLogFormatter.beginOutputEnabled", "false");
         System.setProperty("httpAccessLogFormatter.parametersOutputEnabled", "false");
         System.setProperty("httpAccessLogFormatter.endOutputEnabled", "false");
@@ -123,7 +124,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      * {@link HttpAccessJsonLogFormatter#formatEnd}メソッドのテスト。
      */
     @Test
-    public void testFormatEnd() {
+    public void testFormatEnd() throws Exception {
         System.setProperty("httpAccessLogFormatter.beginOutputEnabled", "false");
         System.setProperty("httpAccessLogFormatter.parametersOutputEnabled", "false");
         System.setProperty("httpAccessLogFormatter.dispatchingClassOutputEnabled", "false");
@@ -158,7 +159,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      * {@link HttpAccessJsonLogFormatter#formatEnd}メソッドのテスト。
      */
     @Test
-    public void testFormatEndWithTargets() {
+    public void testFormatEndWithTargets() throws Exception {
         System.setProperty("httpAccessLogFormatter.endOutputEnabled", "true");
         System.setProperty("httpAccessLogFormatter.endTargets", "queryString,queryString,sessionScope, ,responseStatusCode,clientUserAgent");
         System.setProperty("httpAccessLogFormatter.maskingPatterns", "sparam3");
@@ -187,7 +188,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      * {@link HttpAccessJsonLogFormatter#formatEnd}メソッドのテスト。
      */
     @Test
-    public void testFormatEndWithNoStatusCode() {
+    public void testFormatEndWithNoStatusCode() throws Exception {
         System.setProperty("httpAccessLogFormatter.endOutputEnabled", "true");
         System.setProperty("httpAccessLogFormatter.endTargets", "statusCode,responseStatusCode");
         System.setProperty("httpAccessLogFormatter.maskingPatterns", "sparam3");
@@ -226,7 +227,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
     }
 
 
-    private HttpAccessLogFormatter.HttpAccessLogContext createLogContext() {
+    private HttpAccessLogFormatter.HttpAccessLogContext createLogContext() throws Exception {
         HttpAccessLogFormatter.HttpAccessLogContext logContext = new HttpAccessLogFormatter.HttpAccessLogContext();
 
         MockHttpSession session = new MockHttpSession();
@@ -263,15 +264,15 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
         HttpResponse response = new HttpResponse(404, "/success.jsp");
         logContext.setResponse(response);
 
-        logContext.setStartTime(1614767032553l);
-        logContext.setEndTime(1614767032853l);
+        logContext.setStartTime(toMilliseconds("2021-03-03 19:23:52.553"));
+        logContext.setEndTime(toMilliseconds("2021-03-03 19:23:52.853"));
         logContext.setMaxMemory(2088763392);
         logContext.setFreeMemory(1088763392);
 
         return logContext;
     }
 
-    private HttpAccessLogFormatter.HttpAccessLogContext createLogContextNoRes() {
+    private HttpAccessLogFormatter.HttpAccessLogContext createLogContextNoRes() throws Exception {
         HttpAccessLogFormatter.HttpAccessLogContext logContext = new HttpAccessLogFormatter.HttpAccessLogContext();
 
         MockHttpSession session = new MockHttpSession();
@@ -305,12 +306,21 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
 
         logContext.setDispatchingClass(NormalHandler.class.getName());
 
-        logContext.setStartTime(1614767032553l);
-        logContext.setEndTime(1614767032853l);
+        logContext.setStartTime(toMilliseconds("2021-03-03 19:23:52.553"));
+        logContext.setEndTime(toMilliseconds("2021-03-03 19:23:52.853"));
         logContext.setMaxMemory(2088763392);
         logContext.setFreeMemory(1088763392);
 
         return logContext;
     }
 
+    /**
+     * 日付文字列をミリ秒に変換する。
+     * @param textDate 日付文字列({@code "yyyy-MM-dd HH:mm:ss.SSS"} 形式)
+     * @return 日付をミリ秒に変換した結果
+     * @throws Exception 日付文字列のパースに失敗した場合
+     */
+    private long toMilliseconds(String textDate) throws Exception {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(textDate).getTime();
+    }
 }
