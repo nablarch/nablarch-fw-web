@@ -284,7 +284,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      * </p>
      */
     @Test
-    public void testFormatEndWithNoStatusCode() {
+    public void testFormatEndWithoutStatusCode() {
         System.setProperty("httpAccessLogFormatter.endOutputEnabled", "true");
         System.setProperty("httpAccessLogFormatter.endTargets", "statusCode,responseStatusCode");
         System.setProperty("httpAccessLogFormatter.maskingPatterns", "sparam3");
@@ -295,7 +295,9 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
         String message = formatter.formatEnd(logContext);
         assertThat(message.startsWith("$JSON$"), is(true));
         assertThat(message.substring("$JSON$".length()), isJson(allOf(
-                withJsonPath("$", hasEntry("responseStatusCode", 200)))));
+            withoutJsonPath("$.statusCode"),
+            withJsonPath("$", hasEntry("responseStatusCode", 200))
+        )));
 
         assertThat(formatter.containsMemoryItem(), is(false));
     }
