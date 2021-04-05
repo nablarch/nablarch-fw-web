@@ -122,6 +122,9 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
 
     /**
      * {@link HttpAccessJsonLogFormatter#formatEnd}メソッドのテスト。
+     * <p>
+     * {@code targets} 指定なしのデフォルト設定の場合。
+     * </p>
      */
     @Test
     public void testFormatEnd() throws Exception {
@@ -157,6 +160,9 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
 
     /**
      * {@link HttpAccessJsonLogFormatter#formatEnd}メソッドのテスト。
+     * <p>
+     * {@code targets} 指定ありの場合。
+     * </p>
      */
     @Test
     public void testFormatEndWithTargets() throws Exception {
@@ -186,6 +192,9 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
 
     /**
      * {@link HttpAccessJsonLogFormatter#formatEnd}メソッドのテスト。
+     * <p>
+     * {@link HttpAccessLogFormatter.HttpAccessLogContext} に {@link HttpResponse} が設定されていない場合。
+     * </p>
      */
     @Test
     public void testFormatEndWithNoStatusCode() throws Exception {
