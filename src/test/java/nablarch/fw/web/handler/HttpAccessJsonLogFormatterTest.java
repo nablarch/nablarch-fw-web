@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThrows;
 
@@ -35,10 +36,6 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
 
     @Before
     public void setup() {
-        System.clearProperty("httpAccessLogFormatter.beginOutputEnabled");
-        System.clearProperty("httpAccessLogFormatter.parametersOutputEnabled");
-        System.clearProperty("httpAccessLogFormatter.dispatchingClassOutputEnabled");
-        System.clearProperty("httpAccessLogFormatter.endOutputEnabled");
         System.clearProperty("httpAccessLogFormatter.endTargets");
         System.clearProperty("httpAccessLogFormatter.maskingPatterns");
         ThreadContext.clear();
@@ -108,9 +105,6 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      */
     @Test
     public void testFormatParameters() {
-        System.setProperty("httpAccessLogFormatter.beginOutputEnabled", "false");
-        System.setProperty("httpAccessLogFormatter.dispatchingClassOutputEnabled", "false");
-        System.setProperty("httpAccessLogFormatter.endOutputEnabled", "false");
         System.setProperty("httpAccessLogFormatter.maskingPatterns", "req_param2");
 
         HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
@@ -156,10 +150,6 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      */
     @Test
     public void testFormatDispatchingClass() {
-        System.setProperty("httpAccessLogFormatter.beginOutputEnabled", "false");
-        System.setProperty("httpAccessLogFormatter.parametersOutputEnabled", "false");
-        System.setProperty("httpAccessLogFormatter.endOutputEnabled", "false");
-
         HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
         logContext.setDispatchingClass(NormalHandler.class.getName());
 
@@ -201,10 +191,6 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      */
     @Test
     public void testFormatEnd() throws Exception {
-        System.setProperty("httpAccessLogFormatter.beginOutputEnabled", "false");
-        System.setProperty("httpAccessLogFormatter.parametersOutputEnabled", "false");
-        System.setProperty("httpAccessLogFormatter.dispatchingClassOutputEnabled", "false");
-
         HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
         MockServletRequest servletReq = extractMockServletRequest(logContext);
         servletReq.setRequestUrl("request_url_test");
@@ -248,7 +234,6 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      */
     @Test
     public void testFormatEndWithTargets() {
-        System.setProperty("httpAccessLogFormatter.endOutputEnabled", "true");
         System.setProperty("httpAccessLogFormatter.endTargets", "queryString,queryString,sessionScope, ,responseStatusCode,clientUserAgent");
         System.setProperty("httpAccessLogFormatter.maskingPatterns", "sparam3");
 
@@ -285,7 +270,6 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      */
     @Test
     public void testFormatEndWithoutStatusCode() {
-        System.setProperty("httpAccessLogFormatter.endOutputEnabled", "true");
         System.setProperty("httpAccessLogFormatter.endTargets", "statusCode,responseStatusCode");
         System.setProperty("httpAccessLogFormatter.maskingPatterns", "sparam3");
 
@@ -331,7 +315,6 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      */
     @Test
     public void testFormatEndWithIllegalTargets() {
-        System.setProperty("httpAccessLogFormatter.endOutputEnabled", "true");
         System.setProperty("httpAccessLogFormatter.endTargets", "queryString,dummy,responseStatusCode,clientUserAgent");
 
         Exception e = assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
