@@ -6,6 +6,7 @@ import nablarch.core.ThreadContext;
 import nablarch.core.log.LogTestSupport;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.servlet.MockServletRequest;
+import nablarch.fw.web.servlet.NablarchHttpServletRequestWrapper;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,14 +47,22 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      * {@link HttpAccessJsonLogFormatter#formatBegin}メソッドのテスト。
      */
     @Test
-    public void testFormatBegin() throws Exception {
-        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+    public void testFormatBegin() {
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
 
-        HttpAccessLogFormatter.HttpAccessLogContext logContext = createLogContext();
+        MockServletRequest servletReq = extractMockServletRequest(logContext);
+        servletReq.setRequestUrl("request_url_test");
+        servletReq.setMethod("POST");
+        servletReq.setServerPort(9999);
+        servletReq.setRemoteAddr("remote_addr_test");
+        servletReq.setRemoteHost("remote_host_test");
+
+        ((MockHttpSession) servletReq.getSession()).setId("session_id_test");
 
         ThreadContext.setRequestId("request_id_test");
         ThreadContext.setUserId("user_id_test");
 
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
         String message = formatter.formatBegin(logContext);
         assertThat(message.startsWith("$JSON$"), is(true));
         assertThat(message.substring("$JSON$".length()), isJson(allOf(
@@ -72,19 +81,19 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      * {@link HttpAccessJsonLogFormatter#formatParameters}メソッドのテスト。
      */
     @Test
-    public void testFormatParameters() throws Exception {
+    public void testFormatParameters() {
         System.setProperty("httpAccessLogFormatter.beginOutputEnabled", "false");
         System.setProperty("httpAccessLogFormatter.dispatchingClassOutputEnabled", "false");
         System.setProperty("httpAccessLogFormatter.endOutputEnabled", "false");
         System.setProperty("httpAccessLogFormatter.maskingPatterns", "req_param2");
 
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+        MockServletRequest servletReq = extractMockServletRequest(logContext);
+        servletReq.getParams().put("req_param2", new String[] {"req_param2_test"});
+        servletReq.getParams().put("req_param3", new String[] {"req_param3_test"});
+        servletReq.getParams().put("req_param1", new String[] {"req_param1_test"});
+
         HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
-
-        HttpAccessLogFormatter.HttpAccessLogContext logContext = createLogContext();
-
-        ThreadContext.setRequestId("request_id_test");
-        ThreadContext.setUserId("user_id_test");
-
         String message = formatter.formatParameters(logContext);
         assertThat(message.startsWith("$JSON$"), is(true));
         assertThat(message.substring("$JSON$".length()), isJson(allOf(
@@ -101,18 +110,15 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      * {@link HttpAccessJsonLogFormatter#formatDispatchingClass}メソッドのテスト。
      */
     @Test
-    public void testFormatDispatchingClass() throws Exception {
+    public void testFormatDispatchingClass() {
         System.setProperty("httpAccessLogFormatter.beginOutputEnabled", "false");
         System.setProperty("httpAccessLogFormatter.parametersOutputEnabled", "false");
         System.setProperty("httpAccessLogFormatter.endOutputEnabled", "false");
 
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+        logContext.setDispatchingClass(NormalHandler.class.getName());
+
         HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
-
-        HttpAccessLogFormatter.HttpAccessLogContext logContext = createLogContext();
-
-        ThreadContext.setRequestId("request_id_test");
-        ThreadContext.setUserId("user_id_test");
-
         String message = formatter.formatDispatchingClass(logContext);
         assertThat(message.startsWith("$JSON$"), is(true));
         assertThat(message.substring("$JSON$".length()), isJson(allOf(
@@ -132,13 +138,22 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
         System.setProperty("httpAccessLogFormatter.parametersOutputEnabled", "false");
         System.setProperty("httpAccessLogFormatter.dispatchingClassOutputEnabled", "false");
 
-        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+        MockServletRequest servletReq = extractMockServletRequest(logContext);
+        servletReq.setRequestUrl("request_url_test");
+        logContext.setStartTime(toMilliseconds("2021-03-03 19:23:52.553"));
+        logContext.setEndTime(toMilliseconds("2021-03-03 19:23:52.853"));
+        logContext.setMaxMemory(2088763392);
+        logContext.setFreeMemory(1088763392);
 
-        HttpAccessLogFormatter.HttpAccessLogContext logContext = createLogContext();
+        ((MockHttpSession) servletReq.getSession()).setId("session_id_test");
+
+        logContext.setResponse(new HttpResponse(404, "/success.jsp"));
 
         ThreadContext.setRequestId("request_id_test");
         ThreadContext.setUserId("user_id_test");
 
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
         String message = formatter.formatEnd(logContext);
         assertThat(message.startsWith("$JSON$"), is(true));
         assertThat(message.substring("$JSON$".length()), isJson(allOf(
@@ -165,18 +180,23 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      * </p>
      */
     @Test
-    public void testFormatEndWithTargets() throws Exception {
+    public void testFormatEndWithTargets() {
         System.setProperty("httpAccessLogFormatter.endOutputEnabled", "true");
         System.setProperty("httpAccessLogFormatter.endTargets", "queryString,queryString,sessionScope, ,responseStatusCode,clientUserAgent");
         System.setProperty("httpAccessLogFormatter.maskingPatterns", "sparam3");
 
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+        NablarchHttpServletRequestWrapper servletRequest = logContext.getContext().getServletRequest();
+        servletRequest.getHeaderMap().put("User-Agent", "test user agent");
+
+        logContext.setResponse(new HttpResponse(404, "/success.jsp"));
+
+        Map<String, Object> sessionScope = logContext.getContext().getSessionScopeMap();
+        sessionScope.put("sparam1", "sparam1_test");
+        sessionScope.put("sparam2", "sparam2_test");
+        sessionScope.put("sparam3", "sparam3_test");
+
         HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
-
-        HttpAccessLogFormatter.HttpAccessLogContext logContext = createLogContext();
-
-        ThreadContext.setRequestId("request_id_test");
-        ThreadContext.setUserId("user_id_test");
-
         String message = formatter.formatEnd(logContext);
         assertThat(message.startsWith("$JSON$"), is(true));
         assertThat(message.substring("$JSON$".length()), isJson(allOf(
@@ -197,18 +217,14 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
      * </p>
      */
     @Test
-    public void testFormatEndWithNoStatusCode() throws Exception {
+    public void testFormatEndWithNoStatusCode() {
         System.setProperty("httpAccessLogFormatter.endOutputEnabled", "true");
         System.setProperty("httpAccessLogFormatter.endTargets", "statusCode,responseStatusCode");
         System.setProperty("httpAccessLogFormatter.maskingPatterns", "sparam3");
 
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+
         HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
-
-        HttpAccessLogFormatter.HttpAccessLogContext logContext = createLogContextNoRes();
-
-        ThreadContext.setRequestId("request_id_test");
-        ThreadContext.setUserId("user_id_test");
-
         String message = formatter.formatEnd(logContext);
         assertThat(message.startsWith("$JSON$"), is(true));
         assertThat(message.substring("$JSON$".length()), isJson(allOf(
@@ -235,92 +251,29 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
         assertThat(e.getMessage(), is("[dummy] is unknown target. property name = [httpAccessLogFormatter.endTargets]"));
     }
 
-
-    private HttpAccessLogFormatter.HttpAccessLogContext createLogContext() throws Exception {
-        HttpAccessLogFormatter.HttpAccessLogContext logContext = new HttpAccessLogFormatter.HttpAccessLogContext();
-
-        MockHttpSession session = new MockHttpSession();
-        session.setId("session_id_test");
-
+    /**
+     * テスト用に、個々の属性が設定されていない空のログコンテキストを生成する。
+     * @return 空のログコンテキスト
+     */
+    private HttpAccessLogFormatter.HttpAccessLogContext createEmptyLogContext() {
         MockServletRequest servletReq = new MockServletRequest();
-        servletReq.setContextPath("");
-        servletReq.setSession(session);
-        servletReq.setRequestUrl("request_url_test");
-        servletReq.setRequestURI("/success.jsp");
-        servletReq.setMethod("POST");
-        servletReq.setServerPort(9999);
-        servletReq.setRemoteAddr("remote_addr_test");
-        servletReq.setRemoteHost("remote_host_test");
-        servletReq.getParams().put("req_param2", new String[] {"req_param2_test"});
-        servletReq.getParams().put("req_param3", new String[] {"req_param3_test"});
-        servletReq.getParams().put("req_param1", new String[] {"req_param1_test"});
-        servletReq.addHeader("User-Agent", "test user agent");
-
+        servletReq.setSession(new MockHttpSession());
         ServletExecutionContext servletExecutionContext = new ServletExecutionContext(servletReq, null, null);
+
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = new HttpAccessLogFormatter.HttpAccessLogContext();
         logContext.setContext(servletExecutionContext);
         logContext.setRequest(servletExecutionContext.getHttpRequest());
-
-        Object aaa = logContext.getParameters();
-        Object bbb = logContext.getServletRequest();
-
-        Map<String, Object> sessionScope = servletExecutionContext.getSessionScopeMap();
-        sessionScope.put("sparam1", "sparam1_test");
-        sessionScope.put("sparam2", "sparam2_test");
-        sessionScope.put("sparam3", "sparam3_test");
-
-        logContext.setDispatchingClass(NormalHandler.class.getName());
-
-        HttpResponse response = new HttpResponse(404, "/success.jsp");
-        logContext.setResponse(response);
-
-        logContext.setStartTime(toMilliseconds("2021-03-03 19:23:52.553"));
-        logContext.setEndTime(toMilliseconds("2021-03-03 19:23:52.853"));
-        logContext.setMaxMemory(2088763392);
-        logContext.setFreeMemory(1088763392);
 
         return logContext;
     }
 
-    private HttpAccessLogFormatter.HttpAccessLogContext createLogContextNoRes() throws Exception {
-        HttpAccessLogFormatter.HttpAccessLogContext logContext = new HttpAccessLogFormatter.HttpAccessLogContext();
-
-        MockHttpSession session = new MockHttpSession();
-        session.setId("session_id_test");
-
-        MockServletRequest servletReq = new MockServletRequest();
-        servletReq.setContextPath("");
-        servletReq.setSession(session);
-        servletReq.setRequestUrl("request_url_test");
-        servletReq.setRequestURI("/success.jsp");
-        servletReq.setMethod("POST");
-        servletReq.setServerPort(9999);
-        servletReq.setRemoteAddr("remote_addr_test");
-        servletReq.setRemoteHost("remote_host_test");
-        servletReq.getParams().put("req_param2", new String[] {"req_param2_test"});
-        servletReq.getParams().put("req_param3", new String[] {"req_param3_test"});
-        servletReq.getParams().put("req_param1", new String[] {"req_param1_test"});
-        servletReq.addHeader("User-Agent", "test user agent");
-
-        ServletExecutionContext servletExecutionContext = new ServletExecutionContext(servletReq, null, null);
-        logContext.setContext(servletExecutionContext);
-        logContext.setRequest(servletExecutionContext.getHttpRequest());
-
-        Object aaa = logContext.getParameters();
-        Object bbb = logContext.getServletRequest();
-
-        Map<String, Object> sessionScope = servletExecutionContext.getSessionScopeMap();
-        sessionScope.put("sparam1", "sparam1_test");
-        sessionScope.put("sparam2", "sparam2_test");
-        sessionScope.put("sparam3", "sparam3_test");
-
-        logContext.setDispatchingClass(NormalHandler.class.getName());
-
-        logContext.setStartTime(toMilliseconds("2021-03-03 19:23:52.553"));
-        logContext.setEndTime(toMilliseconds("2021-03-03 19:23:52.853"));
-        logContext.setMaxMemory(2088763392);
-        logContext.setFreeMemory(1088763392);
-
-        return logContext;
+    /**
+     * テスト用に生成されたログコンテキストから、モックのリクエストオブジェクトを抽出する。
+     * @param logContext {@link #createEmptyLogContext()} で生成されたモックのログコンテキスト
+     * @return ログコンテキストから抽出したモックのリクエストオブジェクト
+     */
+    private MockServletRequest extractMockServletRequest(HttpAccessLogFormatter.HttpAccessLogContext logContext) {
+        return ((MockServletRequest) logContext.getContext().getServletRequest().getRequest());
     }
 
     /**
