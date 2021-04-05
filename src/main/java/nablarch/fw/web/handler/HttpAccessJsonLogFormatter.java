@@ -135,7 +135,6 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
                 new JsonSerializationSettings(props, PROPS_PREFIX, AppLogUtil.getFilePath()));
 
         Map<String, JsonLogObjectBuilder<HttpAccessLogContext>> objectBuilders = getObjectBuilders(props);
-        containsMemoryItem = false;
 
         if (isBeginOutputEnabled()) {
             String label = getProp(props, PROPS_BEGIN_LABEL, DEFAULT_BEGIN_LABEL);
