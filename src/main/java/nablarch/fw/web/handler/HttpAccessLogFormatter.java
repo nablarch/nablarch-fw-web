@@ -155,7 +155,7 @@ public class HttpAccessLogFormatter {
     private LogItem<HttpAccessLogContext>[] endLogItems;
 
     /**
-     * コンストラクタ。
+     * フォーマット済みのログ出力項目を初期化する。
      */
     public HttpAccessLogFormatter() {
         initialize(AppLogUtil.getProps());
