@@ -17,6 +17,7 @@ import java.util.Map;
 
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.isJson;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.withJsonPath;
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.withoutJsonPath;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
@@ -297,6 +298,30 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
                 withJsonPath("$", hasEntry("responseStatusCode", 200)))));
 
         assertThat(formatter.containsMemoryItem(), is(false));
+    }
+
+    /**
+     * {@link HttpAccessJsonLogFormatter#formatEnd}メソッドのテスト。
+     * <p>
+     * クライアントに返すステータスコードが -1 の場合。
+     * </p>
+     */
+    @Test
+    public void testFormatEndStatusCodeIsMinusOne() {
+        System.setProperty("httpAccessLogFormatter.endTargets", "responseStatusCode");
+
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+        logContext.setResponse(new HttpResponse() {
+            @Override
+            public int getStatusCode() {
+                return -1;
+            }
+        });
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        String message = formatter.formatEnd(logContext);
+        assertThat(message.startsWith("$JSON$"), is(true));
+        assertThat(message.substring("$JSON$".length()), isJson(withoutJsonPath("$.responseStatusCode")));
     }
 
     /**

@@ -532,8 +532,6 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             int statusCode = HttpResponseUtil.chooseResponseStatusCode(context.getResponse(), context.getContext());
             structuredObject.put(TARGET_NAME_RESPONSE_STATUS_CODE, statusCode != -1 ? statusCode : null);
-            // (coverage) statusCodeが-1となるケースはない
-
         }
     }
 
