@@ -296,7 +296,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * ラベルを処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class LabelBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class LabelBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         private final String label;
 
@@ -321,7 +321,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * リクエストIDを処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class RequestIdBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class RequestIdBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -336,7 +336,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * ユーザIDを処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class UserIdBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class UserIdBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -351,7 +351,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * URLを処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class UrlBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class UrlBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -366,7 +366,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * クエリ文字列を処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class QueryStringBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class QueryStringBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -381,7 +381,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * ポート番号を処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class PortBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class PortBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -396,7 +396,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * HTTPメソッドを処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class MethodBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class MethodBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -411,7 +411,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * リクエストパラメータを処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class ParametersBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class ParametersBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /** マップの値のマスキング */
         private final MapValueEditor mapValueEditor;
@@ -445,7 +445,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * セッションスコープ情報を処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class SessionScopeBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class SessionScopeBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /** マップの値のマスキング */
         private final MapValueEditor mapValueEditor;
@@ -476,7 +476,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * ディスパッチ先クラスを処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class DispatchingClassBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class DispatchingClassBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -491,7 +491,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * セッションIDを処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class SessionIdBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class SessionIdBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -506,7 +506,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * ステータスコードを処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class StatusCodeBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class StatusCodeBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -522,7 +522,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * クライアントへのレスポンスに使用するステータスコードを処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class ResponseStatusCodeBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class ResponseStatusCodeBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -538,7 +538,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * コンテンツパスを処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class ContentPathBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class ContentPathBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -553,7 +553,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * クライアント端末IPアドレスを処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class ClientIpAddressBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class ClientIpAddressBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -568,7 +568,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * クライアント端末ホストを処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class ClientHostBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class ClientHostBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -583,7 +583,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * HTTPヘッダのUser-Agentを処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class ClientUserAgentBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class ClientUserAgentBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -598,7 +598,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * 開始日時を処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class StartTimeBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class StartTimeBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -613,7 +613,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * 終了日時を処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class EndTimeBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class EndTimeBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -628,7 +628,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * 実行時間を処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class ExecutionTimeBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class ExecutionTimeBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -643,7 +643,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
      * 最大メモリ量を処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class MaxMemoryBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class MaxMemoryBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
@@ -657,7 +657,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
     /** 空きメモリ量(開始時)を処理するクラス。
      * @author Shuji Kitamura
      */
-    private static class FreeMemoryBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+    public static class FreeMemoryBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
 
         /**
          * {@inheritDoc}
