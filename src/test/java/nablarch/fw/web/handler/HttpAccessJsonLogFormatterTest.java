@@ -8,7 +8,9 @@ import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.servlet.MockServletRequest;
 import nablarch.fw.web.servlet.NablarchHttpServletRequestWrapper;
 import nablarch.fw.web.servlet.ServletExecutionContext;
+import nablarch.test.support.SystemPropertyCleaner;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
 
@@ -33,11 +35,11 @@ import static org.junit.Assert.assertThrows;
  * @author Shuji Kitamura
  */
 public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
+    @Rule
+    public SystemPropertyCleaner systemPropertyCleaner = new SystemPropertyCleaner();
 
     @Before
     public void setup() {
-        System.clearProperty("httpAccessLogFormatter.endTargets");
-        System.clearProperty("httpAccessLogFormatter.maskingPatterns");
         ThreadContext.clear();
     }
 
