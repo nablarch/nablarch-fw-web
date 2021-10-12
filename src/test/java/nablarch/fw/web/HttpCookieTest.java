@@ -11,6 +11,8 @@ import java.util.List;
 
 import javax.servlet.http.Cookie;
 
+import nablarch.TestUtil;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -119,8 +121,9 @@ public class HttpCookieTest {
      * @throws Exception
      */
     @Test
-    @Ignore("Servlet APIのバージョンが3.0以上のため")
     public void testIsHttpOnly_error() throws Exception {
+        Assume.assumeTrue(!TestUtil.isJetty9());
+
         sut = new HttpCookie();
 
         try {
@@ -138,8 +141,9 @@ public class HttpCookieTest {
      * @throws Exception
      */
     @Test
-    @Ignore("Servlet APIのバージョンが3.0以上のため")
     public void testSetHttpOnly_error() throws Exception {
+        Assume.assumeTrue(!TestUtil.isJetty9());
+
         sut = new HttpCookie();
         try {
             sut.setHttpOnly(false);

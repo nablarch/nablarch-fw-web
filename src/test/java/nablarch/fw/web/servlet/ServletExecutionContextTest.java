@@ -42,8 +42,10 @@ public class ServletExecutionContextTest {
                         assertTrue("getSessionScopeMapでは生成される。", ctx.hasSession());
 
                         ctx.invalidateSession();
-                        // nablarch-testing-jetty9ではLazySessionInvalidationFilterのため、このアサートはコメントアウトする。
-                        // assertFalse("セッションは消える", ctx.hasSession());
+                        if (!TestUtil.isJetty9()) {
+                            // nablarch-testing-jetty9ではLazySessionInvalidationFilterのため、このアサートはスキップする。
+                            assertFalse("セッションは消える", ctx.hasSession());
+                        }
 
                         ctx.setSessionScopedVar("loginid", "anonymous");
                         assertTrue("setSessionでは生成される。", ctx.hasSession());
@@ -53,8 +55,10 @@ public class ServletExecutionContextTest {
                         Assert.assertEquals(3, ctx.getRequestScopeMap().size());
 
                         ctx.invalidateSession();
-                        // nablarch-testing-jetty9ではLazySessionInvalidationFilterのため、このアサートはコメントアウトする。
-                        // assertFalse("セッションは消える", ctx.hasSession());
+                        if (!TestUtil.isJetty9()) {
+                            // nablarch-testing-jetty9ではLazySessionInvalidationFilterのため、このアサートはスキップする。
+                            assertFalse("セッションは消える", ctx.hasSession());
+                        }
                         Assert.assertEquals(0, ctx.getSessionScopeMap().size());
                         ctx.setSessionScopedVar("loginid", "0001");
                         Assert.assertEquals(1, ctx.getSessionScopeMap().size());

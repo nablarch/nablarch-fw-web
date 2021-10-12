@@ -75,9 +75,16 @@ public class HttpResponseHandlerCookieAddTest {
             String messages = StringUtil.toString(bytes, Charset.forName("UTF-8"));
             assertThat(messages, is(containsString("HTTP/1.1 200 OK")));
             assertThat(messages, is(containsString("cookie add test")));
-            assertThat(messages, is(containsString("Set-Cookie: Test1-Name=Test1-Value; Path=/cookie1")));
-            assertThat(messages, is(containsString("Set-Cookie: Test2-Name=Test2-Value; Path=/cookie2")));
-            assertThat(messages, is(containsString("Set-Cookie: Test3-Name=Test3-Value; Path=/cookie2")));
+
+            if (TestUtil.isJetty9()) {
+                assertThat(messages, is(containsString("Set-Cookie: Test1-Name=Test1-Value; Path=/cookie1")));
+                assertThat(messages, is(containsString("Set-Cookie: Test2-Name=Test2-Value; Path=/cookie2")));
+                assertThat(messages, is(containsString("Set-Cookie: Test3-Name=Test3-Value; Path=/cookie2")));
+            } else {
+                assertThat(messages, is(containsString("Set-Cookie: Test1-Name=Test1-Value;Path=/cookie1")));
+                assertThat(messages, is(containsString("Set-Cookie: Test2-Name=Test2-Value;Path=/cookie2")));
+                assertThat(messages, is(containsString("Set-Cookie: Test3-Name=Test3-Value;Path=/cookie2")));
+            }
         }};
     }
 
@@ -115,9 +122,16 @@ public class HttpResponseHandlerCookieAddTest {
             String messages = StringUtil.toString(bytes, Charset.forName("UTF-8"));
             assertThat(messages, is(containsString("HTTP/1.1 302 Found")));
             assertThat(messages, is(containsString("Location: http://127.0.0.1/dummy")));
-            assertThat(messages, is(containsString("Set-Cookie: Test1-Name=Test1-Value; Path=/cookie1")));
-            assertThat(messages, is(containsString("Set-Cookie: Test2-Name=Test2-Value; Path=/cookie2")));
-            assertThat(messages, is(containsString("Set-Cookie: Test3-Name=Test3-Value; Path=/cookie2")));
+
+            if (TestUtil.isJetty9()) {
+                assertThat(messages, is(containsString("Set-Cookie: Test1-Name=Test1-Value; Path=/cookie1")));
+                assertThat(messages, is(containsString("Set-Cookie: Test2-Name=Test2-Value; Path=/cookie2")));
+                assertThat(messages, is(containsString("Set-Cookie: Test3-Name=Test3-Value; Path=/cookie2")));
+            } else {
+                assertThat(messages, is(containsString("Set-Cookie: Test1-Name=Test1-Value;Path=/cookie1")));
+                assertThat(messages, is(containsString("Set-Cookie: Test2-Name=Test2-Value;Path=/cookie2")));
+                assertThat(messages, is(containsString("Set-Cookie: Test3-Name=Test3-Value;Path=/cookie2")));
+            }
         }};
     }
 }
