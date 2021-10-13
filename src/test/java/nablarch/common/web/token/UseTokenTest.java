@@ -90,7 +90,7 @@ public class UseTokenTest {
 
         HttpRequest request = new MockHttpRequest("GET /index HTTP/1.1");
 
-        httpServer.handle(request, null);
+        httpServer.handle(request, new ExecutionContext());
 
         assertTrue("Assertions is not called.", assertionCalled.get());
 

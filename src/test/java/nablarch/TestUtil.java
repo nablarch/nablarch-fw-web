@@ -39,4 +39,17 @@ public class TestUtil {
         }
         return factory.create();
     }
+
+    /**
+     * 現在テストで使用している Jetty のバージョンが 9 かどうかを確認する。
+     * @return Jetty のバージョンが 9 の場合は true
+     */
+    public static boolean isJetty9() {
+        try {
+            Class.forName("nablarch.fw.web.httpserver.HttpServerFactoryJetty9");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
 }

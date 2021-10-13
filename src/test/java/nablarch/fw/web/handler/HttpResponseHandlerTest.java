@@ -97,7 +97,7 @@ public class HttpResponseHandlerTest {
 
         OnMemoryLogWriter.clear();
 
-        HttpResponse res = server.handle(new MockHttpRequest(string()), null);
+        HttpResponse res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=runtime_exception.jsp HTTP/1.1
         ************************************************************/
@@ -108,7 +108,7 @@ public class HttpResponseHandlerTest {
 
         OnMemoryLogWriter.clear();
 
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=socket_exception.jsp HTTP/1.1
         ************************************************************/
@@ -171,7 +171,7 @@ public class HttpResponseHandlerTest {
         言語がjaの場合。(JSP)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=%2fi18n%2ejsp&lang=ja HTTP/1.1
         ************************************************************/
@@ -184,7 +184,7 @@ public class HttpResponseHandlerTest {
         言語がesの場合。(JSP、リクエストURIと同じ階層の相対パス)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=i18n%2ejsp&lang=es HTTP/1.1
         ************************************************************/
@@ -197,7 +197,7 @@ public class HttpResponseHandlerTest {
         言語がesの場合。(JSP、リクエストURIより下の階層の相対パス)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=aaa%2fbbb%2fi18n%2ejsp&lang=es HTTP/1.1
         ************************************************************/
@@ -210,7 +210,7 @@ public class HttpResponseHandlerTest {
         言語がenの場合。(JSP)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=%2fi18n%2ejsp&lang=en HTTP/1.1
         ************************************************************/
@@ -223,7 +223,7 @@ public class HttpResponseHandlerTest {
         デフォルトファイルしか存在しない場合(JSP)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=%2fi18n_default_only%2ejsp&lang=en HTTP/1.1
         ************************************************************/
@@ -236,7 +236,7 @@ public class HttpResponseHandlerTest {
         言語がjaの場合。(静的ファイル)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /i18n.css?lang=ja HTTP/1.1
         ************************************************************/
@@ -249,7 +249,7 @@ public class HttpResponseHandlerTest {
         言語がesの場合。(静的ファイル)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /i18n.css?lang=es HTTP/1.1
         ************************************************************/
@@ -262,7 +262,7 @@ public class HttpResponseHandlerTest {
         言語がenの場合。(静的ファイル)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /i18n.css?lang=en HTTP/1.1
         ************************************************************/
@@ -275,7 +275,7 @@ public class HttpResponseHandlerTest {
         拡張子がないパスの場合。(JSP)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /noextension.do?lang=ja HTTP/1.1
         ************************************************************/
@@ -336,7 +336,7 @@ public class HttpResponseHandlerTest {
         言語がjaの場合。(JSP)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=%2fi18n%2ejsp&lang=ja HTTP/1.1
         ************************************************************/
@@ -349,7 +349,7 @@ public class HttpResponseHandlerTest {
         言語がesの場合。(JSP、リクエストURIと同じ階層の相対パス)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=i18n%2ejsp&lang=es HTTP/1.1
         ************************************************************/
@@ -362,7 +362,7 @@ public class HttpResponseHandlerTest {
         言語がesの場合。(JSP、リクエストURIより下の階層の相対パス)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=aaa%2fbbb%2fi18n%2ejsp&lang=es HTTP/1.1
         ************************************************************/
@@ -375,7 +375,7 @@ public class HttpResponseHandlerTest {
         言語がenの場合。(JSP)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=%2fi18n%2ejsp&lang=en HTTP/1.1
         ************************************************************/
@@ -388,7 +388,7 @@ public class HttpResponseHandlerTest {
         デフォルトファイルしか存在しない場合(JSP)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=%2fi18n_default_only%2ejsp&lang=en HTTP/1.1
         ************************************************************/
@@ -401,7 +401,7 @@ public class HttpResponseHandlerTest {
         言語がjaの場合。(静的ファイル)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /i18n.css?lang=ja HTTP/1.1
         ************************************************************/
@@ -414,7 +414,7 @@ public class HttpResponseHandlerTest {
         言語がesの場合。(静的ファイル)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /i18n.css?lang=es HTTP/1.1
         ************************************************************/
@@ -427,7 +427,7 @@ public class HttpResponseHandlerTest {
         言語がenの場合。(静的ファイル)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /i18n.css?lang=en HTTP/1.1
         ************************************************************/
@@ -440,7 +440,7 @@ public class HttpResponseHandlerTest {
         拡張子がないパスの場合。(JSP)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /noextension.do?lang=ja HTTP/1.1
         ************************************************************/
@@ -500,7 +500,7 @@ public class HttpResponseHandlerTest {
         言語がjaの場合。(JSP)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=%2fi18n%2ejsp&lang=ja HTTP/1.1
         ************************************************************/
@@ -513,7 +513,7 @@ public class HttpResponseHandlerTest {
         言語がesの場合。(JSP、リクエストURIと同じ階層の相対パス)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=i18n%2ejsp&lang=es HTTP/1.1
         ************************************************************/
@@ -526,7 +526,7 @@ public class HttpResponseHandlerTest {
         言語がesの場合。(JSP、リクエストURIより下の階層の相対パス)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=aaa%2fbbb%2fi18n%2ejsp&lang=es HTTP/1.1
         ************************************************************/
@@ -539,7 +539,7 @@ public class HttpResponseHandlerTest {
         言語がenの場合。(JSP)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=%2fi18n%2ejsp&lang=en HTTP/1.1
         ************************************************************/
@@ -552,7 +552,7 @@ public class HttpResponseHandlerTest {
         デフォルトファイルしか存在しない場合(JSP)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do?path=%2fi18n_default_only%2ejsp&lang=en HTTP/1.1
         ************************************************************/
@@ -564,7 +564,7 @@ public class HttpResponseHandlerTest {
         /*---------------------------------------------------------------------
         言語がjaの場合。(静的ファイル)
         ---------------------------------------------------------------------*/
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /i18n.css?lang=ja HTTP/1.1
         ************************************************************/
@@ -577,7 +577,7 @@ public class HttpResponseHandlerTest {
         言語がesの場合。(静的ファイル)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /i18n.css?lang=es HTTP/1.1
         ************************************************************/
@@ -590,7 +590,7 @@ public class HttpResponseHandlerTest {
         言語がenの場合。(静的ファイル)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /i18n.css?lang=en HTTP/1.1
         ************************************************************/
@@ -603,7 +603,7 @@ public class HttpResponseHandlerTest {
         拡張子がないパスの場合。(JSP)
         ---------------------------------------------------------------------*/
         
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /noextension.do?lang=ja HTTP/1.1
         ************************************************************/
@@ -640,7 +640,11 @@ public class HttpResponseHandlerTest {
         ).readLine();
         assertThat(line.length(),is(BODY_SIZE));
         //明示的にContent-Typeを設定していない場合に、Content-Typeが自動設定されることを確認
-        assertEquals("text/plain;charset=UTF-8", res.getHeader("Content-Type"));
+        if (TestUtil.isJetty9()) {
+            assertEquals("text/plain;charset=utf-8", res.getHeader("Content-Type"));
+        } else {
+            assertEquals("text/plain;charset=UTF-8", res.getHeader("Content-Type"));
+        }
     }
 
     /**
@@ -676,7 +680,7 @@ public class HttpResponseHandlerTest {
         //------------------ Shift-JIS エンコーディング ------------- //
         HttpResponse res = server.handle(
                 new MockHttpRequest("GET /test1 HTTP/1.1")
-                , null
+                , new ExecutionContext()
         );
         
         String line = new BufferedReader(
@@ -688,7 +692,7 @@ public class HttpResponseHandlerTest {
         //------------------ UTF-8 エンコーディング ------------- //
         res = server.handle(
                 new MockHttpRequest("GET /test2 HTTP/1.1")
-                , null
+                , new ExecutionContext()
         );
         
         line = new BufferedReader(
@@ -701,7 +705,7 @@ public class HttpResponseHandlerTest {
         //--------------- デフォルトではUTF8を使用 ------------- //
         res = server.handle(
                 new MockHttpRequest("GET /test3 HTTP/1.1")
-                , null
+                , new ExecutionContext()
         );
         
         line = new BufferedReader(
@@ -728,7 +732,7 @@ public class HttpResponseHandlerTest {
         
         HttpResponse res = server.handle(
                 new MockHttpRequest("GET /test1 HTTP/1.1")
-                , null
+                , new ExecutionContext()
         );
         
         //HeaderにContent-Lengthが付与されていないこと。
@@ -753,7 +757,7 @@ public class HttpResponseHandlerTest {
         
         HttpResponse res = server.handle(
                 new MockHttpRequest("GET /test1 HTTP/1.1")
-                , null
+                , new ExecutionContext()
         );
         
         //HeaderにContent-Lengthが付与されていないこと。
@@ -780,7 +784,7 @@ public class HttpResponseHandlerTest {
         //------------------ writeのパターン ------------- //
         HttpResponse res = server.handle(
                 new MockHttpRequest("GET /test1 HTTP/1.1")
-                , null
+                , new ExecutionContext()
         );
         
         //HeaderにContent-Lengthが付与されていること
@@ -800,14 +804,14 @@ public class HttpResponseHandlerTest {
                     return new HttpResponse()
                             .setStatusCode(200)
                             .setContentType("text/plain;charset=shift-jis")
-                            .write(StringUtil.repeat("1234567890", 2458));
+                            .write(StringUtil.repeat("1234567890", 5458));
                 }
             }).startLocal();
         
         //------------------ writeのパターン ------------- //
         HttpResponse res = server.handle(
                 new MockHttpRequest("GET /test1 HTTP/1.1")
-                , null
+                , new ExecutionContext()
         );
         
         //サイズが大きい場合はチャンクドエンコーディングが付与されていること
@@ -831,9 +835,13 @@ public class HttpResponseHandlerTest {
 
         HttpResponse res = server.handle(
                 new MockHttpRequest("GET /test1 HTTP/1.1")
-                , null
+                , new ExecutionContext()
         );
-        assertEquals("text/plain;charset=UTF-8", res.getHeader("Content-Type"));
+        if (TestUtil.isJetty9()) {
+            assertEquals("text/plain;charset=utf-8", res.getHeader("Content-Type"));
+        } else {
+            assertEquals("text/plain;charset=UTF-8", res.getHeader("Content-Type"));
+        }
     }
 
     /**
@@ -852,7 +860,7 @@ public class HttpResponseHandlerTest {
 
         HttpResponse res = server.handle(
                 new MockHttpRequest("GET /test1 HTTP/1.1")
-                , null
+                , new ExecutionContext()
         );
         assertNull(res.getHeader("Content-Type"));
     }
@@ -900,7 +908,7 @@ public class HttpResponseHandlerTest {
         //--------- UAの指定がなければURLエンコーディングを使用 ------//
         
         HttpResponse res = server.handle(
-                new MockHttpRequest("GET /test1 HTTP/1.1"), null
+                new MockHttpRequest("GET /test1 HTTP/1.1"), new ExecutionContext()
         );
         
         String dispositionTemplate = "attachment; filename*=UTF-8''%1$s; filename=\"%2$s\"";
@@ -920,7 +928,7 @@ public class HttpResponseHandlerTest {
         res = server.handle(
                 new MockHttpRequest("GET /test1 HTTP/1.1").setHeaderMap(new HashMap() {{
                 put("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; ja; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 GTB7.1 ( .NET CLR 3.5.30729; .NET4.0C)");
-            }}), null
+            }}), new ExecutionContext()
         );
         disposition = String.format(
             dispositionTemplate
@@ -936,7 +944,7 @@ public class HttpResponseHandlerTest {
         res = server.handle(
                 new MockHttpRequest("GET /test1 HTTP/1.1").setHeaderMap(new HashMap() {{
                 put("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)");
-            }}), null
+            }}), new ExecutionContext()
         );
         disposition = String.format(
             dispositionTemplate
@@ -965,7 +973,7 @@ public class HttpResponseHandlerTest {
         res = server.handle(
                 new MockHttpRequest("GET /test1 HTTP/1.1").setHeaderMap(new HashMap() {{
                     put("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)");
-                }}), null
+                }}), new ExecutionContext()
         );
         assertEquals("filename=hoge", res.getContentDisposition());
     }
@@ -984,16 +992,21 @@ public class HttpResponseHandlerTest {
                 .startLocal();
 
         // 内部リソースへのリダイレクトの場合、jsessionidが付与されること。
-        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), null);
+        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), new ExecutionContext());
         assertThat("ステータスコードがリダイレクトであること。",
                 res.getStatusCode(), is(302));
         String jsessionid = getCookieValue(res.getHeader("Set-Cookie"), "JSESSIONID");
         assertThat("jsessionidが発行されていること。", jsessionid, is(notNullValue()));
-        assertThat("リダイレクト先URLにjsessionidが付与されていること。",
-                res.getLocation(), containsString("jsessionid=" + jsessionid));
+
+        if (!TestUtil.isJetty9()) {
+            // nablarch-testing-jetty9経由だとレスポンスのLocationヘッダにjsessionidが付与されてこないので、
+            // 以下のアサートはスキップ
+            assertThat("リダイレクト先URLにjsessionidが付与されていること。",
+                    res.getLocation(), containsString("jsessionid=" + jsessionid));
+        }
 
         // Cookieを使ってアクセス
-        res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1\r\nCookie: JSESSIONID=" + jsessionid + "\r\n\r\n"), null);
+        res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1\r\nCookie: JSESSIONID=" + jsessionid + "\r\n\r\n"), new ExecutionContext());
         assertThat("リダイレクト先URLにjsessionidが付与されていないこと。",
                    res.getLocation(), not(containsString("jsessionid")));
     }
@@ -1012,7 +1025,7 @@ public class HttpResponseHandlerTest {
                 })
                 .startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), null);
+        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), new ExecutionContext());
         assertThat("ステータスコードがリダイレクトであること。",
                 res.getStatusCode(), is(302));
         String jsessionid = getCookieValue(res.getHeader("Set-Cookie"), "JSESSIONID");
@@ -1037,7 +1050,7 @@ public class HttpResponseHandlerTest {
                 })
                 .startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), null);
+        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), new ExecutionContext());
         assertThat("ステータスコードが設定したステータスコード(303)であること", res.getStatusCode(), is(303));
         assertThat("ロケーションヘッダが設定されていること", res.getLocation(), is("/index.jsp"));
     }
@@ -1057,7 +1070,7 @@ public class HttpResponseHandlerTest {
                 })
                 .startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), null);
+        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), new ExecutionContext());
         assertThat("ステータスコードが設定したステータスコード(301)であること", res.getStatusCode(), is(301));
         assertThat("ロケーションヘッダが設定されていること", res.getLocation(), is("/index.jsp"));
     }
@@ -1077,7 +1090,7 @@ public class HttpResponseHandlerTest {
                 })
                 .startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), null);
+        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), new ExecutionContext());
         assertThat("ステータスコードが設定したステータスコード(307)であること", res.getStatusCode(), is(307));
         assertThat("ロケーションヘッダが設定されていること", res.getLocation(), is("/index.jsp"));
     }
@@ -1097,7 +1110,7 @@ public class HttpResponseHandlerTest {
                 })
                 .startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), null);
+        HttpResponse res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1"), new ExecutionContext());
         assertThat("ステータスコードは302に置き換わる", res.getStatusCode(), is(302));
         assertThat("ロケーションヘッダが設定されていること", res.getLocation(), containsString("/index.jsp"));
     }
@@ -1116,7 +1129,7 @@ public class HttpResponseHandlerTest {
                 })
                 .startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest("GET /status100 HTTP/1.1"), null);
+        HttpResponse res = server.handle(new MockHttpRequest("GET /status100 HTTP/1.1"), new ExecutionContext());
         assertThat("ステータスコードが設定したステータスコード(100)であること", res.getStatusCode(), is(100));
     }
 
@@ -1133,7 +1146,7 @@ public class HttpResponseHandlerTest {
 
         OnMemoryLogWriter.clear();
 
-        HttpResponse res = server.handle(new MockHttpRequest(string()), null);
+        HttpResponse res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do HTTP/1.1
         ************************************************************/
@@ -1163,7 +1176,7 @@ public class HttpResponseHandlerTest {
 
         OnMemoryLogWriter.clear();
 
-        HttpResponse res = server.handle(new MockHttpRequest(string()), null);
+        HttpResponse res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do HTTP/1.1
         ************************************************************/
@@ -1194,7 +1207,7 @@ public class HttpResponseHandlerTest {
 
         OnMemoryLogWriter.clear();
 
-        HttpResponse res = server.handle(new MockHttpRequest(string()), null);
+        HttpResponse res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************************
         GET /forward.do HTTP/1.1
         ************************************************************/
