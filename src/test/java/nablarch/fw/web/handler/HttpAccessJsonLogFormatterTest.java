@@ -25,7 +25,6 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThrows;
 
@@ -284,8 +283,6 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
                 withJsonPath("$", hasEntry("executionTime", 300)),
                 withJsonPath("$", hasEntry("maxMemory", 2088763392)),
                 withJsonPath("$", hasEntry("freeMemory", 1088763392)))));
-
-        assertThat(formatter.containsMemoryItem(), is(true));
     }
 
     /**
@@ -320,8 +317,6 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
                 withJsonPath("$.sessionScope", hasEntry("sparam3", "*****")),
                 withJsonPath("$", hasEntry("responseStatusCode", 404)),
                 withJsonPath("$", hasEntry("clientUserAgent", "test user agent")))));
-
-        assertThat(formatter.containsMemoryItem(), is(false));
     }
 
     /**
@@ -344,8 +339,6 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
             withoutJsonPath("$.statusCode"),
             withJsonPath("$", hasEntry("responseStatusCode", 200))
         )));
-
-        assertThat(formatter.containsMemoryItem(), is(false));
     }
 
     /**
@@ -407,8 +400,54 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
                 withJsonPath("$.*", hasSize(1)),
                 withJsonPath("$", hasEntry("label", "end-label"))
         )));
+    }
+
+    /**
+     * formatEnd のターゲットにメモリ関係の項目が指定されていない場合
+     * containsMemoryItemはfalseとなることをテスト。
+     */
+    @Test
+    public void testContainsMemoryItem_false_ifNoMemoryTargetsInFormatEnd() {
+        System.setProperty("httpAccessLogFormatter.beginTargets", "maxMemory,freeMemory");
+        System.setProperty("httpAccessLogFormatter.parametersTargets", "maxMemory,freeMemory");
+        System.setProperty("httpAccessLogFormatter.dispatchingClassTargets", "maxMemory,freeMemory");
+        System.setProperty("httpAccessLogFormatter.endTargets", "label");
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
 
         assertThat(formatter.containsMemoryItem(), is(false));
+    }
+
+    /**
+     * formatEnd のターゲットに maxMemory が設定されている場合は、
+     * containsMemoryItem に true が設定されていることをテスト。
+     */
+    @Test
+    public void testContainsMemoryItem_true_ifMaxMemoryExistsInFormatEnd() {
+        System.setProperty("httpAccessLogFormatter.beginTargets", "label");
+        System.setProperty("httpAccessLogFormatter.parametersTargets", "label");
+        System.setProperty("httpAccessLogFormatter.dispatchingClassTargets", "label");
+        System.setProperty("httpAccessLogFormatter.endTargets", "label,maxMemory");
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+
+        assertThat(formatter.containsMemoryItem(), is(true));
+    }
+
+    /**
+     * formatEnd のターゲットに freeMemory が設定されている場合は、
+     * containsMemoryItem に true が設定されていることをテスト。
+     */
+    @Test
+    public void testContainsMemoryItem_true_ifFreeMemoryExistsInFormatEnd() {
+        System.setProperty("httpAccessLogFormatter.beginTargets", "label");
+        System.setProperty("httpAccessLogFormatter.parametersTargets", "label");
+        System.setProperty("httpAccessLogFormatter.dispatchingClassTargets", "label");
+        System.setProperty("httpAccessLogFormatter.endTargets", "label,freeMemory");
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+
+        assertThat(formatter.containsMemoryItem(), is(true));
     }
 
     /**

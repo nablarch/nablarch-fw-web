@@ -158,6 +158,24 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
             String label = getProp(props, PROPS_END_LABEL, DEFAULT_END_LABEL);
             objectBuilders.put(TARGET_NAME_LABEL, new LabelBuilder(label));
             endStructuredTargets = getStructuredTargets(objectBuilders, props, PROPS_END_TARGETS, DEFAULT_END_TARGETS);
+
+            initContainsMemoryItem();
+        }
+    }
+
+    /**
+     * {@link #containsMemoryItem}の値を初期化する。
+     * <p>
+     * {@link #endStructuredTargets}に{@link MaxMemoryBuilder}か{@link FreeMemoryBuilder}の
+     * いずれかが設定されている場合は true を設定する。
+     * </p>
+     */
+    private void initContainsMemoryItem() {
+        for (JsonLogObjectBuilder<HttpAccessLogContext> target : endStructuredTargets) {
+            if (target instanceof MaxMemoryBuilder || target instanceof FreeMemoryBuilder) {
+                containsMemoryItem = true;
+                return;
+            }
         }
     }
 
@@ -227,12 +245,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
             if (!StringUtil.isNullOrEmpty(key) && !keys.contains(key)) {
                 keys.add(key);
                 if (objectBuilders.containsKey(key)) {
-                    JsonLogObjectBuilder<HttpAccessLogContext> objectBuilder = objectBuilders.get(key);
-                    if (objectBuilder instanceof MaxMemoryBuilder
-                        || objectBuilder instanceof FreeMemoryBuilder) {
-                        containsMemoryItem = true;
-                    }
-                    structuredTargets.add(objectBuilder);
+                    structuredTargets.add(objectBuilders.get(key));
                 } else {
                     throw new IllegalArgumentException(
                             String.format("[%s] is unknown target. property name = [%s]", key, targetsPropName));
