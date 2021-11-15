@@ -103,6 +103,26 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
     }
 
     /**
+     * {@link HttpAccessJsonLogFormatter#formatBegin}メソッドのテスト。
+     * <p>
+     * label の値を指定した場合。
+     * </p>
+     */
+    @Test
+    public void testFormatBeginWithLabelValue() {
+        System.setProperty("httpAccessLogFormatter.beginTargets", "label");
+        System.setProperty("httpAccessLogFormatter.beginLabel", "begin-label");
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        String message = formatter.formatBegin(createEmptyLogContext());
+        assertThat(message.startsWith("$JSON$"), is(true));
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
+                withJsonPath("$.*", hasSize(1)),
+                withJsonPath("$", hasEntry("label", "begin-label"))
+        )));
+    }
+
+    /**
      * {@link HttpAccessJsonLogFormatter#formatParameters}メソッドのテスト。
      */
     @Test
@@ -148,6 +168,26 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
     }
 
     /**
+     * {@link HttpAccessJsonLogFormatter#formatParameters}メソッドのテスト。
+     * <p>
+     * label の値を指定した場合。
+     * </p>
+     */
+    @Test
+    public void testFormatParametersWithLabelValue() {
+        System.setProperty("httpAccessLogFormatter.parametersTargets", "label");
+        System.setProperty("httpAccessLogFormatter.parametersLabel", "parameters-label");
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        String message = formatter.formatParameters(createEmptyLogContext());
+        assertThat(message.startsWith("$JSON$"), is(true));
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
+                withJsonPath("$.*", hasSize(1)),
+                withJsonPath("$", hasEntry("label", "parameters-label"))
+        )));
+    }
+
+    /**
      * {@link HttpAccessJsonLogFormatter#formatDispatchingClass}メソッドのテスト。
      */
     @Test
@@ -182,6 +222,26 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
         assertThat(message.substring("$JSON$".length()), isJson(allOf(
             withJsonPath("$.*", hasSize(1)),
             withJsonPath("$", hasEntry("dispatchingClass", "nablarch.common.web.handler.NormalHandler"))
+        )));
+    }
+
+    /**
+     * {@link HttpAccessJsonLogFormatter#formatDispatchingClass}メソッドのテスト。
+     * <p>
+     * label の値を指定した場合。
+     * </p>
+     */
+    @Test
+    public void testFormatDispatchingClassWithLabelValue() {
+        System.setProperty("httpAccessLogFormatter.dispatchingClassTargets", "label");
+        System.setProperty("httpAccessLogFormatter.dispatchingClassLabel", "dispatching-label");
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        String message = formatter.formatDispatchingClass(createEmptyLogContext());
+        assertThat(message.startsWith("$JSON$"), is(true));
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
+                withJsonPath("$.*", hasSize(1)),
+                withJsonPath("$", hasEntry("label", "dispatching-label"))
         )));
     }
 
@@ -327,6 +387,28 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
         });
 
         assertThat(e.getMessage(), is("[dummy] is unknown target. property name = [httpAccessLogFormatter.endTargets]"));
+    }
+
+    /**
+     * {@link HttpAccessJsonLogFormatter#formatEnd}メソッドのテスト。
+     * <p>
+     * label の値を指定した場合。
+     * </p>
+     */
+    @Test
+    public void testFormatEndWithLabelValue() {
+        System.setProperty("httpAccessLogFormatter.endTargets", "label");
+        System.setProperty("httpAccessLogFormatter.endLabel", "end-label");
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        String message = formatter.formatEnd(createEmptyLogContext());
+        assertThat(message.startsWith("$JSON$"), is(true));
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
+                withJsonPath("$.*", hasSize(1)),
+                withJsonPath("$", hasEntry("label", "end-label"))
+        )));
+
+        assertThat(formatter.containsMemoryItem(), is(false));
     }
 
     /**
