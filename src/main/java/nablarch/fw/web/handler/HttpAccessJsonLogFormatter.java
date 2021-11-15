@@ -304,7 +304,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
          * コンストラクタ。
          * @param label ラベル
          */
-        LabelBuilder(String label) {
+        public LabelBuilder(String label) {
             this.label = label;
         }
 
