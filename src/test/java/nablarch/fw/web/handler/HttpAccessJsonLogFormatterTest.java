@@ -148,6 +148,28 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
     }
 
     /**
+     * formatBegin を無効化すると初期化が行われないことをテスト。
+     */
+    @Test
+    public void testFormatBeginWhenDisabled() {
+        // urlなどが含まれるとコンテキストのモック化をしないと出力が有効でもNPEが発生して
+        // 判定が正しく行えなくなるので、出力を label だけに絞っている
+        System.setProperty("httpAccessLogFormatter.beginTargets", "label");
+        System.setProperty("httpAccessLogFormatter.beginOutputEnabled", "false");
+
+        final HttpAccessLogFormatter f = new HttpAccessJsonLogFormatter();
+        final HttpAccessLogFormatter.HttpAccessLogContext context = createEmptyLogContext();
+
+        // 初期化されていない状態でフォーマットを呼ぶと NPE が発生することを利用して確認する
+        assertThrows(NullPointerException.class, new ThrowingRunnable() {
+            @Override
+            public void run() {
+                f.formatBegin(context);
+            }
+        });
+    }
+
+    /**
      * {@link HttpAccessJsonLogFormatter#formatParameters}メソッドのテスト。
      * <p>
      * {@code targets} 指定ありの場合。
@@ -184,6 +206,25 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
                 withJsonPath("$.*", hasSize(1)),
                 withJsonPath("$", hasEntry("label", "parameters-label"))
         )));
+    }
+
+    /**
+     * formatParameters を無効化すると初期化が行われないことをテスト。
+     */
+    @Test
+    public void testFormatParametersWhenDisabled() {
+        System.setProperty("httpAccessLogFormatter.parametersOutputEnabled", "false");
+
+        final HttpAccessLogFormatter f = new HttpAccessJsonLogFormatter();
+        final HttpAccessLogFormatter.HttpAccessLogContext context = createEmptyLogContext();
+
+        // 初期化されていない状態でフォーマットを呼ぶと NPE が発生することを利用して確認する
+        assertThrows(NullPointerException.class, new ThrowingRunnable() {
+            @Override
+            public void run() {
+                f.formatParameters(context);
+            }
+        });
     }
 
     /**
@@ -242,6 +283,25 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
                 withJsonPath("$.*", hasSize(1)),
                 withJsonPath("$", hasEntry("label", "dispatching-label"))
         )));
+    }
+
+    /**
+     * formatDispatchingClass を無効化すると初期化が行われないことをテスト。
+     */
+    @Test
+    public void testFormatDispatchingClassWhenDisabled() {
+        System.setProperty("httpAccessLogFormatter.dispatchingClassOutputEnabled", "false");
+
+        final HttpAccessLogFormatter f = new HttpAccessJsonLogFormatter();
+        final HttpAccessLogFormatter.HttpAccessLogContext context = createEmptyLogContext();
+
+        // 初期化されていない状態でフォーマットを呼ぶと NPE が発生することを利用して確認する
+        assertThrows(NullPointerException.class, new ThrowingRunnable() {
+            @Override
+            public void run() {
+                f.formatDispatchingClass(context);
+            }
+        });
     }
 
     /**
@@ -400,6 +460,28 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
                 withJsonPath("$.*", hasSize(1)),
                 withJsonPath("$", hasEntry("label", "end-label"))
         )));
+    }
+
+    /**
+     * formatEnd を無効化すると初期化が行われないことをテスト。
+     */
+    @Test
+    public void testFormatEndWhenDisabled() {
+        // urlなどが含まれるとコンテキストのモック化をしないと出力が有効でもNPEが発生して
+        // 判定が正しく行えなくなるので、出力を label だけに絞っている
+        System.setProperty("httpAccessLogFormatter.endTargets", "label");
+        System.setProperty("httpAccessLogFormatter.endOutputEnabled", "false");
+
+        final HttpAccessLogFormatter f = new HttpAccessJsonLogFormatter();
+        final HttpAccessLogFormatter.HttpAccessLogContext context = createEmptyLogContext();
+
+        // 初期化されていない状態でフォーマットを呼ぶと NPE が発生することを利用して確認する
+        assertThrows(NullPointerException.class, new ThrowingRunnable() {
+            @Override
+            public void run() {
+                f.formatEnd(context);
+            }
+        });
     }
 
     /**
