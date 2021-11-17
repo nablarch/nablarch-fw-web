@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.nablarch.framework</groupId>
@@ -21,6 +21,11 @@
 
   <properties>
     <ecj.version>3.5.1</ecj.version>
+    <nablarch-testing-jetty.artifact>nablarch-testing-jetty6</nablarch-testing-jetty.artifact>
+    <javax-servlet.artifact>servlet-api</javax-servlet.artifact>
+    <javax-servlet.version>2.5</javax-servlet.version>
+    <env.resources>${project.basedir}/src/test/env/jetty6/resources</env.resources>
+    <env.additional-test-source>${project.basedir}/src/test/env/jetty6/java</env.additional-test-source>
   </properties>
 
   <profiles>
@@ -36,6 +41,58 @@
         <ecj.version>4.6.1</ecj.version>
         <junit.additionalArgLine>--add-modules java.activation,java.xml.bind</junit.additionalArgLine>
       </properties>
+    </profile>
+    <profile>
+      <id>java11</id>
+      <properties>
+        <ecj.version>4.6.1</ecj.version>
+        <nablarch-testing-jetty.artifact>nablarch-testing-jetty9</nablarch-testing-jetty.artifact>
+        <javax-servlet.artifact>javax.servlet-api</javax-servlet.artifact>
+        <javax-servlet.version>3.1.0</javax-servlet.version>
+        <env.resources>${project.basedir}/src/test/env/jetty9/resources</env.resources>
+        <env.additional-test-source>${project.basedir}/src/test/env/jetty9/java</env.additional-test-source>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>com.nablarch.dev</groupId>
+          <artifactId>nablarch-test-support</artifactId>
+          <scope>test</scope>
+          <exclusions>
+            <exclusion>
+              <groupId>org.mortbay.jetty</groupId>
+              <artifactId>jsp-api-2.1-glassfish</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+
+        <dependency>
+          <groupId>com.sun.activation</groupId>
+          <artifactId>javax.activation</artifactId>
+          <version>1.2.0</version>
+          <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+          <groupId>javax.xml.bind</groupId>
+          <artifactId>jaxb-api</artifactId>
+          <version>2.3.1</version>
+          <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+          <groupId>com.sun.xml.bind</groupId>
+          <artifactId>jaxb-impl</artifactId>
+          <version>2.3.1</version>
+          <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+          <groupId>com.sun.xml.bind</groupId>
+          <artifactId>jaxb-core</artifactId>
+          <version>2.3.0.1</version>
+          <scope>compile</scope>
+        </dependency>
+      </dependencies>
     </profile>
   </profiles>
 
@@ -81,8 +138,8 @@
 
     <dependency>
       <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.5</version>
+      <artifactId>${javax-servlet.artifact}</artifactId>
+      <version>${javax-servlet.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -103,7 +160,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <dependency>
       <groupId>org.eclipse.jdt.core.compiler</groupId>
       <artifactId>ecj</artifactId>
@@ -117,7 +174,7 @@
       <version>5.3.6.Final</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jmockit</groupId>
       <artifactId>jmockit</artifactId>
@@ -132,7 +189,7 @@
 
     <dependency>
       <groupId>com.nablarch.framework</groupId>
-      <artifactId>nablarch-testing-jetty6</artifactId>
+      <artifactId>${nablarch-testing-jetty.artifact}</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -160,8 +217,30 @@
         <directory>src/test/java</directory>
       </testResource>
       <testResource>
-        <directory>${project.basedir}/src/test/env/jetty6/resources</directory>
+        <directory>${env.resources}</directory>
       </testResource>
     </testResources>
+
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.12</version>
+        <executions>
+          <execution>
+            <id>add-test-source</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${env.additional-test-source}</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 </project>

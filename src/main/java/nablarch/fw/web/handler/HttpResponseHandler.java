@@ -460,7 +460,10 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
     private void setHeaders(HttpResponse            res,
                             ServletExecutionContext ctx) {
 
-        ctx.getServletResponse().setContentType(res.getContentType());
+        String contentType = res.getContentType();
+        if (contentType != null) {
+            ctx.getServletResponse().setContentType(contentType);
+        }
 
         for (Map.Entry<String, String> header : res.getHeaderMap().entrySet()) {
             String key = header.getKey();

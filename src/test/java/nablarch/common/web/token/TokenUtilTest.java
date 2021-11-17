@@ -33,7 +33,7 @@ public class TokenUtilTest {
             }
         }).startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest(), null);
+        HttpResponse res = server.handle(new MockHttpRequest(), new ExecutionContext());
         assertEquals(200, res.getStatusCode());
     }
 
@@ -48,7 +48,7 @@ public class TokenUtilTest {
             }
         }).startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest(), null);
+        HttpResponse res = server.handle(new MockHttpRequest(), new ExecutionContext());
         assertEquals(200, res.getStatusCode());
     }
 
@@ -64,7 +64,7 @@ public class TokenUtilTest {
             }
         }).startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest(), null);
+        HttpResponse res = server.handle(new MockHttpRequest(), new ExecutionContext());
         assertEquals(200, res.getStatusCode());
     }
 
@@ -81,7 +81,7 @@ public class TokenUtilTest {
             }
         }).startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest(), null);
+        HttpResponse res = server.handle(new MockHttpRequest(), new ExecutionContext());
         assertEquals(200, res.getStatusCode());
     }
 
@@ -100,7 +100,7 @@ public class TokenUtilTest {
             }
         }).startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest(), null);
+        HttpResponse res = server.handle(new MockHttpRequest(), new ExecutionContext());
         assertEquals(200, res.getStatusCode());
     }
 
@@ -117,7 +117,7 @@ public class TokenUtilTest {
             }
         }).startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest(), null);
+        HttpResponse res = server.handle(new MockHttpRequest(), new ExecutionContext());
         assertEquals(200, res.getStatusCode());
     }
 

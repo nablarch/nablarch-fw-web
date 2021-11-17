@@ -506,12 +506,7 @@ public class HttpRequestWrapperTest {
 
         new Expectations() {{
             nablarchHttpServletRequestWrapper.getInputStream();
-            result = new ServletInputStream() {
-                @Override
-                public int read() throws IOException {
-                    return 0;
-                }
-            };
+            result = new MockServletInputStream(new byte[] {0});
         }};
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
 

@@ -32,7 +32,11 @@ public class SimpleWebAppTest {
         ************************************/
 
         assertEquals(200, res.getStatusCode());
-        assertEquals("text/html; charset=utf-8", res.getContentType());
+        if (TestUtil.isJetty9()) {
+            assertEquals("text/html;charset=utf-8", res.getContentType());
+        } else {
+            assertEquals("text/html; charset=utf-8", res.getContentType());
+        }
         assertNull(res.getContentPath());
         assertThat(res.getBodyString().trim(), IgnoringLS.equals(Hereis.string().trim()));
             /****************************************

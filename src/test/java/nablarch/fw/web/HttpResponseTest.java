@@ -6,19 +6,29 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import nablarch.common.web.WebConfig;
+import nablarch.core.repository.ObjectLoader;
+import nablarch.core.repository.SystemRepository;
 import nablarch.core.util.Builder;
 import nablarch.test.support.tool.Hereis;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.http.Cookie;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class HttpResponseTest {
+
+    @Before
+    public void setUp() {
+        SystemRepository.clear();
+    }
 
     @Test
     public void testDefaultConstructorAndAccessorsWorkProperly() {
@@ -27,7 +37,7 @@ public class HttpResponseTest {
         assertEquals(200       , res.getStatusCode());
         assertEquals("OK"      , res.getReasonPhrase());
         assertEquals("HTTP/1.1", res.getHttpVersion());
-        assertEquals("text/plain;charset=UTF-8", res.getContentType());
+        assertNull(res.getContentType());
         assertEquals(Charset.forName("UTF-8"), res.getCharset());
         /**************************************
         HTTP/1.1 200 OK
@@ -45,6 +55,9 @@ public class HttpResponseTest {
         assertEquals(Charset.forName("sjis"), res.getCharset());
         
         res.setContentType("text/plain ; charset= \"utf-8\" ");
+        assertEquals(Charset.forName("utf-8"), res.getCharset());
+
+        res.setContentType(null);
         assertEquals(Charset.forName("utf-8"), res.getCharset());
     }
 
@@ -213,7 +226,7 @@ public class HttpResponseTest {
         ************************/
         assertEquals(200                       , res.getStatusCode());
         assertEquals("OK"                      , res.getReasonPhrase());
-        assertEquals("text/plain;charset=UTF-8", res.getContentType());
+        assertNull(res.getContentType());
         assertEquals("HTTP/1.1"                , res.getHttpVersion());
     
         res = HttpResponse.parse(Hereis.string());
@@ -311,9 +324,66 @@ public class HttpResponseTest {
     }
 
     @Test
-    public void testGetContentTypeSetContentTypeNull() {
+    public void testGetContentTypeAfterGetBodyStream() {
         HttpResponse res = new HttpResponse();
-        res.setHeader("Content-Type", null);
+        res.getBodyStream();
+        assertNull(res.getContentType());
+    }
+
+    @Test
+    public void testGetContentTypeAfterSetContentPath() {
+        HttpResponse res = new HttpResponse();
+        res.setContentPath("");
+        assertEquals("application/octet-stream",res.getContentType());
+    }
+
+    @Test
+    public void testGetContentTypeAfterSetBodyStream() {
+        HttpResponse res = new HttpResponse();
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("テスト".getBytes());
+        res.setBodyStream(inputStream);
+        assertEquals("text/plain;charset=UTF-8",res.getContentType());
+    }
+
+    @Test
+    public void testGetContentTypeAfterWrite() {
+        HttpResponse res = new HttpResponse();
+        byte[] expectedBytes = "Hello world!".getBytes();
+        res.write(expectedBytes);
+        assertEquals("text/plain;charset=UTF-8",res.getContentType());
+    }
+
+    @Test
+    public void testGetContentTypeNullAddDefaultContentTypeForNoBodyResponseDefault() {
+        HttpResponse res = new HttpResponse();
+        assertNull(res.getContentType());
+    }
+
+    @Test
+    public void testGetContentTypeExistBodyWithAddDefaultContentTypeForNoBodyResponseDefault() {
+        HttpResponse res = HttpResponse.parse(Hereis.string());
+        /***********************
+         HTTP/1.1 200 OK
+
+         Hello world!
+         ************************/
+        assertEquals("text/plain;charset=UTF-8", res.getContentType());
+    }
+
+    @Test
+    public void testGetContentTypeWithAddDefaultContentTypeForNoBodyResponseTrue() {
+        final WebConfig webConfig = new WebConfig();
+        webConfig.setAddDefaultContentTypeForNoBodyResponse(true);
+        SystemRepository.load(new ObjectLoader() {
+            @Override
+            public Map<String, Object> load() {
+                final Map<String, Object> result = new HashMap<String, Object>();
+                result.put("webConfig", webConfig);
+                return result;
+            }
+        });
+
+        HttpResponse res = new HttpResponse();
         assertEquals("text/plain;charset=UTF-8", res.getContentType());
     }
 

@@ -81,7 +81,7 @@ public class OnDoubleSubmissionTest {
             }
         }).startLocal();
 
-        server.handle(request, null);
+        server.handle(request, new ExecutionContext());
         assertEquals(1, asserted.size());
     }
 
@@ -121,7 +121,7 @@ public class OnDoubleSubmissionTest {
             }
         }).startLocal();
 
-        server.handle(request, null);
+        server.handle(request, new ExecutionContext());
         assertEquals(1, asserted.size());
     }
 
@@ -159,7 +159,7 @@ public class OnDoubleSubmissionTest {
         })
         .startLocal();
 
-        server.handle(request, null);
+        server.handle(request, new ExecutionContext());
         assertEquals(1, asserted.size());
     }
 
@@ -198,7 +198,7 @@ public class OnDoubleSubmissionTest {
         })
         .startLocal();
 
-        server.handle(request, null);
+        server.handle(request, new ExecutionContext());
         assertEquals(1, asserted.size());
     }
 
@@ -235,7 +235,7 @@ public class OnDoubleSubmissionTest {
         })
         .startLocal();
 
-        server.handle(request, null);
+        server.handle(request, new ExecutionContext());
         assertEquals(1, asserted.size());
     }
 }
