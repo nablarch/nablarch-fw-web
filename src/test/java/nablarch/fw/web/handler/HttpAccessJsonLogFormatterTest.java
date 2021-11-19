@@ -4,6 +4,10 @@ import nablarch.common.web.MockHttpSession;
 import nablarch.common.web.handler.NormalHandler;
 import nablarch.core.ThreadContext;
 import nablarch.core.log.LogTestSupport;
+import nablarch.core.text.json.BasicJsonSerializationManager;
+import nablarch.core.text.json.JsonSerializationManager;
+import nablarch.core.text.json.JsonSerializationSettings;
+import nablarch.core.text.json.JsonSerializer;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.servlet.MockServletRequest;
 import nablarch.fw.web.servlet.NablarchHttpServletRequestWrapper;
@@ -14,6 +18,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 
@@ -674,6 +680,43 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
         assertThat(message.substring("@JSON@".length()), isJson(allOf(
             withJsonPath("$", hasEntry("label", "BEGIN"))
         )));
+    }
+
+    /**
+     * {@code jsonSerializationManagerClassName}の指定ができることをテスト。
+     */
+    @Test
+    public void testJsonSerializationManagerClassName() {
+        System.setProperty("httpAccessLogFormatter.beginTargets", "label");
+        System.setProperty("httpAccessLogFormatter.jsonSerializationManagerClassName", MockJsonSerializationManager.class.getName());
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        String message = formatter.formatBegin(logContext);
+
+        assertThat(message, is("$JSON$mock serialization"));
+    }
+
+    public static class MockJsonSerializationManager extends BasicJsonSerializationManager {
+
+        @Override
+        public JsonSerializer getSerializer(Object value) {
+            return new JsonSerializer() {
+                @Override
+                public void serialize(Writer writer, Object value) throws IOException {
+                    writer.write("mock serialization");
+                }
+
+                @Override
+                public void initialize(JsonSerializationSettings settings) {
+                }
+
+                @Override
+                public boolean isTarget(Class<?> valueClass) {
+                    return true;
+                }
+            };
+        }
     }
 
     /**
