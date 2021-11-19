@@ -660,6 +660,23 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
     }
 
     /**
+     * {@code structuredMessagePrefix}の指定ができることをテスト。
+     */
+    @Test
+    public void testStructuredMessagePrefix() {
+        System.setProperty("httpAccessLogFormatter.beginTargets", "label");
+        System.setProperty("httpAccessLogFormatter.structuredMessagePrefix", "@JSON@");
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        String message = formatter.formatBegin(logContext);
+        assertThat(message.startsWith("@JSON@"), is(true));
+        assertThat(message.substring("@JSON@".length()), isJson(allOf(
+            withJsonPath("$", hasEntry("label", "BEGIN"))
+        )));
+    }
+
+    /**
      * テスト用に、個々の属性が設定されていない空のログコンテキストを生成する。
      * @return 空のログコンテキスト
      */
