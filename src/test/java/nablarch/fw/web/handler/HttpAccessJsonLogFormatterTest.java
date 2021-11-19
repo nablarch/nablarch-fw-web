@@ -173,6 +173,33 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
     }
 
     /**
+     * マスキングの文字を指定できることをテスト。
+     */
+    @Test
+    public void testMaskingChar() {
+        System.setProperty("httpAccessLogFormatter.maskingPatterns", "req_param2");
+        System.setProperty("httpAccessLogFormatter.maskingChar", "@");
+
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+        MockServletRequest servletReq = extractMockServletRequest(logContext);
+        servletReq.getParams().put("req_param2", new String[] {"req_param2_test"});
+        servletReq.getParams().put("req_param3", new String[] {"req_param3_test"});
+        servletReq.getParams().put("req_param1", new String[] {"req_param1_test"});
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        String message = formatter.formatParameters(logContext);
+        assertThat(message.startsWith("$JSON$"), is(true));
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
+                withJsonPath("$", hasEntry("label", "PARAMETERS")),
+                withJsonPath("$.parameters.req_param1", hasSize(1)),
+                withJsonPath("$.parameters.req_param1[0]", equalTo("req_param1_test")),
+                withJsonPath("$.parameters.req_param2", hasSize(1)),
+                withJsonPath("$.parameters.req_param2[0]", equalTo("@@@@@")),
+                withJsonPath("$.parameters.req_param3", hasSize(1)),
+                withJsonPath("$.parameters.req_param3[0]", equalTo("req_param3_test")))));
+    }
+
+    /**
      * formatBegin を無効化すると初期化が行われないことをテスト。
      */
     @Test
