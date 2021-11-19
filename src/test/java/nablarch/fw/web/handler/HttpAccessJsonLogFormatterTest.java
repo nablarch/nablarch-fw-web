@@ -104,6 +104,31 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
     /**
      * {@link HttpAccessJsonLogFormatter#formatBegin}メソッドのテスト。
      * <p>
+     * {@code datePattern} 指定ありの場合。
+     * </p>
+     */
+    @Test
+    public void testFormatBeginWithDatePattern() throws Exception {
+        System.setProperty("httpAccessLogFormatter.beginTargets", "startTime,endTime");
+        System.setProperty("httpAccessLogFormatter.datePattern", "yyyy/MM/dd HH:mm:ss");
+
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+        logContext.setStartTime(toMilliseconds("2021-11-19 11:22:33.444"));
+        logContext.setEndTime(toMilliseconds("2021-11-19 22:33:44.555"));
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        String message = formatter.formatBegin(logContext);
+        assertThat(message.startsWith("$JSON$"), is(true));
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
+            withJsonPath("$.*", hasSize(2)),
+            withJsonPath("$", hasEntry("startTime", "2021/11/19 11:22:33")),
+            withJsonPath("$", hasEntry("endTime", "2021/11/19 22:33:44"))
+        )));
+    }
+
+    /**
+     * {@link HttpAccessJsonLogFormatter#formatBegin}メソッドのテスト。
+     * <p>
      * label の値を指定した場合。
      * </p>
      */
@@ -189,6 +214,31 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
     }
 
     /**
+     * {@link HttpAccessJsonLogFormatter#formatParameters(HttpAccessLogFormatter.HttpAccessLogContext)}メソッドのテスト。
+     * <p>
+     * {@code datePattern} 指定ありの場合。
+     * </p>
+     */
+    @Test
+    public void testFormatParametersWithDatePattern() throws Exception {
+        System.setProperty("httpAccessLogFormatter.parametersTargets", "startTime,endTime");
+        System.setProperty("httpAccessLogFormatter.datePattern", "yyyy/MM/dd HH:mm:ss");
+
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+        logContext.setStartTime(toMilliseconds("2021-11-19 11:22:33.444"));
+        logContext.setEndTime(toMilliseconds("2021-11-19 22:33:44.555"));
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        String message = formatter.formatParameters(logContext);
+        assertThat(message.startsWith("$JSON$"), is(true));
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
+            withJsonPath("$.*", hasSize(2)),
+            withJsonPath("$", hasEntry("startTime", "2021/11/19 11:22:33")),
+            withJsonPath("$", hasEntry("endTime", "2021/11/19 22:33:44"))
+        )));
+    }
+
+    /**
      * {@link HttpAccessJsonLogFormatter#formatParameters}メソッドのテスト。
      * <p>
      * label の値を指定した場合。
@@ -262,6 +312,31 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
         assertThat(message.substring("$JSON$".length()), isJson(allOf(
             withJsonPath("$.*", hasSize(1)),
             withJsonPath("$", hasEntry("dispatchingClass", "nablarch.common.web.handler.NormalHandler"))
+        )));
+    }
+
+    /**
+     * {@link HttpAccessJsonLogFormatter#formatDispatchingClass(HttpAccessLogFormatter.HttpAccessLogContext)}メソッドのテスト。
+     * <p>
+     * {@code datePattern} 指定ありの場合。
+     * </p>
+     */
+    @Test
+    public void testFormatDispatchingClassWithDatePattern() throws Exception {
+        System.setProperty("httpAccessLogFormatter.dispatchingClassTargets", "startTime,endTime");
+        System.setProperty("httpAccessLogFormatter.datePattern", "yyyy/MM/dd HH:mm:ss");
+
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+        logContext.setStartTime(toMilliseconds("2021-11-19 11:22:33.444"));
+        logContext.setEndTime(toMilliseconds("2021-11-19 22:33:44.555"));
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        String message = formatter.formatDispatchingClass(logContext);
+        assertThat(message.startsWith("$JSON$"), is(true));
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
+            withJsonPath("$.*", hasSize(2)),
+            withJsonPath("$", hasEntry("startTime", "2021/11/19 11:22:33")),
+            withJsonPath("$", hasEntry("endTime", "2021/11/19 22:33:44"))
         )));
     }
 
@@ -377,6 +452,31 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
                 withJsonPath("$.sessionScope", hasEntry("sparam3", "*****")),
                 withJsonPath("$", hasEntry("responseStatusCode", 404)),
                 withJsonPath("$", hasEntry("clientUserAgent", "test user agent")))));
+    }
+
+    /**
+     * {@link HttpAccessJsonLogFormatter#formatEnd(HttpAccessLogFormatter.HttpAccessLogContext)}メソッドのテスト。
+     * <p>
+     * {@code datePattern} 指定ありの場合。
+     * </p>
+     */
+    @Test
+    public void testFormatEndWithoutDatePattern() throws Exception {
+        System.setProperty("httpAccessLogFormatter.endTargets", "startTime,endTime");
+        System.setProperty("httpAccessLogFormatter.datePattern", "yyyy/MM/dd HH:mm:ss");
+
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+        logContext.setStartTime(toMilliseconds("2021-11-19 11:22:33.444"));
+        logContext.setEndTime(toMilliseconds("2021-11-19 22:33:44.555"));
+
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        String message = formatter.formatEnd(logContext);
+        assertThat(message.startsWith("$JSON$"), is(true));
+        assertThat(message.substring("$JSON$".length()), isJson(allOf(
+            withJsonPath("$.*", hasSize(2)),
+            withJsonPath("$", hasEntry("startTime", "2021/11/19 11:22:33")),
+            withJsonPath("$", hasEntry("endTime", "2021/11/19 22:33:44"))
+        )));
     }
 
     /**
