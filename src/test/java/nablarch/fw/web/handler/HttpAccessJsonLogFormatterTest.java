@@ -688,10 +688,15 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
     @Test
     public void testJsonSerializationManagerClassName() {
         System.setProperty("httpAccessLogFormatter.beginTargets", "label");
-        System.setProperty("httpAccessLogFormatter.jsonSerializationManagerClassName", MockJsonSerializationManager.class.getName());
         HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
 
-        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter();
+        HttpAccessLogFormatter formatter = new HttpAccessJsonLogFormatter() {
+            @Override
+            protected JsonSerializationManager createSerializationManager(JsonSerializationSettings settings) {
+                assertThat(settings.getProp("beginTargets"), is("label"));
+                return new MockJsonSerializationManager();
+            }
+        };
         String message = formatter.formatBegin(logContext);
 
         assertThat(message, is("$JSON$mock serialization"));

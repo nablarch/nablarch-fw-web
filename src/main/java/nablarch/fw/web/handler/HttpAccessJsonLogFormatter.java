@@ -6,6 +6,8 @@ import nablarch.core.log.LogUtil.MaskingMapValueEditor;
 import nablarch.core.log.app.AppLogUtil;
 import nablarch.core.log.app.JsonLogFormatterSupport;
 import nablarch.core.log.basic.JsonLogObjectBuilder;
+import nablarch.core.text.json.BasicJsonSerializationManager;
+import nablarch.core.text.json.JsonSerializationManager;
 import nablarch.core.text.json.JsonSerializationSettings;
 import nablarch.core.util.StringUtil;
 
@@ -131,8 +133,9 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
     protected void initialize(Map<String, String> props) {
         initializeEnabled(props);
 
-        support = new JsonLogFormatterSupport(
-                new JsonSerializationSettings(props, PROPS_PREFIX, AppLogUtil.getFilePath()));
+        JsonSerializationSettings settings = new JsonSerializationSettings(props, PROPS_PREFIX, AppLogUtil.getFilePath());
+        JsonSerializationManager serializationManager = createSerializationManager(settings);
+        support = new JsonLogFormatterSupport(serializationManager, settings);
 
         Map<String, JsonLogObjectBuilder<HttpAccessLogContext>> objectBuilders = getObjectBuilders(props);
 
@@ -161,6 +164,15 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
 
             initContainsMemoryItem();
         }
+    }
+
+    /**
+     * 変換処理に使用する{@link JsonSerializationManager}を生成する。
+     * @param settings 各種ログ出力の設定情報
+     * @return {@link JsonSerializationManager}
+     */
+    protected JsonSerializationManager createSerializationManager(JsonSerializationSettings settings) {
+        return new BasicJsonSerializationManager();
     }
 
     /**
