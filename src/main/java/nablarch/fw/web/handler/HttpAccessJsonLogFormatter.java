@@ -101,13 +101,13 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
             + "statusCode,contentPath,startTime,endTime,executionTime,maxMemory,freeMemory";
 
     /** デフォルトのリクエスト処理開始時のラベル */
-    private static final String DEFAULT_BEGIN_LABEL = "BEGIN";
+    private static final String DEFAULT_BEGIN_LABEL = "HTTP ACCESS BEGIN";
     /** デフォルトのhiddenパラメータ復号後のラベル */
     private static final String DEFAULT_PARAMETERS_LABEL = "PARAMETERS";
     /** デフォルトのディスパッチ先クラス決定後のラベル */
     private static final String DEFAULT_DISPATCHING_CLASS_LABEL = "DISPATCHING CLASS";
     /** デフォルトのリクエスト処理終了時のラベル */
-    private static final String DEFAULT_END_LABEL = "END";
+    private static final String DEFAULT_END_LABEL = "HTTP ACCESS END";
 
     /** リクエスト処理開始時のフォーマット済みのログ出力項目 */
     private List<JsonLogObjectBuilder<HttpAccessLogContext>> beginStructuredTargets;

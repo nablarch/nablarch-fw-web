@@ -71,7 +71,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
         String message = formatter.formatBegin(logContext);
         assertThat(message.startsWith("$JSON$"), is(true));
         assertThat(message.substring("$JSON$".length()), isJson(allOf(
-                withJsonPath("$", hasEntry("label", "BEGIN")),
+                withJsonPath("$", hasEntry("label", "HTTP ACCESS BEGIN")),
                 withJsonPath("$", hasEntry("requestId", "request_id_test")),
                 withJsonPath("$", hasEntry("userId", "user_id_test")),
                 withJsonPath("$", hasEntry("sessionId", "session_id_test")),
@@ -102,7 +102,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
         assertThat(message.startsWith("$JSON$"), is(true));
         assertThat(message.substring("$JSON$".length()), isJson(allOf(
             withJsonPath("$.*", hasSize(2)),
-            withJsonPath("$", hasEntry("label", "BEGIN")),
+            withJsonPath("$", hasEntry("label", "HTTP ACCESS BEGIN")),
             withJsonPath("$", hasEntry("url", "request_url_test"))
         )));
     }
@@ -439,7 +439,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
         String message = formatter.formatEnd(logContext);
         assertThat(message.startsWith("$JSON$"), is(true));
         assertThat(message.substring("$JSON$".length()), isJson(allOf(
-                withJsonPath("$", hasEntry("label", "END")),
+                withJsonPath("$", hasEntry("label", "HTTP ACCESS END")),
                 withJsonPath("$", hasEntry("requestId", "request_id_test")),
                 withJsonPath("$", hasEntry("userId", "user_id_test")),
                 withJsonPath("$", hasEntry("sessionId", "session_id_test")),
@@ -678,7 +678,7 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
         String message = formatter.formatBegin(logContext);
         assertThat(message.startsWith("@JSON@"), is(true));
         assertThat(message.substring("@JSON@".length()), isJson(allOf(
-            withJsonPath("$", hasEntry("label", "BEGIN"))
+            withJsonPath("$", hasEntry("label", "HTTP ACCESS BEGIN"))
         )));
     }
 
