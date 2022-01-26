@@ -6,9 +6,11 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -335,6 +337,41 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
         assertThat(disposable1.isDisposed(), is(false));
         assertThat(disposable2.isDisposed(), is(false));
         assertThat(disposable3.isDisposed(), is(false));
+    }
+
+    /**
+     * 初期化成否を{@link NablarchServletContextListener#isInitializationCompleted()}で取得できること。
+     */
+    @Test
+    public void testInitializationCompleted() {
+        MockServletContext ctx = new MockServletContext();
+        ctx.getInitParams().put("di.config", "classpath:nablarch/fw/web/servlet/nablarch-servlet-context-duplication-test.xml");
+        ServletContextEvent ctxEvt = new ServletContextEvent(ctx);
+        ServletContextListener listener = new NablarchServletContextListener();
+
+        clear();
+        // 初期前はfalseになること
+        assertFalse(NablarchServletContextListener.isInitializationCompleted());
+
+        listener.contextInitialized(ctxEvt);
+
+        // 初期化に成功していること
+        assertTrue(NablarchServletContextListener.isInitializationCompleted());
+
+        ctx = new MockServletContext();
+        ctx.getInitParams().put("di.config", "classpath:nablarch/fw/web/servlet/nablarch-servlet-context-duplication-test.xml");
+        ctx.getInitParams().put("di.duplicate-definition-policy", "DENY");
+        ctxEvt = new ServletContextEvent(ctx);
+        listener = new NablarchServletContextListener();
+
+        clear();
+        try {
+            listener.contextInitialized(ctxEvt);
+            fail("設定値の上書き時の動作設定にDENYを指定した場合");
+        } catch (ConfigurationLoadException e) {
+            // 初期化失敗を検知できること
+            assertFalse(NablarchServletContextListener.isInitializationCompleted());
+        }
     }
 
     public static final class Book {
