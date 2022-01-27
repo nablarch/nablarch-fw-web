@@ -340,8 +340,7 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
     }
 
     /**
-     * 初期化成否を{@link NablarchServletContextListener#isInitializationCompleted()}で取得できること。
-     * 初期化に成功している場合
+     * 初期化に成功している場合は{@link NablarchServletContextListener#isInitializationCompleted()}でtrueが返却されること
      */
     @Test
     public void testInitializationCompleted_success() {
@@ -361,8 +360,7 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
     }
 
     /**
-     * 初期化成否を{@link NablarchServletContextListener#isInitializationCompleted()}で取得できること。
-     * 初期化に失敗している場合
+     * 初期化に失敗している場合は{@link NablarchServletContextListener#isInitializationCompleted()}でfalseが返却されること
      */
     @Test
     public void testInitializationCompleted_failure() {
