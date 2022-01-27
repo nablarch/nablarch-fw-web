@@ -341,9 +341,10 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
 
     /**
      * 初期化成否を{@link NablarchServletContextListener#isInitializationCompleted()}で取得できること。
+     * 初期化に成功している場合
      */
     @Test
-    public void testInitializationCompleted() {
+    public void testInitializationCompleted_success() {
         MockServletContext ctx = new MockServletContext();
         ctx.getInitParams().put("di.config", "classpath:nablarch/fw/web/servlet/nablarch-servlet-context-duplication-test.xml");
         ServletContextEvent ctxEvt = new ServletContextEvent(ctx);
@@ -357,17 +358,26 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
 
         // 初期化に成功していること
         assertTrue(NablarchServletContextListener.isInitializationCompleted());
+    }
 
-        ctx = new MockServletContext();
+    /**
+     * 初期化成否を{@link NablarchServletContextListener#isInitializationCompleted()}で取得できること。
+     * 初期化に失敗している場合
+     */
+    @Test
+    public void testInitializationCompleted_failure() {
+        MockServletContext ctx = new MockServletContext();
         ctx.getInitParams().put("di.config", "classpath:nablarch/fw/web/servlet/nablarch-servlet-context-duplication-test.xml");
         ctx.getInitParams().put("di.duplicate-definition-policy", "DENY");
-        ctxEvt = new ServletContextEvent(ctx);
-        listener = new NablarchServletContextListener();
+        ServletContextEvent ctxEvt = new ServletContextEvent(ctx);
+        ServletContextListener listener = new NablarchServletContextListener();
 
         clear();
+        // 初期前はfalseになること
+        assertFalse(NablarchServletContextListener.isInitializationCompleted());
         try {
             listener.contextInitialized(ctxEvt);
-            fail("設定値の上書き時の動作設定にDENYを指定した場合");
+            fail("初期化に失敗するはず");
         } catch (ConfigurationLoadException e) {
             // 初期化失敗を検知できること
             assertFalse(NablarchServletContextListener.isInitializationCompleted());
