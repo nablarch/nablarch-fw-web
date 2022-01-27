@@ -16,6 +16,7 @@ import nablarch.core.repository.di.DiContainer;
 import nablarch.core.repository.di.config.DuplicateDefinitionPolicy;
 import nablarch.core.repository.di.config.xml.XmlComponentDefinitionLoader;
 import nablarch.core.repository.disposal.ApplicationDisposer;
+import nablarch.core.util.annotation.Published;
 import nablarch.fw.web.handler.HttpAccessLogUtil;
 
 import java.util.HashMap;
@@ -87,6 +88,7 @@ public class NablarchServletContextListener implements ServletContextListener {
      * 
      * @return 初期化に成功した場合true
      */
+    @Published(tag = "architect")
     public static boolean isInitializationCompleted(){
         return SystemRepository.getObject(INITIALIZATION_COMPLETED_KEY) != null;
     }
