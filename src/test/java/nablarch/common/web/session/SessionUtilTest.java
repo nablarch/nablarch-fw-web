@@ -181,4 +181,18 @@ public class SessionUtilTest {
         SessionEntry test = ctx.getRequestScopedVar("test");
         assertThat((String) test.getValue(), is("AAAAA"));
     }
+
+    @Test
+    public void testChangeId() {
+        SessionUtil.put(ctx, "foo", "FOO");
+        SessionUtil.put(ctx, "bar", "BAR");
+
+        SessionUtil.changeId(ctx);
+
+        // invalidate のマークは設定されているが、セッションストアの値がそのまま維持されていること
+        assertThat(SessionUtil.<String>get(ctx, "foo"), is("FOO"));
+        assertThat(SessionUtil.<String>get(ctx, "bar"), is("BAR"));
+
+        assertThat((Boolean) ctx.getSessionStoredVar(SessionStoreHandler.IS_INVALIDATED_KEY), is(Boolean.TRUE));
+    }
 }
