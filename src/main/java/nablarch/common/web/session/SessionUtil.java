@@ -4,6 +4,9 @@ import nablarch.core.repository.SystemRepository;
 import nablarch.core.util.annotation.Published;
 import nablarch.fw.ExecutionContext;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * セッションに関するユーティリティ。
  * <p/>
@@ -226,5 +229,19 @@ public final class SessionUtil {
             delete(ctx, key);
         }
         ctx.setSessionStoredVar(SessionStoreHandler.IS_INVALIDATED_KEY, Boolean.TRUE);
+    }
+
+    /**
+     * セッションIDを変更する。
+     * <p>
+     * このメソッドを実行すると、セッションIDだけが変更され
+     * セッションに保存した情報は維持される。
+     * </p>
+     * @param ctx 実行コンテキスト
+     */
+    public static void changeId(ExecutionContext ctx) {
+        Map<String, Object> temp = new HashMap<String, Object>(ctx.getSessionStoreMap());
+        invalidate(ctx);
+        ctx.getSessionStoreMap().putAll(temp);
     }
 }
