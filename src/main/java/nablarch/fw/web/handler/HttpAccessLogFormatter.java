@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import nablarch.common.web.session.InternalSessionUtil;
 import nablarch.core.ThreadContext;
 import nablarch.core.log.DateItemSupport;
 import nablarch.core.log.LogItem;
@@ -241,6 +242,7 @@ public class HttpAccessLogFormatter {
                                                             getSeparator(props, PROPS_SESSION_SCOPE_SEPARATOR, DEFAULT_SESSION_SCOPE_SEPARATOR)));
         logItems.put("$dispatchingClass$", new DispatchingClassItem());
         logItems.put("$sessionId$", new SessionIdItem());
+        logItems.put("$sessionStoreId$", new SessionStoreIdItem());
         logItems.put("$statusCode$", new StatusCodeItem());
         logItems.put("$responseStatusCode$", new ResponseStatusCodeItem());
 
@@ -805,6 +807,20 @@ public class HttpAccessLogFormatter {
          */
         public String get(HttpAccessLogContext context) {
             return context.getSessionId();
+        }
+    }
+    /**
+     * セッションストアIDを取得するクラス。
+     * @author Tanaka Tomoyuki
+     */
+    public static class SessionStoreIdItem implements LogItem<HttpAccessLogContext> {
+        /**
+         * セッションストアIDを取得する。
+         * @param context HttpAccessLogContext
+         * @return セッションストアID
+         */
+        public String get(HttpAccessLogContext context) {
+            return InternalSessionUtil.getId(context.getContext());
         }
     }
     /**

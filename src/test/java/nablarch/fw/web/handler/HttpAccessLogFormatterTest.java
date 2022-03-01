@@ -1,9 +1,9 @@
 package nablarch.fw.web.handler;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -16,13 +16,16 @@ import javax.servlet.http.HttpSession;
 
 import nablarch.common.web.MockHttpSession;
 import nablarch.common.web.handler.NormalHandler;
+import nablarch.common.web.session.InternalSessionUtil;
 import nablarch.core.log.LogTestSupport;
 import nablarch.core.log.LogTestUtil;
 import nablarch.core.log.Logger;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.handler.HttpAccessLogFormatter.HttpAccessLogContext;
+import nablarch.fw.web.servlet.MockServletExecutionContext;
 import nablarch.fw.web.servlet.MockServletRequest;
 import nablarch.fw.web.servlet.ServletExecutionContext;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
 public class HttpAccessLogFormatterTest extends LogTestSupport {
@@ -358,5 +361,59 @@ public class HttpAccessLogFormatterTest extends LogTestSupport {
         assertFalse(formatter.isParametersOutputEnabled());
         assertFalse(formatter.isDispatchingClassOutputEnabled());
         assertFalse(formatter.isEndOutputEnabled());
+    }
+
+    /**
+     * セッションストアIDが保存されている場合の出力確認。
+     */
+    @Test
+    public void testSessionStoreIdWhenIdIsSaved() {
+        System.setProperty("httpAccessLogFormatter.beginFormat", "begin sessionStoreId = $sessionStoreId$");
+        System.setProperty("httpAccessLogFormatter.parametersFormat", "parameter sessionStoreId = $sessionStoreId$");
+        System.setProperty("httpAccessLogFormatter.dispatchingClassFormat", "dispatching sessionStoreId = $sessionStoreId$");
+        System.setProperty("httpAccessLogFormatter.endFormat", "end sessionStoreId = $sessionStoreId$");
+
+        HttpAccessLogFormatter sut = new HttpAccessLogFormatter();
+        MockServletExecutionContext executionContext = new MockServletExecutionContext();
+
+        String sessionStoreId = "test-session-store-id";
+        InternalSessionUtil.setId(executionContext, sessionStoreId);
+
+        HttpAccessLogContext logContext = new HttpAccessLogContext();
+        logContext.setContext(executionContext);
+
+        assertThat(sut.formatBegin(logContext),
+                is("begin sessionStoreId = " + sessionStoreId));
+        assertThat(sut.formatParameters(logContext),
+                is("parameter sessionStoreId = " + sessionStoreId));
+        assertThat(sut.formatDispatchingClass(logContext),
+                is("dispatching sessionStoreId = " + sessionStoreId));
+        assertThat(sut.formatEnd(logContext),
+                is("end sessionStoreId = " + sessionStoreId));
+    }
+
+    /**
+     * セッションストアIDが保存されていない場合の出力確認。
+     */
+    @Test
+    public void testSessionStoreIdWhenIdIsNotSaved() {
+        System.setProperty("httpAccessLogFormatter.beginFormat", "begin sessionStoreId = $sessionStoreId$");
+        System.setProperty("httpAccessLogFormatter.parametersFormat", "parameter sessionStoreId = $sessionStoreId$");
+        System.setProperty("httpAccessLogFormatter.dispatchingClassFormat", "dispatching sessionStoreId = $sessionStoreId$");
+        System.setProperty("httpAccessLogFormatter.endFormat", "end sessionStoreId = $sessionStoreId$");
+
+        HttpAccessLogFormatter sut = new HttpAccessLogFormatter();
+
+        HttpAccessLogContext logContext = new HttpAccessLogContext();
+        logContext.setContext(new MockServletExecutionContext());
+
+        assertThat(sut.formatBegin(logContext),
+                is("begin sessionStoreId = null"));
+        assertThat(sut.formatParameters(logContext),
+                is("parameter sessionStoreId = null"));
+        assertThat(sut.formatDispatchingClass(logContext),
+                is("dispatching sessionStoreId = null"));
+        assertThat(sut.formatEnd(logContext),
+                is("end sessionStoreId = null"));
     }
 }

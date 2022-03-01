@@ -2,6 +2,7 @@ package nablarch.fw.web.handler;
 
 import nablarch.common.web.MockHttpSession;
 import nablarch.common.web.handler.NormalHandler;
+import nablarch.common.web.session.InternalSessionUtil;
 import nablarch.core.ThreadContext;
 import nablarch.core.log.LogTestSupport;
 import nablarch.core.text.json.BasicJsonSerializationManager;
@@ -700,6 +701,76 @@ public class HttpAccessJsonLogFormatterTest extends LogTestSupport {
         String message = formatter.formatBegin(logContext);
 
         assertThat(message, is("$JSON$mock serialization"));
+    }
+
+    /**
+     * セッションストアIDが保存されている場合の、sessionStoreIdの出力確認。
+     */
+    @Test
+    public void testSessionStoreIdWhenIdIsSaved() {
+        System.setProperty("httpAccessLogFormatter.beginTargets", "label,sessionStoreId");
+        System.setProperty("httpAccessLogFormatter.parametersTargets", "label,sessionStoreId");
+        System.setProperty("httpAccessLogFormatter.dispatchingClassTargets", "label,sessionStoreId");
+        System.setProperty("httpAccessLogFormatter.endTargets", "label,sessionStoreId");
+
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+        String sessionStoreId = "test-session-store-id";
+        InternalSessionUtil.setId(logContext.getContext(), sessionStoreId);
+
+        HttpAccessJsonLogFormatter sut = new HttpAccessJsonLogFormatter();
+
+        assertThat(sut.formatBegin(logContext).substring("$JSON$".length()), isJson(allOf(
+                withJsonPath("$.*", hasSize(2)),
+                withJsonPath("$", hasEntry("label", "HTTP ACCESS BEGIN")),
+                withJsonPath("$", hasEntry("sessionStoreId", sessionStoreId))
+        )));
+        assertThat(sut.formatParameters(logContext).substring("$JSON$".length()), isJson(allOf(
+                withJsonPath("$.*", hasSize(2)),
+                withJsonPath("$", hasEntry("label", "PARAMETERS")),
+                withJsonPath("$", hasEntry("sessionStoreId", sessionStoreId))
+        )));
+        assertThat(sut.formatDispatchingClass(logContext).substring("$JSON$".length()), isJson(allOf(
+                withJsonPath("$.*", hasSize(2)),
+                withJsonPath("$", hasEntry("label", "DISPATCHING CLASS")),
+                withJsonPath("$", hasEntry("sessionStoreId", sessionStoreId))
+        )));
+        assertThat(sut.formatEnd(logContext).substring("$JSON$".length()), isJson(allOf(
+                withJsonPath("$.*", hasSize(2)),
+                withJsonPath("$", hasEntry("label", "HTTP ACCESS END")),
+                withJsonPath("$", hasEntry("sessionStoreId", sessionStoreId))
+        )));
+    }
+
+    /**
+     * セッションストアIDが保存されていない場合の、sessionStoreIdの出力確認。
+     */
+    @Test
+    public void testSessionStoreIdWhenIdIsNotSaved() {
+        System.setProperty("httpAccessLogFormatter.beginTargets", "label,sessionStoreId");
+        System.setProperty("httpAccessLogFormatter.parametersTargets", "label,sessionStoreId");
+        System.setProperty("httpAccessLogFormatter.dispatchingClassTargets", "label,sessionStoreId");
+        System.setProperty("httpAccessLogFormatter.endTargets", "label,sessionStoreId");
+
+        HttpAccessLogFormatter.HttpAccessLogContext logContext = createEmptyLogContext();
+
+        HttpAccessJsonLogFormatter sut = new HttpAccessJsonLogFormatter();
+
+        assertThat(sut.formatBegin(logContext).substring("$JSON$".length()), isJson(allOf(
+                withJsonPath("$.*", hasSize(1)),
+                withJsonPath("$", hasEntry("label", "HTTP ACCESS BEGIN"))
+        )));
+        assertThat(sut.formatParameters(logContext).substring("$JSON$".length()), isJson(allOf(
+                withJsonPath("$.*", hasSize(1)),
+                withJsonPath("$", hasEntry("label", "PARAMETERS"))
+        )));
+        assertThat(sut.formatDispatchingClass(logContext).substring("$JSON$".length()), isJson(allOf(
+                withJsonPath("$.*", hasSize(1)),
+                withJsonPath("$", hasEntry("label", "DISPATCHING CLASS"))
+        )));
+        assertThat(sut.formatEnd(logContext).substring("$JSON$".length()), isJson(allOf(
+                withJsonPath("$.*", hasSize(1)),
+                withJsonPath("$", hasEntry("label", "HTTP ACCESS END"))
+        )));
     }
 
     public static class MockJsonSerializationManager extends BasicJsonSerializationManager {

@@ -95,6 +95,8 @@ public class SessionStoreHandler implements Handler<Object, Object> {
         final ServletExecutionContext servletContext = (ServletExecutionContext) context;
         final String sessionId = readId(servletContext, current);
         if (sessionId != null) {
+            InternalSessionUtil.setId(context, sessionId);
+
             session = sessionManager.create(context);
             try {
                 session.load(sessionId);

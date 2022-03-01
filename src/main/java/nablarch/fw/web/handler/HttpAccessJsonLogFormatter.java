@@ -1,5 +1,6 @@
 package nablarch.fw.web.handler;
 
+import nablarch.common.web.session.InternalSessionUtil;
 import nablarch.core.ThreadContext;
 import nablarch.core.log.LogUtil.MapValueEditor;
 import nablarch.core.log.LogUtil.MaskingMapValueEditor;
@@ -50,6 +51,8 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
     private static final String TARGET_NAME_DISPATCHING_CLASS = "dispatchingClass";
     /** セッションIDの項目名 */
     private static final String TARGET_NAME_SESSION_ID = "sessionId";
+    /** セッションストアIDの項目名 */
+    private static final String TARGET_NAME_SESSION_STORE_ID = "sessionStoreId";
     /** ステータスコードの項目名 */
     private static final String TARGET_NAME_STATUS_CODE = "statusCode";
     /** クライアントへのレスポンスに使用するステータスコードの項目名 */
@@ -217,6 +220,7 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         objectBuilders.put(TARGET_NAME_SESSION_SCOPE, new SessionScopeBuilder(mapValueEditor));
         objectBuilders.put(TARGET_NAME_DISPATCHING_CLASS, new DispatchingClassBuilder());
         objectBuilders.put(TARGET_NAME_SESSION_ID, new SessionIdBuilder());
+        objectBuilders.put(TARGET_NAME_SESSION_STORE_ID, new SessionStoreIdBuilder());
         objectBuilders.put(TARGET_NAME_STATUS_CODE, new StatusCodeBuilder());
         objectBuilders.put(TARGET_NAME_RESPONSE_STATUS_CODE, new ResponseStatusCodeBuilder());
 
@@ -526,6 +530,21 @@ public class HttpAccessJsonLogFormatter extends HttpAccessLogFormatter {
         @Override
         public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
             structuredObject.put(TARGET_NAME_SESSION_ID, context.getSessionId());
+        }
+    }
+
+    /**
+     * セッションストアIDを処理するクラス。
+     * @author Tanaka Tomoyuki
+     */
+    public static class SessionStoreIdBuilder implements JsonLogObjectBuilder<HttpAccessLogContext> {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void build(Map<String, Object> structuredObject, HttpAccessLogContext context) {
+            structuredObject.put(TARGET_NAME_SESSION_STORE_ID, InternalSessionUtil.getId(context.getContext()));
         }
     }
 

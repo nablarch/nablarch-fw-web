@@ -1,19 +1,5 @@
 package nablarch.common.web.session;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import mockit.Capturing;
 import mockit.Mocked;
 import mockit.Verifications;
@@ -28,11 +14,24 @@ import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.servlet.HttpRequestWrapper;
 import nablarch.fw.web.servlet.NablarchHttpServletRequestWrapper;
 import nablarch.fw.web.servlet.ServletExecutionContext;
-
 import nablarch.test.FixedSystemTimeProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 /**
  * @author kawasima
@@ -163,5 +162,45 @@ public class SessionStoreHandlerTest {
                 httpResponse.addCookie(cookie); times = 0;
             }
         };
+    }
+
+    @Test
+    public void testSaveSessionStoreIdWhenIdIsAvailable() {
+        SessionStoreHandler handler = SystemRepository.get("sessionStoreHandler");
+        String sessionStoreId = "test-session-store-id";
+
+        httpRequest = new MockHttpServletRequest()
+                .setCookies(new Cookie[]{ new Cookie("SESSION_TRACKING_ID", sessionStoreId)})
+                .getMockInstance();
+
+        ExecutionContext context = new ServletExecutionContext(httpRequest, httpResponse, servletContext)
+                .addHandler(new NoopHandler());
+        context.setSessionScopedVar("nablarch_sessionStore_expiration_date", System.currentTimeMillis());
+
+        handler.handle(null, context);
+
+        assertThat(InternalSessionUtil.getId(context), is(sessionStoreId));
+    }
+
+    @Test
+    public void testSaveSessionStoreIdWhenIdIsUnavailable() {
+        SessionStoreHandler handler = SystemRepository.get("sessionStoreHandler");
+
+        ExecutionContext context = new ServletExecutionContext(httpRequest, httpResponse, servletContext)
+                .addHandler(new NoopHandler());
+
+        handler.handle(null, context);
+
+        assertThat(InternalSessionUtil.getId(context), is(nullValue()));
+    }
+
+    /**
+     * 何も処理をしないハンドラ。
+     */
+    private static class NoopHandler implements Handler<Object, Object> {
+        @Override
+        public Object handle(Object o, ExecutionContext context) {
+            return null;
+        }
     }
 }
