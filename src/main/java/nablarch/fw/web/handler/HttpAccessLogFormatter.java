@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import nablarch.common.web.session.InternalSessionUtil;
 import nablarch.core.ThreadContext;
 import nablarch.core.log.DateItemSupport;
 import nablarch.core.log.LogItem;
@@ -158,28 +159,47 @@ public class HttpAccessLogFormatter {
      * フォーマット済みのログ出力項目を初期化する。
      */
     public HttpAccessLogFormatter() {
+        initialize(AppLogUtil.getProps());
+    }
 
-        Map<String, String> props = AppLogUtil.getProps();
+    /**
+     * 初期化。
+     * @param props 各種ログ出力の設定情報
+     */
+    protected void initialize(Map<String, String> props) {
+        initializeEnabled(props);
+        initializeLogItems(props);
+    }
+
+    /**
+     * 各ログ出力が有効か否かを初期化する。
+     * @param props 各種ログ出力の設定情報
+     */
+    protected void initializeEnabled(Map<String, String> props) {
+        beginOutputEnabled = Boolean.parseBoolean(getProp(props, PROPS_BEGIN_OUTPUT_ENABLED, DEFAULT_BEGIN_OUTPUT_ENABLED));
+        parametersOutputEnabled = Boolean.parseBoolean(getProp(props, PROPS_PARAMETERS_OUTPUT_ENABLED, DEFAULT_PARAMETERS_OUTPUT_ENABLED));
+        dispatchingClassOutputEnabled = Boolean.parseBoolean(getProp(props, PROPS_DISPATCHING_CLASS_OUTPUT_ENABLED, DEFAULT_DISPATCHING_CLASS_OUTPUT_ENABLED));
+        endOutputEnabled = Boolean.parseBoolean(getProp(props, PROPS_END_OUTPUT_ENABLED, DEFAULT_END_OUTPUT_ENABLED));
+    }
+
+    /**
+     * フォーマット済みのログ出力項目を初期化する。
+     * @param props 各種ログ出力の設定情報
+     */
+    protected void initializeLogItems(Map<String, String> props) {
         Map<String, LogItem<HttpAccessLogContext>> logItems = getLogItems(props);
 
-        beginOutputEnabled = Boolean.valueOf(getProp(props, PROPS_BEGIN_OUTPUT_ENABLED, DEFAULT_BEGIN_OUTPUT_ENABLED));
-        if (beginOutputEnabled) {
+        if (isBeginOutputEnabled()) {
             beginLogItems = LogUtil.createFormattedLogItems(logItems, getProp(props, PROPS_BEGIN_FORMAT, DEFAULT_BEGIN_FORMAT));
         }
-
-        parametersOutputEnabled = Boolean.valueOf(getProp(props, PROPS_PARAMETERS_OUTPUT_ENABLED, DEFAULT_PARAMETERS_OUTPUT_ENABLED));
-        if (parametersOutputEnabled) {
+        if (isParametersOutputEnabled()) {
             parametersLogItems = LogUtil.createFormattedLogItems(logItems, getProp(props, PROPS_PARAMETERS_FORMAT, DEFAULT_PARAMETERS_FORMAT));
         }
-
-        dispatchingClassOutputEnabled = Boolean.valueOf(getProp(props, PROPS_DISPATCHING_CLASS_OUTPUT_ENABLED, DEFAULT_DISPATCHING_CLASS_OUTPUT_ENABLED));
-        if (dispatchingClassOutputEnabled) {
+        if (isDispatchingClassOutputEnabled()) {
             dispatchingClassLogItems = LogUtil.createFormattedLogItems(
                     logItems, getProp(props, PROPS_DISPATCHING_CLASS_FORMAT, DEFAULT_DISPATCHING_CLASS_FORMAT));
         }
-
-        endOutputEnabled = Boolean.valueOf(getProp(props, PROPS_END_OUTPUT_ENABLED, DEFAULT_END_OUTPUT_ENABLED));
-        if (endOutputEnabled) {
+        if (isEndOutputEnabled()) {
             endLogItems = LogUtil.createFormattedLogItems(logItems, getProp(props, PROPS_END_FORMAT, DEFAULT_END_FORMAT));
             containsMemoryItem = LogUtil.contains(endLogItems, MaxMemoryItem.class, FreeMemoryItem.class);
         }
@@ -222,6 +242,7 @@ public class HttpAccessLogFormatter {
                                                             getSeparator(props, PROPS_SESSION_SCOPE_SEPARATOR, DEFAULT_SESSION_SCOPE_SEPARATOR)));
         logItems.put("$dispatchingClass$", new DispatchingClassItem());
         logItems.put("$sessionId$", new SessionIdItem());
+        logItems.put("$sessionStoreId$", new SessionStoreIdItem());
         logItems.put("$statusCode$", new StatusCodeItem());
         logItems.put("$responseStatusCode$", new ResponseStatusCodeItem());
 
@@ -410,6 +431,13 @@ public class HttpAccessLogFormatter {
 
         /**
          * {@link nablarch.fw.ExecutionContext}を設定する。
+         * @return {@link nablarch.fw.ExecutionContext}
+         */
+        public ServletExecutionContext getContext() {
+            return this.context;
+        }
+        /**
+         * {@link nablarch.fw.ExecutionContext}を設定する。
          * @param context {@link nablarch.fw.ExecutionContext}
          */
         public void setContext(ServletExecutionContext context) {
@@ -436,6 +464,13 @@ public class HttpAccessLogFormatter {
          */
         public void setRequest(HttpRequest request) {
             this.request = request;
+        }
+        /**
+         * HTTPレスポンスを取得する。
+         * @return HTTPレスポンス
+         */
+        public HttpResponse getResponse() {
+            return this.response;
         }
         /**
          * HTTPレスポンスを設定する。
@@ -775,6 +810,20 @@ public class HttpAccessLogFormatter {
         }
     }
     /**
+     * セッションストアIDを取得するクラス。
+     * @author Tanaka Tomoyuki
+     */
+    public static class SessionStoreIdItem implements LogItem<HttpAccessLogContext> {
+        /**
+         * セッションストアIDを取得する。
+         * @param context HttpAccessLogContext
+         * @return セッションストアID
+         */
+        public String get(HttpAccessLogContext context) {
+            return InternalSessionUtil.getId(context.getContext());
+        }
+    }
+    /**
      * ステータスコードを取得するクラス。
      * @author Kiyohito Itoh
      */
@@ -800,7 +849,7 @@ public class HttpAccessLogFormatter {
          * @return ステータスコード
          */
         public String get(HttpAccessLogContext context) {
-            int statusCode = HttpResponseUtil.chooseResponseStatusCode(context.response, context.context);
+            int statusCode = HttpResponseUtil.chooseResponseStatusCode(context.getResponse(), context.getContext());
             return statusCode != -1 ? String.valueOf(statusCode) : "";
         }
     }

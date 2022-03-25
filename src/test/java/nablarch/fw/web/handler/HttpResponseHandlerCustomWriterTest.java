@@ -99,7 +99,7 @@ public class HttpResponseHandlerCustomWriterTest {
                   }
               })
               .startLocal();
-        HttpResponse res = server.handle(new MockHttpRequest("GET / HTTP/1.1"), null);
+        HttpResponse res = server.handle(new MockHttpRequest("GET / HTTP/1.1"), new ExecutionContext());
         assertThat("index.jspにサーブレットフォワードされること",
                    res.getBodyString(), is("Hello World!"));
     }

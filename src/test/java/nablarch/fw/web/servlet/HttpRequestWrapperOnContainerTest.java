@@ -86,7 +86,7 @@ public class HttpRequestWrapperOnContainerTest {
             put("cookie_key", "cookie_value");
         }});
 
-        HttpResponse res = server.handle(mockReq, null);
+        HttpResponse res = server.handle(mockReq, new ExecutionContext());
         assertThat("Handler内のAssertが全て正常に完了していること", res.getStatusCode(), is(200));
     }
 
@@ -115,7 +115,7 @@ public class HttpRequestWrapperOnContainerTest {
         mockReq.setRequestUri("/test");
         mockReq.setParam("param_key", "param_value");
 
-        HttpResponse res = server.handle(mockReq, null);
+        HttpResponse res = server.handle(mockReq, new ExecutionContext());
         assertThat("Handler内のAssertが全て正常に完了していること", res.getStatusCode(), is(200));
     }
 }

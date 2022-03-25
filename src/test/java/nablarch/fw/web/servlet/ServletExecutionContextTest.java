@@ -40,8 +40,12 @@ public class ServletExecutionContextTest {
                         assertFalse("getSessionScopedVarでは作成されない。", ctx.hasSession());
                         ctx.getSessionScopeMap();
                         assertTrue("getSessionScopeMapでは生成される。", ctx.hasSession());
+
                         ctx.invalidateSession();
-                        assertFalse("セッションは消える", ctx.hasSession());
+                        if (!TestUtil.isJetty9()) {
+                            // nablarch-testing-jetty9ではLazySessionInvalidationFilterのため、このアサートはスキップする。
+                            assertFalse("セッションは消える", ctx.hasSession());
+                        }
 
                         ctx.setSessionScopedVar("loginid", "anonymous");
                         assertTrue("setSessionでは生成される。", ctx.hasSession());
@@ -51,7 +55,10 @@ public class ServletExecutionContextTest {
                         Assert.assertEquals(3, ctx.getRequestScopeMap().size());
 
                         ctx.invalidateSession();
-                        assertFalse("セッションは消える", ctx.hasSession());
+                        if (!TestUtil.isJetty9()) {
+                            // nablarch-testing-jetty9ではLazySessionInvalidationFilterのため、このアサートはスキップする。
+                            assertFalse("セッションは消える", ctx.hasSession());
+                        }
                         Assert.assertEquals(0, ctx.getSessionScopeMap().size());
                         ctx.setSessionScopedVar("loginid", "0001");
                         Assert.assertEquals(1, ctx.getSessionScopeMap().size());
@@ -75,14 +82,14 @@ public class ServletExecutionContextTest {
                 .startLocal();
 
         HttpResponse res = server.handle(
-                new MockHttpRequest("GET /1 HTTP/1.1"), null
+                new MockHttpRequest("GET /1 HTTP/1.1"), new ExecutionContext()
         );
         Assert.assertEquals(200, res.getStatusCode());
         Assert.assertEquals(1, holder.size());
         Assert.assertEquals("0001", holder.get(0));
 
         res = server.handle(
-                new MockHttpRequest("GET /2 HTTP/1.1"), null
+                new MockHttpRequest("GET /2 HTTP/1.1"), new ExecutionContext()
         );
         Assert.assertEquals(200, res.getStatusCode());
     }

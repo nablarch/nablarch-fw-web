@@ -397,7 +397,7 @@ public class ResourceLocatorTest {
         })
         .startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest(string()), null);
+        HttpResponse res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************
         GET /path/to/somewhere/Greeting HTTP/1.1
         ************************************************/
@@ -431,7 +431,7 @@ public class ResourceLocatorTest {
             }
         );
 
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************
         GET /path/to/somewhere/ja/Greeting HTTP/1.1
         ************************************************/
@@ -470,7 +470,7 @@ public class ResourceLocatorTest {
         })
         .startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest(string()), null);
+        HttpResponse res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /*************************
         GET /Greeting HTTP/1.1
         **************************/
@@ -502,7 +502,7 @@ public class ResourceLocatorTest {
             }
         });
 
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /************************************************
         GET /ja/Greeting HTTP/1.1
         ************************************************/
@@ -572,7 +572,7 @@ public class ResourceLocatorTest {
         })
         .startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest(string()), null);
+        HttpResponse res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /*************************
         GET /app/test/Greeting HTTP/1.1
         **************************/
@@ -582,7 +582,7 @@ public class ResourceLocatorTest {
         assertEquals("http://127.0.0.1/app/index.jsp", res.getLocation());
 
 
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /*************************
         GET /app/test/Greeting2 HTTP/1.1
         **************************/
@@ -591,7 +591,7 @@ public class ResourceLocatorTest {
         // Locationはサーブレットコンテナ出力
         assertEquals("http://127.0.0.1/app/test/index.jsp", res.getLocation());
 
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /*************************
         GET /app/test/Greeting3 HTTP/1.1
         **************************/
@@ -601,7 +601,7 @@ public class ResourceLocatorTest {
         assertEquals("http://www.example.com/index.html?hoge=fuga", res.getLocation());
 
 
-        res = server.handle(new MockHttpRequest(string()), null);
+        res = server.handle(new MockHttpRequest(string()), new ExecutionContext());
         /*************************
         GET /app/test/Greeting4 HTTP/1.1
         **************************/

@@ -6,9 +6,11 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -335,6 +337,49 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
         assertThat(disposable1.isDisposed(), is(false));
         assertThat(disposable2.isDisposed(), is(false));
         assertThat(disposable3.isDisposed(), is(false));
+    }
+
+    /**
+     * 初期化に成功している場合は{@link NablarchServletContextListener#isInitializationCompleted()}でtrueが返却されること
+     */
+    @Test
+    public void testInitializationCompleted_success() {
+        MockServletContext ctx = new MockServletContext();
+        ctx.getInitParams().put("di.config", "classpath:nablarch/fw/web/servlet/nablarch-servlet-context-duplication-test.xml");
+        ServletContextEvent ctxEvt = new ServletContextEvent(ctx);
+        ServletContextListener listener = new NablarchServletContextListener();
+
+        clear();
+        // 初期前はfalseになること
+        assertFalse(NablarchServletContextListener.isInitializationCompleted());
+
+        listener.contextInitialized(ctxEvt);
+
+        // 初期化に成功していること
+        assertTrue(NablarchServletContextListener.isInitializationCompleted());
+    }
+
+    /**
+     * 初期化に失敗している場合は{@link NablarchServletContextListener#isInitializationCompleted()}でfalseが返却されること
+     */
+    @Test
+    public void testInitializationCompleted_failure() {
+        MockServletContext ctx = new MockServletContext();
+        ctx.getInitParams().put("di.config", "classpath:nablarch/fw/web/servlet/nablarch-servlet-context-duplication-test.xml");
+        ctx.getInitParams().put("di.duplicate-definition-policy", "DENY");
+        ServletContextEvent ctxEvt = new ServletContextEvent(ctx);
+        ServletContextListener listener = new NablarchServletContextListener();
+
+        clear();
+        // 初期前はfalseになること
+        assertFalse(NablarchServletContextListener.isInitializationCompleted());
+        try {
+            listener.contextInitialized(ctxEvt);
+            fail("初期化に失敗するはず");
+        } catch (ConfigurationLoadException e) {
+            // 初期化失敗を検知できること
+            assertFalse(NablarchServletContextListener.isInitializationCompleted());
+        }
     }
 
     public static final class Book {

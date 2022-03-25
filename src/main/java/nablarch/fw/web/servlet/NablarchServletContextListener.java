@@ -9,13 +9,18 @@ import nablarch.core.log.LoggerManager;
 import nablarch.core.log.app.FailureLogUtil;
 import nablarch.core.log.app.LogInitializationHelper;
 import nablarch.core.log.app.PerformanceLogUtil;
+import nablarch.core.repository.ObjectLoader;
 import nablarch.core.repository.SystemRepository;
 import nablarch.core.repository.di.ComponentDefinitionLoader;
 import nablarch.core.repository.di.DiContainer;
 import nablarch.core.repository.di.config.DuplicateDefinitionPolicy;
 import nablarch.core.repository.di.config.xml.XmlComponentDefinitionLoader;
 import nablarch.core.repository.disposal.ApplicationDisposer;
+import nablarch.core.util.annotation.Published;
 import nablarch.fw.web.handler.HttpAccessLogUtil;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * コンテキストの初期化を行う。<br/>
@@ -37,6 +42,9 @@ public class NablarchServletContextListener implements ServletContextListener {
 
     /** staticプロパティインジェクションの許可設定キー。 */
     private static final String DI_CONTAINER_ALLOW_STATIC_PROPERTY_KEY = "di.allow-static-property";
+    
+    /** 初期化成否を格納するためのキー */
+    private static final String INITIALIZATION_COMPLETED_KEY = "initialization.completed";
 
     /**
      * {@inheritDoc}<br/>
@@ -53,10 +61,36 @@ public class NablarchServletContextListener implements ServletContextListener {
             }
             LOGGER.logInfo("[" + NablarchServletContextListener.class.getName()
                     + "#contextInitialized] initialization completed.");
+            setInitializationCompleted();
         } catch (RuntimeException e) {
             FailureLogUtil.logFatal(e, (Object) null, null);
             throw e;
         }
+    }
+
+    /**
+     * 初期化に成功したことを後続処理で検知するために
+     * リポジトリに{@link Object}を登録する。
+     */
+    private void setInitializationCompleted() {
+        SystemRepository.load(new ObjectLoader() {
+            @Override
+            public Map<String, Object> load() {
+                HashMap<String, Object> map = new HashMap<String, Object>();
+                map.put(INITIALIZATION_COMPLETED_KEY,new Object());
+                return map;
+            }
+        });
+    }
+
+    /**
+     * 初期化成否を返す。
+     * 
+     * @return 初期化に成功した場合true
+     */
+    @Published(tag = "architect")
+    public static boolean isInitializationCompleted(){
+        return SystemRepository.getObject(INITIALIZATION_COMPLETED_KEY) != null;
     }
 
     /**

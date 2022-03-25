@@ -112,7 +112,7 @@ public class HttpResponseHandlerSessionCopyTest {
                 });
         server.startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest("GET / HTTP/1.1"), null);
+        HttpResponse res = server.handle(new MockHttpRequest("GET / HTTP/1.1"), new ExecutionContext());
         String bodyString = res.getBodyString();
         Scanner s = new Scanner(bodyString);
         assertThat(s.nextLine(), is("oya"));
@@ -143,7 +143,7 @@ public class HttpResponseHandlerSessionCopyTest {
                 });
         server.startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest("GET / HTTP/1.1"), null);
+        HttpResponse res = server.handle(new MockHttpRequest("GET / HTTP/1.1"), new ExecutionContext());
         String bodyString = res.getBodyString();
         Scanner s = new Scanner(bodyString);
         assertThat(s.nextLine(), is("oya"));
@@ -207,7 +207,7 @@ public class HttpResponseHandlerSessionCopyTest {
         });
 
         server.startLocal();
-        server.handle(new MockHttpRequest("GET / HTTP/1.1"), null);
+        server.handle(new MockHttpRequest("GET / HTTP/1.1"), new ExecutionContext());
 
         assertThat(holder.get("parent"), is(nullValue()));
         assertThat(holder.get("string"), is(nullValue()));
@@ -248,7 +248,7 @@ public class HttpResponseHandlerSessionCopyTest {
         });
 
         server.startLocal();
-        server.handle(new MockHttpRequest("GET / HTTP/1.1"), null);
+        server.handle(new MockHttpRequest("GET / HTTP/1.1"), new ExecutionContext());
 
         assertThat(holder.get("parent"), is(nullValue()));
         assertThat(holder.get("string"), is(nullValue()));
@@ -280,7 +280,7 @@ public class HttpResponseHandlerSessionCopyTest {
                 });
         server.startLocal();
 
-        HttpResponse res = server.handle(new MockHttpRequest("GET / HTTP/1.1"), null);
+        HttpResponse res = server.handle(new MockHttpRequest("GET / HTTP/1.1"), new ExecutionContext());
         String bodyString = res.getBodyString();
         Scanner s = new Scanner(bodyString);
         assertThat(s.nextLine(), is("oya"));

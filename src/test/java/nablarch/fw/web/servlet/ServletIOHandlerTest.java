@@ -52,7 +52,7 @@ public class ServletIOHandlerTest {
             }
         })).startLocal();
         
-        HttpResponse res = handler.handle(new MockHttpRequest(), null);
+        HttpResponse res = handler.handle(new MockHttpRequest(), new ExecutionContext());
         String contentDisposition = res.getContentDisposition();
         assertThat(contentDisposition, is(not(nullValue())));
         assertTrue(contentDisposition.contains("filename=\"zap! zap!\""));

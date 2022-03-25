@@ -2,11 +2,7 @@ package nablarch.fw.web.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -19,16 +15,27 @@ import nablarch.common.web.WebTestUtil;
 public class MockServletResponse implements HttpServletResponse {
 
     private Map<String, List<String>> map = new HashMap<String, List<String>>();
-    
-    public List<String> getHeader(String name) {
-        List<String> list = map.get(name);
+
+    @Override
+    public String getHeader(String s) {
+        return null;
+    }
+
+    @Override
+    public Collection<String> getHeaders(String s) {
+        List<String> list = map.get(s);
         if (list == null) {
             list = new ArrayList<String>();
-            map.put(name, list);
+            map.put(s, list);
         }
         return list;
     }
-    
+
+    @Override
+    public Collection<String> getHeaderNames() {
+        return null;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -46,21 +53,21 @@ public class MockServletResponse implements HttpServletResponse {
      * {@inheritDoc}
      */
     public void addDateHeader(String arg0, long arg1) {
-        getHeader(arg0).add(String.valueOf(arg1));
+        getHeaders(arg0).add(String.valueOf(arg1));
     }
 
     /**
      * {@inheritDoc}
      */
     public void addHeader(String arg0, String arg1) {
-        getHeader(arg0).add(String.valueOf(arg1));
+        getHeaders(arg0).add(String.valueOf(arg1));
     }
 
     /**
      * {@inheritDoc}
      */
     public void addIntHeader(String arg0, int arg1) {
-        getHeader(arg0).add(String.valueOf(arg1));
+        getHeaders(arg0).add(String.valueOf(arg1));
     }
 
     /**
@@ -132,21 +139,21 @@ public class MockServletResponse implements HttpServletResponse {
      * {@inheritDoc}
      */
     public void setDateHeader(String arg0, long arg1) {
-        getHeader(arg0).add(String.valueOf(arg1));
+        getHeaders(arg0).add(String.valueOf(arg1));
     }
 
     /**
      * {@inheritDoc}
      */
     public void setHeader(String arg0, String arg1) {
-        getHeader(arg0).add(String.valueOf(arg1));
+        getHeaders(arg0).add(String.valueOf(arg1));
     }
 
     /**
      * {@inheritDoc}
      */
     public void setIntHeader(String arg0, int arg1) {
-        getHeader(arg0).add(String.valueOf(arg1));
+        getHeaders(arg0).add(String.valueOf(arg1));
     }
 
     /**
@@ -162,6 +169,11 @@ public class MockServletResponse implements HttpServletResponse {
     public void setStatus(int arg0, String arg1) {
         // TODO Auto-generated method stub
         
+    }
+
+    @Override
+    public int getStatus() {
+        return 0;
     }
 
     /**
@@ -265,6 +277,11 @@ public class MockServletResponse implements HttpServletResponse {
     public void setContentLength(int arg0) {
         // TODO Auto-generated method stub
         
+    }
+
+    @Override
+    public void setContentLengthLong(long l) {
+
     }
 
     /**
