@@ -11,15 +11,14 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import nablarch.common.web.MockHttpSession;
 import nablarch.fw.Result;
@@ -33,7 +32,7 @@ import org.junit.Test;
 public class NablarchHttpServletRequestWrapperTest {
     
     /**
-     * {@link NablarchHttpServletRequestWrapper#NablarchHttpServletRequestWrapper(javax.servlet.http.HttpServletRequest)} のテスト。
+     * {@link NablarchHttpServletRequestWrapper#NablarchHttpServletRequestWrapper(jakarta.servlet.http.HttpServletRequest)} のテスト。
      * ラップするべき情報がラップされていることを確認する。
      */
     @Test
@@ -237,13 +236,13 @@ public class NablarchHttpServletRequestWrapperTest {
                 }
             }
         );
-        session.putValue("attr1", "value1");
-        session.putValue("attr2", "value2");
+        session.setAttribute("attr1", "value1");
+        session.setAttribute("attr2", "value2");
         session.setMaxInactiveInterval(3333);
 
-        assertEquals("value1", session.getValue("attr1"));
-        assertEquals("value2", session.getValue("attr2"));
-        assertNull(session.getValue("attr3"));
+        assertEquals("value1", session.getAttribute("attr1"));
+        assertEquals("value2", session.getAttribute("attr2"));
+        assertNull(session.getAttribute("attr3"));
         
         
         Enumeration<String> eachAttrNames = session.getAttributeNames();
@@ -256,9 +255,8 @@ public class NablarchHttpServletRequestWrapperTest {
         assertEquals(2, attrNames.size());
         assertEquals("attr1", attrNames.get(0));
         assertEquals("attr2", attrNames.get(1));
-        
-        
-        attrNames = Arrays.asList(session.getValueNames());
+
+        attrNames = Collections.list(session.getAttributeNames());
         Collections.sort(attrNames);        
         assertEquals(2, attrNames.size());
         assertEquals("attr1", attrNames.get(0));
@@ -269,11 +267,11 @@ public class NablarchHttpServletRequestWrapperTest {
         assertEquals(3333, session.getMaxInactiveInterval());
         assertFalse(session.isNew());
 
-        session.removeValue("attr1");
-        assertNull(session.getValue("attr1"));
+        session.removeAttribute("attr1");
+        assertNull(session.getAttribute("attr1"));
         
         session.removeAttribute("attr2");
-        assertNull(session.getValue("attr2"));
+        assertNull(session.getAttribute("attr2"));
     }
 
 }

@@ -5,7 +5,7 @@ import nablarch.common.web.WebConfigFinder;
 import nablarch.fw.web.servlet.NablarchHttpServletRequestWrapper;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * HttpSessionを使った{@link TokenManager}実装クラス。

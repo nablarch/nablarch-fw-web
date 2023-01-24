@@ -1,6 +1,6 @@
 package nablarch.common.web.handler.threadcontext;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import nablarch.core.util.StringUtil;
 import nablarch.fw.ExecutionContext;

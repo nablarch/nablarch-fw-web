@@ -2,10 +2,10 @@ package nablarch.fw.web.handler;
 
 import java.util.Collections;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.poi.ss.formula.functions.T;
 

@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import nablarch.core.util.annotation.Published;
 import nablarch.core.util.map.MapWrapper;

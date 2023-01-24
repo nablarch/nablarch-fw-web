@@ -18,7 +18,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 import java.util.Arrays;
 import java.util.Locale;
 

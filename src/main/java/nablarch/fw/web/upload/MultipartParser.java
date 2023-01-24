@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.ServletInputStream;
+import jakarta.servlet.ServletInputStream;
 
 import nablarch.core.log.Logger;
 import nablarch.core.log.LoggerManager;

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import nablarch.common.web.session.EncodeException;
 import nablarch.common.web.session.StateEncoder;

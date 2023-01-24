@@ -3,8 +3,8 @@ package nablarch.common.web.session.store;
 import java.util.Collections;
 import java.util.List;
 
-import javax.servlet.http.HttpSession;
-import javax.xml.bind.DatatypeConverter;
+import jakarta.servlet.http.HttpSession;
+import jakarta.xml.bind.DatatypeConverter;
 
 import nablarch.common.web.session.SessionEntry;
 import nablarch.common.web.session.SessionStore;

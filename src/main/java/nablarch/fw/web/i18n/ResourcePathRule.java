@@ -3,8 +3,8 @@ package nablarch.fw.web.i18n;
 import java.net.MalformedURLException;
 import java.util.Locale;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 import nablarch.core.ThreadContext;
 import nablarch.core.util.annotation.Published;

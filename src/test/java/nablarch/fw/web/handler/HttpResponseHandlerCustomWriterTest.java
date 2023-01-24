@@ -17,7 +17,7 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
