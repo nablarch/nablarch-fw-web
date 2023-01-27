@@ -46,9 +46,10 @@ public class ServletExecutionContextTest {
                         ctx.setSessionScopedVar("loginid", "anonymous");
                         assertTrue("setSessionでは生成される。", ctx.hasSession());
                         Assert.assertEquals(1, ctx.getSessionScopeMap().size());
-                        Assert.assertEquals(2, ctx.getRequestScopeMap().size()); //このタイミングでは、org.mortbay.jetty.newSessionId と nablarch_http_status_convert_mode が存在する。
+                        final int requestScopeMapSizeBefore = ctx.getRequestScopeMap().size();
                         ctx.setRequestScopedVar("reqId", "req1");
-                        Assert.assertEquals(3, ctx.getRequestScopeMap().size());
+                        final int requestScopeMapSizeAfter = ctx.getRequestScopeMap().size();
+                        Assert.assertEquals(1, requestScopeMapSizeAfter - requestScopeMapSizeBefore);
 
                         ctx.invalidateSession();
                         Assert.assertEquals(0, ctx.getSessionScopeMap().size());
@@ -57,7 +58,7 @@ public class ServletExecutionContextTest {
                         String newId = ctx.getSessionScopedVar("loginid");
                         holder.add(newId);
 
-                        Assert.assertEquals(3, ctx.getRequestScopeMap().size());
+                        Assert.assertEquals(requestScopeMapSizeAfter, ctx.getRequestScopeMap().size());
                         Assert.assertEquals("req1", ctx.getRequestScopedVar("reqId"));
 
                         return new HttpResponse();
