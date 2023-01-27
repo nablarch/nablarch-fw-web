@@ -140,20 +140,8 @@
 
     <dependency>
       <groupId>com.nablarch.framework</groupId>
-      <artifactId>nablarch-testing-jetty9</artifactId>
-      <!--
-        最終的には jetty11 に対応したアーティファクトに切り替えてバージョンは bom で管理する。
-        ここでバージョンを明記しているのは CI を通すための一次的な処置。
-       -->
-      <version>5-NEXT-SNAPSHOT</version>
+      <artifactId>nablarch-testing-jetty12</artifactId>
       <scope>test</scope>
-      <!-- TODO 消す -->
-      <exclusions>
-        <exclusion>
-          <groupId>javax.servlet</groupId>
-          <artifactId>javax.servlet-api</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -180,30 +168,8 @@
         <directory>src/test/java</directory>
       </testResource>
       <testResource>
-        <directory>${project.basedir}/src/test/env/jetty9/resources</directory>
+        <directory>${project.basedir}/src/test/env/jetty12/resources</directory>
       </testResource>
     </testResources>
-
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.12</version>
-        <executions>
-          <execution>
-            <id>add-test-source</id>
-            <phase>generate-test-sources</phase>
-            <goals>
-              <goal>add-test-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>${project.basedir}/src/test/env/jetty9/java</source>
-              </sources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
   </build>
 </project>

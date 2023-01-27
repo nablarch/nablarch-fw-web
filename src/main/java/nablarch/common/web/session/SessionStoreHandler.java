@@ -205,9 +205,7 @@ public class SessionStoreHandler implements Handler<Object, Object> {
         if (!StringUtil.isNullOrEmpty(cookieDomain)) {
             cookie.setDomain(cookieDomain);
         }
-        if (cookie.supportsHttpOnly()) {
-            cookie.setHttpOnly(true);
-        }
+        cookie.setHttpOnly(true);
         cookie.setSecure(cookieSecure);
         for (Cookie c : cookie.convertServletCookies()) {
             response.addCookie(c);

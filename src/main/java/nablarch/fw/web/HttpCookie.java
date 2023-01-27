@@ -1,7 +1,5 @@
 package nablarch.fw.web;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,30 +17,6 @@ import nablarch.core.util.map.MapWrapper;
  */
 @Published(tag = "architect")
 public class HttpCookie extends MapWrapper<String, String> {
-
-    /** {@link Cookie}のisHttpOnlyメソッドのメタ情報 */
-    private static final Method IS_HTTP_ONLY_METHOD;
-
-    /** {@link Cookie}のsetHttpOnlyメソッドのメタ情報 */
-    private static final Method SET_HTTP_ONLY_METHOD;
-
-    static {
-        Method isHttpOnlyMethod = null;
-        try {
-            isHttpOnlyMethod = Cookie.class.getMethod("isHttpOnly");
-        } catch (NoSuchMethodException ignore) {
-            // NOP
-        }
-        IS_HTTP_ONLY_METHOD = isHttpOnlyMethod;
-
-        Method setHttpOnlyMethod = null;
-        try {
-            setHttpOnlyMethod = Cookie.class.getMethod("setHttpOnly", boolean.class);
-        } catch (NoSuchMethodException ignore) {
-            // NOP
-        }
-        SET_HTTP_ONLY_METHOD = setHttpOnlyMethod;
-    }
 
     /** クッキー名と値のペアを格納したMap */
     private final Map<String, String> cookies;
@@ -158,10 +132,6 @@ public class HttpCookie extends MapWrapper<String, String> {
      * @return trueの場合は、HttpOnly Cookie
      */
     public boolean isHttpOnly() {
-        if (IS_HTTP_ONLY_METHOD == null) {
-            throw new UnsupportedOperationException("ServletAPI in use is unsupported the HttpOnly attribute. " +
-                    "Please update version of ServletAPI to 3.0 or more.");
-        }
         return httpOnly;
     }
 
@@ -172,21 +142,8 @@ public class HttpCookie extends MapWrapper<String, String> {
      * @return このオブジェクト自体
      */
     public HttpCookie setHttpOnly(final boolean httpOnly) {
-        if (SET_HTTP_ONLY_METHOD == null) {
-            throw new UnsupportedOperationException("ServletAPI in use is unsupported the HttpOnly attribute. " +
-                    "Please update version of ServletAPI to 3.0 or more.");
-        }
         this.httpOnly = httpOnly;
         return this;
-    }
-
-    /**
-     * HttpOnly Cookieがサポートされている環境か否か。
-     *
-     * @return HttpOnlyがサポートされている場合true
-     */
-    public boolean supportsHttpOnly() {
-        return SET_HTTP_ONLY_METHOD != null;
     }
 
     /**
@@ -212,16 +169,8 @@ public class HttpCookie extends MapWrapper<String, String> {
             }
 
             servletCookie.setSecure(isSecure());
+            servletCookie.setHttpOnly(isHttpOnly());
 
-            if (SET_HTTP_ONLY_METHOD != null) {
-                try {
-                    SET_HTTP_ONLY_METHOD.invoke(servletCookie, isHttpOnly());
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
-            }
             servletCookies.add(servletCookie);
         }
         return servletCookies;

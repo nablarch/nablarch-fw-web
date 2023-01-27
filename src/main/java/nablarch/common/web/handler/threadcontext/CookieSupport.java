@@ -119,9 +119,7 @@ public class CookieSupport {
             httpCookie.setMaxAge(cookieMaxAge);
         }
         httpCookie.setSecure(secure);
-        if (httpCookie.supportsHttpOnly()) {
-            httpCookie.setHttpOnly(httpOnly);
-        }
+        httpCookie.setHttpOnly(httpOnly);
 
         return httpCookie.convertServletCookies().get(0);
     }
