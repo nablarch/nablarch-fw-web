@@ -19,6 +19,10 @@
     <version>6-NEXT-SNAPSHOT</version>
   </parent>
 
+  <properties>
+    <jetty.version>jetty12</jetty.version>
+  </properties>
+
   <dependencies>
 
     <dependency>
@@ -140,7 +144,7 @@
 
     <dependency>
       <groupId>com.nablarch.framework</groupId>
-      <artifactId>nablarch-testing-jetty12</artifactId>
+      <artifactId>nablarch-testing-${jetty.version}</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -168,7 +172,7 @@
         <directory>src/test/java</directory>
       </testResource>
       <testResource>
-        <directory>${project.basedir}/src/test/env/jetty12/resources</directory>
+        <directory>${project.basedir}/src/test/env/${jetty.version}/resources</directory>
       </testResource>
     </testResources>
   </build>
