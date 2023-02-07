@@ -52,10 +52,6 @@ import nablarch.fw.web.HttpRequest;
  *     &lt;filter-class>
  *       nablarch.fw.web.servlet.WebFrontController
  *     &lt;/filter-class>
- *     &lt;init-param>
- *       &lt;param-name>component-name&lt;/param-name>
- *       &lt;param-value>webFrontController&lt;/param-value>
- *     &lt;/init-param>
  *   &lt;/filter>
  *   &lt;filter-mapping>
  *     &lt;filter-name>WebFrontController&lt;/filter-name>
