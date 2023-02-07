@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Enumeration;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -100,7 +101,8 @@ public class RepositoryBasedWebFrontControllerTest {
     }
 
     /**
-     * リポジトリに登録した{@link WebFrontController}をgetInitParameterを使用して取得し、サーブレットフィルタの設定情報が設定されること。
+     * デフォルト値と異なる値をinit-paramに設定すると移譲される{@link WebFrontController}は、指定したコントローラであること。
+     * デフォルト値の名前で定義されたwebFrontControllerは使われないこと。
      */
     @Test
     public void testOtherNameWebFrontControllerOnRepository() throws ServletException, IOException {
@@ -109,7 +111,7 @@ public class RepositoryBasedWebFrontControllerTest {
         String path = "classpath:nablarch/fw/web/servlet/repository-based-web-front-controller-other-name-test.xml";
         SystemRepository.load(new DiContainer(new XmlComponentDefinitionLoader(path)));
 
-        WebFrontController webController = SystemRepository.get("otherNameController");
+        WebFrontController expectedWebController = SystemRepository.get("otherNameController");
 
         FilterConfig config = new FilterConfig() {
             public ServletContext getServletContext() { return null; }
@@ -127,6 +129,22 @@ public class RepositoryBasedWebFrontControllerTest {
 
         repoController.init(config);
 
-        assertTrue(webController.getServletFilterConfig() == config);
+        Class c= repoController.getClass();
+        Field fld= null;
+        try {
+            fld = c.getDeclaredField("controller");
+        } catch (NoSuchFieldException e) {
+            fail();
+        }
+        fld.setAccessible(true);
+
+        WebFrontController actualWebController = null;
+        try {
+            actualWebController = (WebFrontController)fld.get(repoController);
+        } catch (IllegalAccessException e) {
+            fail();
+        }
+
+        assertTrue(expectedWebController == actualWebController);
     }
 }
