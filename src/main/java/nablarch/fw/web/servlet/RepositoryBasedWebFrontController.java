@@ -44,12 +44,12 @@ public class RepositoryBasedWebFrontController implements Filter {
      * 以降の全ての処理をそこへ委譲する。
      */
     public void init(FilterConfig filterConfig) throws ServletException {
-        String componentName = filterConfig.getInitParameter("component-name");
-        if (componentName == null) {
-            componentName="webFrontController";
+        String controllerName = filterConfig.getInitParameter("component-name");
+        if (controllerName == null) {
+            controllerName="webFrontController";
         }
 
-        controller = SystemRepository.get(componentName);
+        controller = SystemRepository.get(controllerName);
         if (controller == null) {
             throw new ServletException(
             "webFrontController must be configured in SystemRepository."
