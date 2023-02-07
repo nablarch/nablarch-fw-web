@@ -98,4 +98,35 @@ public class RepositoryBasedWebFrontControllerTest {
             assertThat(e.getMessage(), is("webFrontController must be configured in SystemRepository."));
         }
     }
+
+    /**
+     * リポジトリに登録した{@link WebFrontController}をgetInitParameterを使用して取得し、サーブレットフィルタの設定情報が設定されること。
+     */
+    @Test
+    public void testSpecificWebFrontControllerOnRepository() throws ServletException, IOException {
+
+        SystemRepository.clear();
+        String path = "classpath:nablarch/fw/web/servlet/repository-based-web-front-controller-specific-test.xml";
+        SystemRepository.load(new DiContainer(new XmlComponentDefinitionLoader(path)));
+
+        WebFrontController webController = SystemRepository.get("specificController");
+
+        FilterConfig config = new FilterConfig() {
+            public ServletContext getServletContext() { return null; }
+            public Enumeration getInitParameterNames() { return null; }
+            public String getInitParameter(String arg0) {
+                if (arg0=="component-name"){
+                    return "specificController";
+                } else {
+                    return null;
+                }
+            }
+            public String getFilterName() { return null; }};
+
+        RepositoryBasedWebFrontController repoController = new RepositoryBasedWebFrontController();
+
+        repoController.init(config);
+
+        assertTrue(webController.getServletFilterConfig() == config);
+    }
 }
