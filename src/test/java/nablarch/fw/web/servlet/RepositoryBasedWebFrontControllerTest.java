@@ -37,17 +37,13 @@ public class RepositoryBasedWebFrontControllerTest {
         
         WebFrontController webController = SystemRepository.get("webFrontController");
         TestHandler handler = webController.getHandlerOf(TestHandler.class);
-        FilterConfig config = new FilterConfig() {
-                                    public ServletContext getServletContext() { return null; }
-                                    public Enumeration getInitParameterNames() { return null; }
-                                    public String getInitParameter(String arg0) { return null; }
-                                    public String getFilterName() { return null; }};
+        FilterConfig config = new TestFilterConfig();
         
         RepositoryBasedWebFrontController repoController = new RepositoryBasedWebFrontController();
         
         repoController.init(config);
-        
-        assertTrue(webController.getServletFilterConfig() == config);
+
+        assertSame(webController.getServletFilterConfig(), config);
         
         MockServletRequest req = new MockServletRequest();
         req.setAttribute("key1", "value1");
@@ -80,12 +76,8 @@ public class RepositoryBasedWebFrontControllerTest {
         SystemRepository.clear();
         String path = "classpath:nablarch/fw/web/servlet/repository-based-web-front-controller-nocontroller-test.xml";
         SystemRepository.load(new DiContainer(new XmlComponentDefinitionLoader(path)));
-        
-        FilterConfig config = new FilterConfig() {
-                                    public ServletContext getServletContext() { return null; }
-                                    public Enumeration getInitParameterNames() { return null; }
-                                    public String getInitParameter(String arg0) { return null; }
-                                    public String getFilterName() { return null; }};
+
+        FilterConfig config = new TestFilterConfig();
         
         RepositoryBasedWebFrontController repoController = new RepositoryBasedWebFrontController();
         
@@ -111,17 +103,7 @@ public class RepositoryBasedWebFrontControllerTest {
         WebFrontController expectedWebController = SystemRepository.get("otherNameController");
         WebFrontController defaultWebController = SystemRepository.get("webFrontController");
 
-        FilterConfig config = new FilterConfig() {
-            public ServletContext getServletContext() { return null; }
-            public Enumeration getInitParameterNames() { return null; }
-            public String getInitParameter(String arg0) {
-                if (arg0=="controllerName"){
-                    return "otherNameController";
-                } else {
-                    return null;
-                }
-            }
-            public String getFilterName() { return null; }};
+        FilterConfig config = new TestFilterConfig("otherNameController");
 
         RepositoryBasedWebFrontController repoController = new RepositoryBasedWebFrontController();
 
@@ -132,5 +114,36 @@ public class RepositoryBasedWebFrontControllerTest {
         assertNotSame(defaultWebController,actualWebController);
 
         assertSame(expectedWebController,actualWebController);
+    }
+
+    private static final class TestFilterConfig implements FilterConfig {
+        private String controllerName;
+
+        public TestFilterConfig() {
+        }
+
+        public TestFilterConfig(String controllerName) {
+            this.controllerName = controllerName;
+        }
+
+        @Override
+        public String getFilterName() {
+            return null;
+        }
+
+        @Override
+        public ServletContext getServletContext() {
+            return null;
+        }
+
+        @Override
+        public String getInitParameter(String name) {
+            return controllerName;
+        }
+
+        @Override
+        public Enumeration getInitParameterNames() {
+            return null;
+        }
     }
 }
