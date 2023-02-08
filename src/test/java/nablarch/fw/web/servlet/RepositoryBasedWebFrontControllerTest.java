@@ -129,8 +129,8 @@ public class RepositoryBasedWebFrontControllerTest {
 
         WebFrontController actualWebController = Deencapsulation.getField(repoController,"controller");
 
-        assertFalse(defaultWebController == actualWebController);
+        assertNotSame(defaultWebController,actualWebController);
 
-        assertTrue(expectedWebController == actualWebController);
+        assertSame(expectedWebController,actualWebController);
     }
 }
