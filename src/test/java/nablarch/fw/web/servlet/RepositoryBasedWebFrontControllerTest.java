@@ -117,7 +117,7 @@ public class RepositoryBasedWebFrontControllerTest {
             public ServletContext getServletContext() { return null; }
             public Enumeration getInitParameterNames() { return null; }
             public String getInitParameter(String arg0) {
-                if (arg0=="component-name"){
+                if (arg0=="controllerName"){
                     return "otherNameController";
                 } else {
                     return null;

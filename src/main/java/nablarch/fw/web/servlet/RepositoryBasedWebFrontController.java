@@ -77,7 +77,7 @@ public class RepositoryBasedWebFrontController implements Filter {
      * 以降の全ての処理をそこへ委譲する。
      */
     public void init(FilterConfig filterConfig) throws ServletException {
-        String controllerName = filterConfig.getInitParameter("component-name");
+        String controllerName = filterConfig.getInitParameter("controllerName");
         if (controllerName == null) {
             controllerName="webFrontController";
         }
