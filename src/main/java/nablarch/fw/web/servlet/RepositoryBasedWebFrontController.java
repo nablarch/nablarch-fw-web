@@ -13,18 +13,13 @@ import nablarch.core.repository.SystemRepository;
 
 /**
  * リポジトリ機能を使用して構築した{@link WebFrontController}を保持し、
- * そこに対してリクエスト処理を委譲するリクエストコントローラー
- *
- * <pre>
+ * そこに対してリクエスト処理を委譲するリクエストコントローラー.<br>
  * controllerNameのパラメータ値にコントローラ名を設定することで、設定した名前を元に移譲するWebFrontControllerを取得することができる。
  * デフォルトではwebFrontControllerという名前で移譲するWebFrontControllerを取得する。
- *
+ * <pre>{@code
  * -------------------------------------
  * デプロイメントディスクリプタの記述例
  * -------------------------------------
- * </pre>
- *
- * <pre>{@code
  * <?xml version="1.0" encoding="UTF-8"?>
  * <web-app xmlns="http://java.sun.com/xml/ns/javaee"
  *          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
