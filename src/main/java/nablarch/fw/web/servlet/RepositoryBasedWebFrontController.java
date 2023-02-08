@@ -16,38 +16,42 @@ import nablarch.core.repository.SystemRepository;
  * そこに対してリクエスト処理を委譲するリクエストコントローラー
  *
  * <pre>
- * component-nameのパラメータ値にコントローラ名を設定することで、設定した名前を元に移譲するWebFrontControllerを取得することができる。
+ * controllerNameのパラメータ値にコントローラ名を設定することで、設定した名前を元に移譲するWebFrontControllerを取得することができる。
  * デフォルトではwebFrontControllerという名前で移譲するWebFrontControllerを取得する。
  *
  * -------------------------------------
  * デプロイメントディスクリプタの記述例
  * -------------------------------------
- * &lt;?xml version="1.0" encoding="UTF-8"?>
- * &lt;web-app xmlns="http://java.sun.com/xml/ns/javaee"
+ * </pre>
+ *
+ * <pre>{@code
+ * <?xml version="1.0" encoding="UTF-8"?>
+ * <web-app xmlns="http://java.sun.com/xml/ns/javaee"
  *          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  *          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
  *          version="2.5">
- *   &lt;display-name>w8&lt;/display-name>
- *   &lt;description>
+ *   <display-name>w8</display-name>
+ *   <description>
  *     The default application-context for w8.http-based applications.
- *   &lt;/description>
- *   &lt;filter>
- *     &lt;filter-name>webEntryPoint&lt;/filter-name>
- *     &lt;filter-class>
+ *   </description>
+ *   <filter>
+ *     <filter-name>webEntryPoint</filter-name>
+ *     <filter-class>
  *       nablarch.fw.web.servlet.RepositoryBasedWebFrontController
- *     &lt;/filter-class>
- *     &lt;init-param>
- *       &lt;param-name>component-name&lt;/param-name>
- *       &lt;param-value>webFrontController&lt;/param-value>
- *     &lt;/init-param>
- *   &lt;/filter>
- *   &lt;filter-mapping>
- *     &lt;filter-name>webEntryPoint&lt;/filter-name>
- *    &lt;url-pattern>/*&lt;/url-pattern>
- *   &lt;/filter-mapping>
- * &lt;/web-app>
+ *     </filter-class>
+ *     <init-param>
+ *       <param-name>controllerName</param-name>
+ *       <param-value>otherNameController</param-value>
+ *     </init-param>
+ *   </filter>
+ *   <filter-mapping>
+ *     <filter-name>webEntryPoint</filter-name>
+ *    <url-pattern>/*</url-pattern>
+ *   </filter-mapping>
+ * </web-app>
+ *  }</pre>
  *
- * </pre>
+
  * @see WebFrontController
  * @author Iwauo Tajima
  */
