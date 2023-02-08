@@ -1,11 +1,7 @@
 package nablarch.fw.web.servlet;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -14,6 +10,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
+import mockit.Deencapsulation;
 import nablarch.core.repository.SystemRepository;
 import nablarch.core.repository.di.DiContainer;
 import nablarch.core.repository.di.config.xml.XmlComponentDefinitionLoader;
@@ -58,7 +55,7 @@ public class RepositoryBasedWebFrontControllerTest {
         repoController.doFilter(req, res, null);
         
         assertEquals("value1", ((ServletExecutionContext)handler.context).getServletRequest().getScope().get("key1"));
-        
+
         repoController.destroy();
         
         assertNull(webController.getServletFilterConfig());
@@ -112,6 +109,7 @@ public class RepositoryBasedWebFrontControllerTest {
         SystemRepository.load(new DiContainer(new XmlComponentDefinitionLoader(path)));
 
         WebFrontController expectedWebController = SystemRepository.get("otherNameController");
+        WebFrontController defaultWebController = SystemRepository.get("webFrontController");
 
         FilterConfig config = new FilterConfig() {
             public ServletContext getServletContext() { return null; }
@@ -129,21 +127,9 @@ public class RepositoryBasedWebFrontControllerTest {
 
         repoController.init(config);
 
-        Class c= repoController.getClass();
-        Field fld= null;
-        try {
-            fld = c.getDeclaredField("controller");
-        } catch (NoSuchFieldException e) {
-            fail();
-        }
-        fld.setAccessible(true);
+        WebFrontController actualWebController = Deencapsulation.getField(repoController,"controller");
 
-        WebFrontController actualWebController = null;
-        try {
-            actualWebController = (WebFrontController)fld.get(repoController);
-        } catch (IllegalAccessException e) {
-            fail();
-        }
+        assertFalse(defaultWebController == actualWebController);
 
         assertTrue(expectedWebController == actualWebController);
     }
