@@ -102,7 +102,7 @@ public class RepositoryBasedWebFrontControllerTest {
      * デフォルト値の名前で定義されたwebFrontControllerは使われないこと。
      */
     @Test
-    public void testOtherNameWebFrontControllerOnRepository() throws ServletException, IOException {
+    public void testOtherNameWebFrontControllerOnRepository() throws ServletException {
 
         SystemRepository.clear();
         String path = "classpath:nablarch/fw/web/servlet/repository-based-web-front-controller-other-name-test.xml";
