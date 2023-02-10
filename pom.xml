@@ -66,35 +66,30 @@
     <dependency>
       <groupId>org.eclipse.angus</groupId>
       <artifactId>angus-activation</artifactId>
-      <version>1.0.0</version>
       <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>jakarta.xml.bind</groupId>
       <artifactId>jakarta.xml.bind-api</artifactId>
-      <version>4.0.0</version>
       <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>com.sun.xml.bind</groupId>
       <artifactId>jaxb-impl</artifactId>
-      <version>4.0.1</version>
       <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>com.sun.xml.bind</groupId>
       <artifactId>jaxb-core</artifactId>
-      <version>4.0.1</version>
       <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
-      <version>6.0.0</version>
       <scope>provided</scope>
     </dependency>
 
@@ -126,7 +121,6 @@
     <dependency>
       <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
-      <version>8.0.0.Final</version>
       <scope>test</scope>
     </dependency>
 
