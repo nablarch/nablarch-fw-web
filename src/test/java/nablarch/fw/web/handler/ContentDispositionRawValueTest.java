@@ -112,7 +112,7 @@ public class ContentDispositionRawValueTest {
         Fixture.testCase("attachment; filename=\"ファイル 名.txt\"")
                 .expect("ファイル 名.txt",
                         "attachment; filename*=UTF-8''%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%20%E5%90%8D.txt; filename=\"ENCODEDFILENAME\"")
-                .addTo(fixtures, "ファイル名に半角空白が含まれる場合でも、ファイル名に半角空白が許容されるようにする");
+                .addTo(fixtures, "ファイル名に半角空白が含まれる場合は、半角空白を含めてエンコードする");
 
         return fixtures;
     }
