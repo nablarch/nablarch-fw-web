@@ -1,6 +1,5 @@
 package nablarch.fw.web.handler;
 
-import static nablarch.fw.web.handler.HttpAccessLogFormatter.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 

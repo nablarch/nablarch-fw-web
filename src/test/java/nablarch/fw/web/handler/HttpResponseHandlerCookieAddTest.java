@@ -14,7 +14,6 @@ import nablarch.fw.web.HttpCookie;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpRequestHandler;
 import nablarch.fw.web.HttpResponse;
-import nablarch.fw.web.HttpServer;
 import nablarch.fw.web.MockHttpRequest;
 
 import org.junit.Before;

@@ -17,7 +17,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import mockit.Deencapsulation;
-import mockit.Expectations;
 import mockit.Mocked;
 
 /**
