@@ -9,7 +9,6 @@ import java.util.List;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.handler.HttpResponseHandler;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

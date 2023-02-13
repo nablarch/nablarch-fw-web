@@ -10,7 +10,6 @@ import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpRequestHandler;
 import nablarch.fw.web.HttpResponse;
-import nablarch.fw.web.HttpServer;
 import nablarch.test.support.tool.Hereis;
 
 /**

@@ -25,7 +25,6 @@ import nablarch.fw.web.handler.HttpAccessLogFormatter.HttpAccessLogContext;
 import nablarch.fw.web.servlet.MockServletExecutionContext;
 import nablarch.fw.web.servlet.MockServletRequest;
 import nablarch.fw.web.servlet.ServletExecutionContext;
-import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
 public class HttpAccessLogFormatterTest extends LogTestSupport {

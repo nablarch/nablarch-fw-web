@@ -1,6 +1,5 @@
 package nablarch.fw.web.handler;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
 
 import org.hamcrest.CoreMatchers;
