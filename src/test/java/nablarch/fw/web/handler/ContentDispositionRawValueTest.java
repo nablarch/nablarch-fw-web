@@ -193,7 +193,7 @@ public class ContentDispositionRawValueTest {
     }
 
     public static class ContentDispositionRawValueExceptionTest {
-        @Test(expected = IllegalStateException.class)
+        @Test(expected = IllegalArgumentException.class)
         public void throwsIllegalStateException() {
             ContentDispositionRawValue sut = new ContentDispositionRawValue("");
         }
