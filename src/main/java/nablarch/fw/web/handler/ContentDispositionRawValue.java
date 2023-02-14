@@ -49,7 +49,9 @@ class ContentDispositionRawValue {
      */
     public ContentDispositionRawValue(final String rawValue) {
         final Matcher typeMatcher = TYPE_PATTERN.matcher(rawValue);
-        typeMatcher.find();
+        if (!typeMatcher.find()) {
+            throw new IllegalArgumentException("content-disposition header value was invalid.");
+        }
         this.type = typeMatcher.group(1);
 
         int index = typeMatcher.group().length();
