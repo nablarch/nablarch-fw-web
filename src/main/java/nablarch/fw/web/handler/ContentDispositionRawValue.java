@@ -49,7 +49,9 @@ class ContentDispositionRawValue {
      */
     public ContentDispositionRawValue(final String rawValue) {
         final Matcher typeMatcher = TYPE_PATTERN.matcher(rawValue);
-        typeMatcher.find();
+        if (!typeMatcher.find()) {
+            throw new IllegalStateException("content-disposition header value was invalid.");
+        }
         this.type = typeMatcher.group(1);
 
         int index = typeMatcher.group().length();
@@ -168,7 +170,7 @@ class ContentDispositionRawValue {
 
             final boolean isFilenameParam = normalizedKey.equals(FILENAME_PARAM_NAME);
 
-            if (isFilenameParam && containsFilenameExtParam == false) {
+            if (isFilenameParam && !containsFilenameExtParam) {
                 buf.append("; ")
                         .append(FILENAME_EXT_PARAM_NAME)
                         .append('=')
