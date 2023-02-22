@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import nablarch.fw.web.handler.csrf.VerificationFailureHandler;
 import org.junit.Before;

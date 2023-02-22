@@ -7,9 +7,9 @@ import static org.junit.Assert.assertThat;
 import java.util.Arrays;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.collection.IsMapContaining;

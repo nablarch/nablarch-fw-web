@@ -14,8 +14,8 @@ import nablarch.fw.web.useragent.UserAgentParser;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.Cookie;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.Cookie;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;

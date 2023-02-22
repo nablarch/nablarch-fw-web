@@ -3,8 +3,8 @@ package nablarch.fw.web.servlet;
 import nablarch.fw.web.HttpCookie;
 import nablarch.fw.web.HttpRequest;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.Cookie;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.Cookie;
 import java.io.IOException;
 import java.util.Map;
 import java.util.regex.Pattern;

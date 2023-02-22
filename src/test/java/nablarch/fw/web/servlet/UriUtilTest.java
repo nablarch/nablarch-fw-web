@@ -127,7 +127,7 @@ public class UriUtilTest {
         // コンテキストパス指定なし、相対パス、フォワードなし
 
         request.setContextPath("");
-        request.setAttribute("javax.servlet.forward.request_uri", null);
+        request.setAttribute("jakarta.servlet.forward.request_uri", null);
 
         request.setRequestURI("/");
         assertThat(UriUtil.convertToPathFromContextRoot("./test.jsp", request), is("/./test.jsp"));
@@ -149,25 +149,25 @@ public class UriUtilTest {
         request.setContextPath("");
         request.setRequestURI("/hoge/foo/fuga");
 
-        request.setAttribute("javax.servlet.forward.request_uri", "/");
+        request.setAttribute("jakarta.servlet.forward.request_uri", "/");
         assertThat(UriUtil.convertToPathFromContextRoot("./test.jsp", request), is("/./test.jsp"));
 
-        request.setAttribute("javax.servlet.forward.request_uri", "/test");
+        request.setAttribute("jakarta.servlet.forward.request_uri", "/test");
         assertThat(UriUtil.convertToPathFromContextRoot("./test.jsp", request), is("/./test.jsp"));
 
-        request.setAttribute("javax.servlet.forward.request_uri", "/test/");
+        request.setAttribute("jakarta.servlet.forward.request_uri", "/test/");
         assertThat(UriUtil.convertToPathFromContextRoot("./test.jsp", request), is("/test/./test.jsp"));
 
-        request.setAttribute("javax.servlet.forward.request_uri", "/test/hoge");
+        request.setAttribute("jakarta.servlet.forward.request_uri", "/test/hoge");
         assertThat(UriUtil.convertToPathFromContextRoot("./test.jsp", request), is("/test/./test.jsp"));
 
-        request.setAttribute("javax.servlet.forward.request_uri", "/test/hoge/");
+        request.setAttribute("jakarta.servlet.forward.request_uri", "/test/hoge/");
         assertThat(UriUtil.convertToPathFromContextRoot("./test.jsp", request), is("/test/hoge/./test.jsp"));
 
         // コンテキストパス指定あり、相対パス、フォワードなし
 
         request.setContextPath("/apptest");
-        request.setAttribute("javax.servlet.forward.request_uri", null);
+        request.setAttribute("jakarta.servlet.forward.request_uri", null);
 
         request.setRequestURI("/apptest");
         assertThat(UriUtil.convertToPathFromContextRoot("./test.jsp", request), is("/./test.jsp"));
@@ -189,19 +189,19 @@ public class UriUtilTest {
         request.setContextPath("/apptest");
         request.setRequestURI("/hoge/foo/fuga");
 
-        request.setAttribute("javax.servlet.forward.request_uri", "/apptest");
+        request.setAttribute("jakarta.servlet.forward.request_uri", "/apptest");
         assertThat(UriUtil.convertToPathFromContextRoot("./test.jsp", request), is("/./test.jsp"));
 
-        request.setAttribute("javax.servlet.forward.request_uri", "/apptest/test");
+        request.setAttribute("jakarta.servlet.forward.request_uri", "/apptest/test");
         assertThat(UriUtil.convertToPathFromContextRoot("./test.jsp", request), is("/./test.jsp"));
 
-        request.setAttribute("javax.servlet.forward.request_uri", "/apptest/test/");
+        request.setAttribute("jakarta.servlet.forward.request_uri", "/apptest/test/");
         assertThat(UriUtil.convertToPathFromContextRoot("./test.jsp", request), is("/test/./test.jsp"));
 
-        request.setAttribute("javax.servlet.forward.request_uri", "/apptest/test/hoge");
+        request.setAttribute("jakarta.servlet.forward.request_uri", "/apptest/test/hoge");
         assertThat(UriUtil.convertToPathFromContextRoot("./test.jsp", request), is("/test/./test.jsp"));
 
-        request.setAttribute("javax.servlet.forward.request_uri", "/apptest/test/hoge/");
+        request.setAttribute("jakarta.servlet.forward.request_uri", "/apptest/test/hoge/");
         assertThat(UriUtil.convertToPathFromContextRoot("./test.jsp", request), is("/test/hoge/./test.jsp"));
     }
 }

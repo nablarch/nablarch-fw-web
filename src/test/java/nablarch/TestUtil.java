@@ -11,7 +11,6 @@ import nablarch.fw.web.HttpServerFactory;
  * ユニットテスト用のユーティリティクラス。
  */
 public class TestUtil {
-    private static final String HTTP_SERVER_FACTORY_KEY = "httpServerFactory";
 
     private TestUtil() {
     }
@@ -38,18 +37,5 @@ public class TestUtil {
             throw new IllegalConfigurationException("could not find component. name=[" + HTTP_SERVER_FACTORY_KEY + "].");
         }
         return factory.create();
-    }
-
-    /**
-     * 現在テストで使用している Jetty のバージョンが 9 かどうかを確認する。
-     * @return Jetty のバージョンが 9 の場合は true
-     */
-    public static boolean isJetty9() {
-        try {
-            Class.forName("nablarch.fw.web.httpserver.HttpServerFactoryJetty9");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
     }
 }

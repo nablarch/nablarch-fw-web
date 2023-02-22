@@ -9,9 +9,9 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
 
 import nablarch.core.repository.SystemRepository;
 import nablarch.core.repository.di.DiContainer;

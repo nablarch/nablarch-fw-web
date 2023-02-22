@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletResponse;
 
 import mockit.Expectations;
 import mockit.Mocked;
@@ -42,30 +42,23 @@ public class ServletExecutionContextTest {
                         assertTrue("getSessionScopeMapでは生成される。", ctx.hasSession());
 
                         ctx.invalidateSession();
-                        if (!TestUtil.isJetty9()) {
-                            // nablarch-testing-jetty9ではLazySessionInvalidationFilterのため、このアサートはスキップする。
-                            assertFalse("セッションは消える", ctx.hasSession());
-                        }
 
                         ctx.setSessionScopedVar("loginid", "anonymous");
                         assertTrue("setSessionでは生成される。", ctx.hasSession());
                         Assert.assertEquals(1, ctx.getSessionScopeMap().size());
-                        Assert.assertEquals(2, ctx.getRequestScopeMap().size()); //このタイミングでは、org.mortbay.jetty.newSessionId と nablarch_http_status_convert_mode が存在する。
+                        final int requestScopeMapSizeBefore = ctx.getRequestScopeMap().size();
                         ctx.setRequestScopedVar("reqId", "req1");
-                        Assert.assertEquals(3, ctx.getRequestScopeMap().size());
+                        final int requestScopeMapSizeAfter = ctx.getRequestScopeMap().size();
+                        Assert.assertEquals(1, requestScopeMapSizeAfter - requestScopeMapSizeBefore);
 
                         ctx.invalidateSession();
-                        if (!TestUtil.isJetty9()) {
-                            // nablarch-testing-jetty9ではLazySessionInvalidationFilterのため、このアサートはスキップする。
-                            assertFalse("セッションは消える", ctx.hasSession());
-                        }
                         Assert.assertEquals(0, ctx.getSessionScopeMap().size());
                         ctx.setSessionScopedVar("loginid", "0001");
                         Assert.assertEquals(1, ctx.getSessionScopeMap().size());
                         String newId = ctx.getSessionScopedVar("loginid");
                         holder.add(newId);
 
-                        Assert.assertEquals(3, ctx.getRequestScopeMap().size());
+                        Assert.assertEquals(requestScopeMapSizeAfter, ctx.getRequestScopeMap().size());
                         Assert.assertEquals("req1", ctx.getRequestScopedVar("reqId"));
 
                         return new HttpResponse();

@@ -4,7 +4,7 @@ import nablarch.core.util.annotation.Published;
 import nablarch.fw.web.handler.HttpResponseHandler;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 
 /**

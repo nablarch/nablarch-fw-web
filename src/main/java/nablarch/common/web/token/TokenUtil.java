@@ -1,6 +1,6 @@
 package nablarch.common.web.token;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 import nablarch.common.web.WebConfig;
 import nablarch.common.web.WebConfigFinder;

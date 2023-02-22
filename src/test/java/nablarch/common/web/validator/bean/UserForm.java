@@ -2,8 +2,8 @@ package nablarch.common.web.validator.bean;
 
 import java.io.Serializable;
 
-import javax.validation.Valid;
-import javax.validation.constraints.AssertTrue;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 
 import nablarch.core.util.StringUtil;
 import nablarch.core.validation.ee.Required;

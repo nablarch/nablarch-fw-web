@@ -62,7 +62,7 @@ class MultipartContext {
      * HTTPリクエストのエンコーディングを取得する。
      *
      * @return HTTPリクエストのエンコーディング
-     * @see javax.servlet.http.HttpServletRequest#getCharacterEncoding()
+     * @see jakarta.servlet.http.HttpServletRequest#getCharacterEncoding()
      */
     String getRequestCharacterEncoding() {
         return requestCharacterEncoding;

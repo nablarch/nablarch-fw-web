@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import nablarch.TestUtil;
 import org.junit.Assume;
@@ -17,7 +17,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import mockit.Deencapsulation;
-import mockit.Expectations;
 import mockit.Mocked;
 
 /**
@@ -117,60 +116,23 @@ public class HttpCookieTest {
     }
 
     /**
-     * ServletAPIのバージョンが3.0以前の場合に、HttpOnly取得時に例外が発生することを確認
-     * @throws Exception
+     * HttpOnlyを取得できることを確認
      */
     @Test
-    public void testIsHttpOnly_error() throws Exception {
-        Assume.assumeTrue(!TestUtil.isJetty9());
-
+    public void testIsHttpOnly(@Mocked final Cookie cookie) {
         sut = new HttpCookie();
-
-        try {
-            sut.isHttpOnly();
-            fail("ServletAPIのバージョンが古いため、エラーが発生");
-        } catch (UnsupportedOperationException e) {
-            assertThat(e.getMessage(), is("ServletAPI in use is unsupported the HttpOnly attribute. " +
-                    "Please update version of ServletAPI to 3.0 or more."));
-        }
-
+        Deencapsulation.setField(sut, "httpOnly", true);
+        assertThat("HttpOnlyを取得できること", sut.isHttpOnly(), is(true));
     }
 
     /**
-     * ServletAPIのバージョンが3.0以前の場合に、HttpOnly設定時に例外が発生することを確認
-     * @throws Exception
+     * HttpOnlyを設定できることを確認
      */
     @Test
-    public void testSetHttpOnly_error() throws Exception {
-        Assume.assumeTrue(!TestUtil.isJetty9());
-
+    public void testSetHttpOnly(@Mocked final Cookie cookie) {
         sut = new HttpCookie();
-        try {
-            sut.setHttpOnly(false);
-            fail("ServletAPIのバージョンが古いため、エラーが発生");
-        } catch (UnsupportedOperationException e) {
-            assertThat(e.getMessage(), is("ServletAPI in use is unsupported the HttpOnly attribute. " +
-                    "Please update version of ServletAPI to 3.0 or more."));
-        }
-    }
-
-    /**
-     * HttpOnlyがサポートされているか否かの情報が取得できること。
-     */
-    @Test
-    @Ignore("これはテスト出来ない…")
-    public void testSupportsHttpOnly() throws Exception {
-        sut = new HttpCookie();
-        Deencapsulation.setField(sut, "SET_HTTP_ONLY_METHOD", null);
-        assertThat("HttpOnlyはサポートされていない", sut.supportsHttpOnly(), is(false));
-
-        // とりあえず適当なMethodオブジェクトを設定する。
-        final Method method = this.getClass().getMethod("testSupportsHttpOnly");
-        Deencapsulation.setField(sut, "SET_HTTP_ONLY_METHOD", method);
-
-        assertThat("SET_HTTP_ONLY_METHODがnullではないので、httpOnlyがサポートされている",
-                sut.supportsHttpOnly(), is(true));
-        Deencapsulation.setField(sut, "SET_HTTP_ONLY_METHOD", null);
+        sut.setHttpOnly(false);
+        assertThat("HttpOnlyを設定できること", (Boolean) Deencapsulation.getField(sut, "httpOnly"), is(false));
     }
 
     @Test
@@ -188,6 +150,7 @@ public class HttpCookieTest {
         assertThat("Pathが正しいこと", result.get(0).getPath(), is(nullValue()));
         assertThat("Domainが正しいこと", result.get(0).getDomain(), is(nullValue()));
         assertThat("Secureが正しいこと", result.get(0).getSecure(), is(false));
+        assertThat("HttpOnlyが正しいこと", result.get(0).isHttpOnly(), is(false));
     }
 
     @Test
@@ -198,6 +161,7 @@ public class HttpCookieTest {
         sut.setPath("test.com/index.html");
         sut.setDomain("test.com");
         sut.setSecure(true);
+        sut.setHttpOnly(true);
         sut.put("key1", "value1");
         sut.put("key2", "value2");
         sut.put("key3", "value3");
@@ -225,6 +189,7 @@ public class HttpCookieTest {
                 assertThat("Pathが正しいこと", c.getPath(), is("test.com/index.html"));
                 assertThat("Domainが正しいこと", c.getDomain(), is("test.com"));
                 assertThat("Secureが正しいこと", c.getSecure(), is(true));
+                assertThat("HttpOnlyが正しいこと", c.isHttpOnly(), is(true));
             } else if ("key2".equals(c.getName())) {
                 assertThat("クッキーの名称が正しいこと", c.getName(), is("key2"));
                 assertThat("クッキーの値が正しいこと", c.getValue(), is("value2"));
@@ -232,6 +197,7 @@ public class HttpCookieTest {
                 assertThat("Pathが正しいこと", c.getPath(), is("test.com/index.html"));
                 assertThat("Domainが正しいこと", c.getDomain(), is("test.com"));
                 assertThat("Secureが正しいこと", c.getSecure(), is(true));
+                assertThat("HttpOnlyが正しいこと", c.isHttpOnly(), is(true));
             } else if ("key3".equals(c.getName())) {
                 assertThat("クッキーの名称が正しいこと", c.getName(), is("key3"));
                 assertThat("クッキーの値が正しいこと", c.getValue(), is("value3"));
@@ -239,6 +205,7 @@ public class HttpCookieTest {
                 assertThat("Pathが正しいこと", c.getPath(), is("test.com/index.html"));
                 assertThat("Domainが正しいこと", c.getDomain(), is("test.com"));
                 assertThat("Secureが正しいこと", c.getSecure(), is(true));
+                assertThat("HttpOnlyが正しいこと", c.isHttpOnly(), is(true));
             }
         }
     }

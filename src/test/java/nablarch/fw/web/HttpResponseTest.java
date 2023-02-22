@@ -15,7 +15,7 @@ import nablarch.test.support.tool.Hereis;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;

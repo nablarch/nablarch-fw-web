@@ -14,9 +14,9 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.DatatypeConverter;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.xml.bind.DatatypeConverter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;

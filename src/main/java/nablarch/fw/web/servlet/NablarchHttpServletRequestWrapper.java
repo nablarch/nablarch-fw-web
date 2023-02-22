@@ -4,11 +4,11 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpSession;
 
 import nablarch.core.log.Logger;
 import nablarch.core.log.LoggerManager;
@@ -328,12 +328,6 @@ public class NablarchHttpServletRequestWrapper extends HttpServletRequestWrapper
         /** {@inheritDoc} */
         public ServletContext getServletContext() {
             return delegate.getServletContext();
-        }
-
-        /** {@inheritDoc} */
-        @SuppressWarnings("deprecation")
-        public javax.servlet.http.HttpSessionContext getSessionContext() {
-            return delegate.getSessionContext();
         }
 
         /** {@inheritDoc} */

@@ -16,8 +16,8 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 
 import nablarch.core.log.CustomClassLoader;
 import nablarch.core.log.LogTestSupport;
