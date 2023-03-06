@@ -22,7 +22,7 @@ public class UploadSettings {
     private int contentLengthLimit = Integer.MAX_VALUE;
     
     /** 許容するファイル数の最大値 */
-    private int maxFileCount = 1000;
+    private int maxFileCount = -1;
 
     /** ファイルの自動クリーニングを行うかどうか */
     private boolean autoCleaning = true;
@@ -81,7 +81,7 @@ public class UploadSettings {
      * アップロードファイル数の上限を設定する。
      * <p>
      * 0以下の値を設定した場合は無制限となる。
-     * デフォルトは1000。
+     * デフォルトは-1。
      * </p>
      * @param maxFileCount アップロードファイル数の上限
      */

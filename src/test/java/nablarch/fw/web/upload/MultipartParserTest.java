@@ -432,49 +432,6 @@ public class MultipartParserTest {
     }
 
     /**
-     * アップロードファイル数の上限が未設定だった場合、デフォルト1000が設定されることのテスト（エラーケース）。
-     */
-    @Test
-    public void testMaxFileCountDefaultSettingsOverMaxCount() {
-        MockServletInputStream in = new MockServletInputStream(
-                getClass().getResourceAsStream("testMaxFileCountDefaultSettingsOverMaxCount.dat"));
-        String contentType = "multipart/form-data; boundary=---------------------------2394118477469; charset=utf-8";
-        int contentLength = 169000;
-
-        MultipartContext ctx = new MultipartContext(contentType, contentLength, "UTF-8");
-        final MultipartParser target = new MultipartParser(in, paramMap, settings, ctx);
-
-        BadRequest exception = assertThrows(BadRequest.class, new ThrowingRunnable() {
-            @Override
-            public void run() {
-                target.parse();
-            }
-        });
-
-        assertThat(exception.getMessage(), is("The uploaded file count is over than max count."));
-    }
-
-    /**
-     * アップロードファイル数の上限が未設定だった場合、デフォルト1000が設定されることのテスト（非エラーケース）。
-     */
-    @Test
-    public void testMaxFileCountDefaultSettingsNoError() {
-        MockServletInputStream in = new MockServletInputStream(
-                getClass().getResourceAsStream("testMaxFileCountDefaultSettingsNoError.dat"));
-        String contentType = "multipart/form-data; boundary=---------------------------2394118477469; charset=utf-8";
-        int contentLength = 168828;
-
-        MultipartContext ctx = new MultipartContext(contentType, contentLength, "UTF-8");
-        final MultipartParser target = new MultipartParser(in, paramMap, settings, ctx);
-
-        final PartInfoHolder holder = target.parse();
-
-        assertThat(holder.getDelegateMap().size(), is(1000));
-
-        assertThat(paramMap.get("username")[0], is("hoge"));
-    }
-
-    /**
      * アップロードファイル数の上限に0が設定されている場合、1件でもファイルがあればエラーになること。
      */
     @Test
@@ -502,8 +459,8 @@ public class MultipartParserTest {
     /**
      * アップロードファイル数の上限に負数が設定されている場合、上限無しになること。
      * <p>
-     * 無限個のファイルをアップロードすることはできないので、デフォルト値よりも
-     * 大きい数をアップロードしてエラーにならないことを確認することで、
+     * 無限個のファイルをアップロードすることはできないので、
+     * 大量のファイルをアップロードしてエラーにならないことを確認することで、
      * 上限無しになっているものと判断する。
      * </p>
      */
@@ -513,6 +470,31 @@ public class MultipartParserTest {
         
         MockServletInputStream in = new MockServletInputStream(
                 getClass().getResourceAsStream("testMaxFileCountIfSetMinus.dat"));
+        String contentType = "multipart/form-data; boundary=---------------------------2394118477469; charset=utf-8";
+        int contentLength = 254828;
+
+        MultipartContext ctx = new MultipartContext(contentType, contentLength, "UTF-8");
+        final MultipartParser target = new MultipartParser(in, paramMap, settings, ctx);
+
+        final PartInfoHolder holder = target.parse();
+
+        assertThat(holder.getDelegateMap().size(), is(1500));
+
+        assertThat(paramMap.get("username")[0], is("hoge"));
+    }
+
+    /**
+     * アップロードファイル数の上限が未設定だった場合、デフォルト無制限であることをテスト。
+     * <p>
+     * 無限個のファイルをアップロードすることはできないので、
+     * 大量のファイルをアップロードしてエラーにならないことを確認することで、
+     * 上限無しになっているものと判断する。
+     * </p>
+     */
+    @Test
+    public void testMaxFileCountDefaultNoLimit() {
+        MockServletInputStream in = new MockServletInputStream(
+                getClass().getResourceAsStream("testMaxFileCountDefaultNoLimit.dat"));
         String contentType = "multipart/form-data; boundary=---------------------------2394118477469; charset=utf-8";
         int contentLength = 254828;
 
