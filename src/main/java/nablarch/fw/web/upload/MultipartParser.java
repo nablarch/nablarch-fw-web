@@ -175,7 +175,9 @@ class MultipartParser {
                 // ファイルアップロードのパート
                 fileCount++;
                 if (0 <= maxFileCount && maxFileCount < fileCount) {
-                    throw new BadRequest("The uploaded file count is over than max count.");
+                    String message = "The uploaded file count is over than max count.";
+                    LOGGER.logError(message + " (maxFileCount=" + maxFileCount + ")");
+                    throw new BadRequest(message);
                 }
                 
                 try {
