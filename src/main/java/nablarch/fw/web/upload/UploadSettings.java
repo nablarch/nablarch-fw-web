@@ -20,6 +20,9 @@ public class UploadSettings {
 
    /** 許容するContent-Lengthの最大値 */
     private int contentLengthLimit = Integer.MAX_VALUE;
+    
+    /** 許容するファイル数の最大値 */
+    private int maxFileCount = 1000;
 
     /** ファイルの自動クリーニングを行うかどうか */
     private boolean autoCleaning = true;
@@ -64,6 +67,26 @@ public class UploadSettings {
                     "contentLengthLimit must not be negative.");
         }
         this.contentLengthLimit = contentLengthLimit;
+    }
+
+    /**
+     * アップロードファイル数の上限を取得する。
+     * @return アップロードファイル数の上限
+     */
+    public int getMaxFileCount() {
+        return maxFileCount;
+    }
+
+    /**
+     * アップロードファイル数の上限を設定する。
+     * <p>
+     * 0以下の値を設定した場合は無制限となる。
+     * デフォルトは1000。
+     * </p>
+     * @param maxFileCount アップロードファイル数の上限
+     */
+    public void setMaxFileCount(int maxFileCount) {
+        this.maxFileCount = maxFileCount;
     }
 
     /**
