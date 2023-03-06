@@ -35,6 +35,9 @@ class MultipartParser {
 
     /** 一時ファイル保存ディレクトリ */
     private final File saveDir;
+    
+    /** アップロードファイル数の上限 */
+    private final int maxFileCount;
 
     /** ロガー */
     private static final Logger LOGGER = LoggerManager.get(MultipartParser.class);
@@ -53,6 +56,7 @@ class MultipartParser {
         this.ctx = ctx;
         this.paramMap = paramMap;
         this.saveDir = settings.getSaveDir();
+        this.maxFileCount = settings.getMaxFileCount();
     }
 
     /**
@@ -158,6 +162,7 @@ class MultipartParser {
      */
     private void readPart(PartInfoHolder result) throws IOException {
         String line = in.readLine();
+        int fileCount = 0;
         while (!StringUtil.isNullOrEmpty(line)) {
             // 1パートごとの処理
             in.reset();
@@ -168,6 +173,13 @@ class MultipartParser {
             String value;
             if (part.isFile()) {
                 // ファイルアップロードのパート
+                fileCount++;
+                if (0 <= maxFileCount && maxFileCount < fileCount) {
+                    String message = "The uploaded file count is over than max count.";
+                    LOGGER.logError(message + " (maxFileCount=" + maxFileCount + ")");
+                    throw new BadRequest(message);
+                }
+                
                 try {
                     write(part);             // ファイルに出力
                 } finally {
