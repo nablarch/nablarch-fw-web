@@ -4,7 +4,6 @@ import nablarch.TestUtil;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpResponse;
-import nablarch.fw.web.HttpServer;
 
 /**
  * Nablaarchで構築された単純なアプリケーションの例

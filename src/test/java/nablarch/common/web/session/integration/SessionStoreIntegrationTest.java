@@ -1,7 +1,6 @@
 package nablarch.common.web.session.integration;
 
 import mockit.Expectations;
-import mockit.Mocked;
 import nablarch.TestUtil;
 import nablarch.common.web.session.SessionManager;
 import nablarch.common.web.session.SessionStoreHandler;
