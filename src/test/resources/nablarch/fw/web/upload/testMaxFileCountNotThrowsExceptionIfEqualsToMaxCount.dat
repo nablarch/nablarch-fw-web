@@ -1,0 +1,18 @@
+
+-----------------------------2394118477469
+Content-Disposition: form-data; name="uploadfile1"; filename="upload1.txt"
+Content-Type: text/plain
+
+Upload File 1
+
+-----------------------------2394118477469
+Content-Disposition: form-data; name="username"
+
+hoge
+-----------------------------2394118477469
+Content-Disposition: form-data; name="uploadfile2"; filename="upload2.txt"
+Content-Type: text/plain
+
+Upload File 2
+
+-----------------------------2394118477469--

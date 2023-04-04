@@ -1,7 +1,5 @@
 package nablarch.common.web.token;
 
-import jakarta.servlet.http.HttpSession;
-
 import nablarch.common.web.WebConfig;
 import nablarch.common.web.WebConfigFinder;
 import nablarch.core.repository.SystemRepository;
