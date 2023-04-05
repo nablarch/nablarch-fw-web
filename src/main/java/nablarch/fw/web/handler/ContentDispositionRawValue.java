@@ -11,7 +11,7 @@ import nablarch.fw.web.download.encorder.UrlDownloadFileNameEncoder;
 
 /**
  * エンコードされていない生のContent-Dispositionヘッダ値を表すクラス。
- * 
+ *
  * @author Taichi Uragami
  *
  */
@@ -25,13 +25,13 @@ class ContentDispositionRawValue {
     private static final Pattern TYPE_PATTERN = Pattern.compile("\\s*([^;\\s]+)");
     /** パラメーターを抽出するための正規表現 */
     private static final Pattern PARAM_PATTERN = Pattern
-            .compile("\\s*;\\s*([^=\\s]+)\\s*=\\s*([^;\\s]+)");
+            .compile("\\s*;\\s*([^=\\s]+)\\s*=\\s*([^;]+)");
     /** UTF-8でURLエンコードをする{@link DownloadFileNameEncoder} */
     private static final UrlDownloadFileNameEncoder UTF8_URL_ENCODER = new UrlDownloadFileNameEncoder();
 
     /**
      * inline、attachementなどのdisposition-type
-     * 
+     *
      * @see <a href="https://tools.ietf.org/html/rfc6266#section-4.2">https://tools.ietf.org/html/rfc6266#section-4.2</a>
      */
     private final String type;
@@ -44,12 +44,14 @@ class ContentDispositionRawValue {
 
     /**
      * コンストラクタ。
-     * 
+     *
      * @param rawValue エンコードされていない生のContent-Dispositionヘッダ値
      */
     public ContentDispositionRawValue(final String rawValue) {
         final Matcher typeMatcher = TYPE_PATTERN.matcher(rawValue);
-        typeMatcher.find();
+        if (!typeMatcher.find()) {
+            throw new IllegalArgumentException("content-disposition header value was invalid.");
+        }
         this.type = typeMatcher.group(1);
 
         int index = typeMatcher.group().length();
@@ -58,7 +60,7 @@ class ContentDispositionRawValue {
         final Matcher paramMatcher = PARAM_PATTERN.matcher(rawValue);
         while (paramMatcher.find(index)) {
             final String key = paramMatcher.group(1);
-            final String value = paramMatcher.group(2);
+            final String value = paramMatcher.group(2).trim();
             final Param param = new Param(key, value);
             param.putTo(paramMap);
             index += paramMatcher.group().length();
@@ -71,7 +73,7 @@ class ContentDispositionRawValue {
 
     /**
      *エンコードする必要があるかどうかを返す。
-     * 
+     *
      * @return エンコードする必要があればtrue
      */
     public boolean needsToBeEncoded() {
@@ -80,7 +82,7 @@ class ContentDispositionRawValue {
 
     /**
      * エンコードされていないファイル名を取得する。
-     * 
+     *
      * @return エンコードされていないファイル名
      */
     public String getRawFileName() {
@@ -89,7 +91,7 @@ class ContentDispositionRawValue {
 
     /**
      * エンコード済みのContent-Dispositionヘッダ値を組み立てる。
-     * 
+     *
      * @param encodedFileName エンコード済みのファイル名
      * @return エンコード済みのContent-Dispositionヘッダ値
      */
@@ -104,11 +106,11 @@ class ContentDispositionRawValue {
 
     /**
      * パラメーターのキーを正規化する。
-     * 
+     *
      * <p>
      * パラメーターのキーはcase insensitiveなので検索のために正規化する。
      * </p>
-     * 
+     *
      * @param key 正規化する前のキー
      * @return 正規化したキー
      */
@@ -136,7 +138,7 @@ class ContentDispositionRawValue {
 
         /**
          * コンストラクタ。
-         * 
+         *
          * @param key キー
          * @param value 値
          */
@@ -154,13 +156,13 @@ class ContentDispositionRawValue {
 
         /**
          * StringBuilderへパラメーターを追加する。
-         * 
+         *
          * <p>
          * 自身がfilenameパラメーターなら引数で受け取ったencodedFileNameを値として追加する。
          * また、自身がfilenameパラメーターかつ明示的にfilename*パラメーターが設定されていない場合、
          * filenameパラメーターに設定された値をもとにしてfilename*パラメーターを追加する。
          * </p>
-         * 
+         *
          * @param buf ここにパラメーターが追加される
          * @param encodedFileName エンコード済みのファイル名
          */
@@ -172,7 +174,7 @@ class ContentDispositionRawValue {
                 buf.append("; ")
                         .append(FILENAME_EXT_PARAM_NAME)
                         .append('=')
-                        .append("UTF-8''").append(UTF8_URL_ENCODER.encode(value));
+                        .append("UTF-8''").append(UTF8_URL_ENCODER.encode(value).replace("+", "%20"));
             }
 
             buf.append("; ").append(originalKey).append('=');
@@ -187,7 +189,7 @@ class ContentDispositionRawValue {
 
         /**
          * 引数で渡された{@link LinkedHashMap}に自身を加える。
-         * 
+         *
          * @param paramMap ここに自身を加える
          */
         void putTo(final LinkedHashMap<String, Param> paramMap) {

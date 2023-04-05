@@ -7,8 +7,6 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.poi.ss.formula.functions.T;
-
 import nablarch.core.ThreadContext;
 import nablarch.core.repository.SystemRepository;
 import nablarch.fw.ExecutionContext;
@@ -25,7 +23,6 @@ import org.junit.Test;
 import mockit.Delegate;
 import mockit.Expectations;
 import mockit.Injectable;
-import mockit.Mocked;
 import mockit.Verifications;
 
 /**
