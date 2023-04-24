@@ -1,62 +1,98 @@
 package nablarch.common.web.session;
 
-import java.util.Enumeration;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import nablarch.core.util.map.EnumerableIterator;
+
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-
-import mockit.Mock;
-import mockit.MockUp;
-import nablarch.core.util.map.EnumerableIterator;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author tajima
  *
  */
-public class MockHttpServletRequest extends MockUp<HttpServletRequest> {
+public class MockHttpServletRequest {
     private final Hashtable<String, Object> attributes = new Hashtable<String, Object>();
     private Cookie[] cookies = null;
     private Map<String, String[]> params = new HashMap<String, String[]>();
     private HttpSession session = null;
-
-    @Mock public String getRequestURI() { return "/"; }
-    @Mock public String getContextPath() { return ""; }
-    @Mock public String getProtocol() { return "HTTP/1.1"; }
-    @Mock public String getMethod() { return "GET"; }
-    @Mock public Map<String, String[]> getParameterMap() { return this.params; }
-    @Mock public Enumeration getHeaderNames() { return new Vector().elements(); }
-    @Mock public Enumeration getAttributeNames() { return attributes.keys(); }
-    @Mock public Object getAttribute(String name) { return attributes.get(name); }
-    @Mock public void setAttribute(String name, Object value) { attributes.put(name, value); }
-    @Mock public void removeAttribute(String name) { attributes.remove(name); }
-    @Mock public Cookie[] getCookies() { return this.cookies; }
-    @Mock public HttpSession getSession(boolean b) {
-        if (b && session == null) {
-            session = new MockHttpSession().getMockInstance();
-        }
-        return session;
-    }
     public MockHttpServletRequest setCookies(Cookie[] cookies) { this.cookies = cookies; return this;}
     public MockHttpServletRequest setParameterMap(Map<String, String[]> params) { this.params = params; return this;}
 
-    private class MockHttpSession extends MockUp<HttpSession> {
-        @Mock public Object getAttribute(String name) { return sessionContent.get(name); }
-        @Mock public Enumeration<String> getAttributeNames() { return new EnumerableIterator<String>(sessionContent.keySet().iterator()); }
-        @Mock public void setAttribute(String name, Object value) { sessionContent.put(name, value); }
-        @Mock public void removeAttribute(String name) { sessionContent.remove(name); }
-        @Mock public Object getValue(String name) { return getAttribute(name); }
-        @Mock public void invalidate() {
-            sessionInvalidateCount++;
-            sessionContent.clear();
-            session = null;
+    private class MockHttpSession {
+
+        private HttpSession getMockInstance() {
+            final HttpSession session = mock(HttpSession.class);
+            
+            when(session.getAttribute(anyString())).then(context -> sessionContent.get(context.getArgument(0, String.class)));
+            
+            when(session.getAttributeNames()).then(context -> new EnumerableIterator<>(sessionContent.keySet().iterator()));
+            
+            doAnswer(context -> sessionContent.put(context.getArgument(0), context.getArgument(1)))
+                    .when(session).setAttribute(anyString(), any());
+            
+            doAnswer(context -> sessionContent.remove(context.getArgument(0, String.class)))
+                    .when(session).removeAttribute(anyString());
+            
+            doAnswer(context -> {
+                sessionInvalidateCount++;
+                sessionContent.clear();
+                MockHttpServletRequest.this.session = null;
+                return null;
+            }).when(session).invalidate();
+            
+            return session;
         }
     }
 
     public static final Map<String, Object> sessionContent = new HashMap<String, Object>();
     public static int sessionInvalidateCount = 0;
+    
+    public HttpServletRequest getMockInstance() {
+        final HttpServletRequest request = mock(HttpServletRequest.class);
+
+        when(request.getRequestURI()).thenReturn("/");
+        
+        when(request.getContextPath()).thenReturn("");
+        
+        when(request.getProtocol()).thenReturn("HTTP/1.1");
+        
+        when(request.getMethod()).thenReturn("GET");
+        
+        when(request.getParameterMap()).then(context -> this.params);
+        
+        when(request.getHeaderNames()).thenReturn(new Vector<String>().elements());
+        
+        when(request.getAttributeNames()).then(context -> attributes.keys());
+        
+        when(request.getAttribute(anyString())).then(context -> attributes.get(context.getArgument(0, String.class)));
+        doAnswer(context -> {
+            attributes.put(context.getArgument(0), context.getArgument(1));
+            return null;
+        }).when(request).setAttribute(anyString(), any());
+        
+        doAnswer(context -> attributes.remove(context.getArgument(0, String.class)))
+                .when(request).removeAttribute(anyString());
+        
+        when(request.getCookies()).then(context -> this.cookies);
+        
+        when(request.getSession(anyBoolean())).then(context -> {
+            if (context.getArgument(0, Boolean.class) && session == null) {
+                session = new MockHttpSession().getMockInstance();
+            }
+            return session;
+        });
+        
+        return request;
+    }
 }

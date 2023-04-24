@@ -1,7 +1,5 @@
 package nablarch.common.web.handler.threadcontext;
 
-import mockit.Expectations;
-import mockit.Mocked;
 import nablarch.common.handler.threadcontext.ThreadContextHandler;
 import nablarch.common.handler.threadcontext.UserIdAttribute;
 import nablarch.common.web.session.SessionUtil;
@@ -9,8 +7,9 @@ import nablarch.core.ThreadContext;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.Handler;
 import nablarch.fw.Request;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import java.util.Map;
 
@@ -34,18 +33,16 @@ public class UserIdAttributeInSessionStoreTest {
     /**
      * セッションストアからユーザIDを取得できた場合
      * 取得した値がスレッドコンテキストに設定されること
-     *
-     * @param sessionUtil モック化セッションユーティリティ
      */
     @Test
-    @Ignore("jacoco と jmockit が競合してエラーになるため")
-    public void testUserIdAttributeOnGuestContextOnLoginUserContext(@Mocked final SessionUtil sessionUtil) {
+    public void testUserIdAttributeOnGuestContextOnLoginUserContext() {
         final ExecutionContext context = buildExecutionContext();
-        new Expectations() {{
-            SessionUtil.orNull(context, "user.id");
-            result = "user-id";
-        }};
-        context.handleNext(new MockRequest());
+        
+        try (final MockedStatic<SessionUtil> mocked = Mockito.mockStatic(SessionUtil.class)) {
+            mocked.when(() -> SessionUtil.orNull(context, "user.id")).thenReturn("user-id");
+            context.handleNext(new MockRequest());
+        }
+        
         assertThat(ThreadContext.getUserId(), is("user-id"));
     }
 

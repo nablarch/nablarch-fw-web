@@ -1,7 +1,30 @@
 package nablarch.common.web.session;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import nablarch.common.web.session.store.HiddenStore;
+import nablarch.common.web.session.store.HiddenStore.HiddenStoreLoadFailedException;
+import nablarch.common.web.session.store.HttpSessionStore;
+import nablarch.core.repository.ObjectLoader;
+import nablarch.core.repository.SystemRepository;
+import nablarch.core.util.StringUtil;
+import nablarch.fw.ExecutionContext;
+import nablarch.fw.Handler;
+import nablarch.fw.web.HttpRequest;
+import nablarch.fw.web.HttpResponse;
+import nablarch.fw.web.servlet.HttpRequestWrapper;
+import nablarch.fw.web.servlet.NablarchHttpServletRequestWrapper;
+import nablarch.fw.web.servlet.ServletExecutionContext;
+import nablarch.test.FixedSystemTimeProvider;
+import org.hamcrest.beans.HasPropertyWithValue;
+import org.hamcrest.collection.IsCollectionWithSize;
+import org.hamcrest.collection.IsMapContaining;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.io.EOFException;
 import java.io.NotSerializableException;
@@ -17,54 +40,31 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-
-import org.hamcrest.beans.HasPropertyWithValue;
-import org.hamcrest.collection.IsCollectionWithSize;
-import org.hamcrest.collection.IsMapContaining;
-
-import nablarch.common.web.session.store.HiddenStore;
-import nablarch.common.web.session.store.HiddenStore.HiddenStoreLoadFailedException;
-import nablarch.common.web.session.store.HttpSessionStore;
-import nablarch.core.repository.ObjectLoader;
-import nablarch.core.repository.SystemRepository;
-import nablarch.core.util.StringUtil;
-import nablarch.fw.ExecutionContext;
-import nablarch.fw.Handler;
-import nablarch.fw.web.HttpRequest;
-import nablarch.fw.web.HttpResponse;
-import nablarch.fw.web.servlet.HttpRequestWrapper;
-import nablarch.fw.web.servlet.NablarchHttpServletRequestWrapper;
-import nablarch.fw.web.servlet.ServletExecutionContext;
-import nablarch.test.FixedSystemTimeProvider;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import mockit.Capturing;
-import mockit.Mock;
-import mockit.Mocked;
-import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Iwauo Tajima
  */
-@SuppressWarnings("serial")
-@RunWith(JMockit.class)
 public class SessionStoreHandler_AlternateFlowTest {
 
-    @Capturing
-    private HttpServletResponse httpResponse;
+    private final HttpServletResponse httpResponse = mock(HttpServletResponse.class);
 
-    @Mocked
-    private ServletContext servletContext;
+    private final ServletContext servletContext = mock(ServletContext.class);
 
     private FixedSystemTimeProvider systemTimeProvider = new FixedSystemTimeProvider() {{
         setFixedDate("20161231235959999");
@@ -154,13 +154,13 @@ public class SessionStoreHandler_AlternateFlowTest {
                 (Long) servCtx.getSessionScopedVar("nablarch_sessionStore_expiration_date"),
                 is(systemTimeProvider.getTimestamp().getTime() + 900000L));
 
-        new Verifications() {{
-            Cookie cookie;
-            httpResponse.addCookie(cookie = withCapture());
-            assertThat(cookie.getName(), is("NABLARCH_SID"));
-            assertThat(cookie.getMaxAge(), is(-1));
-            assertThat(cookie.getValue(), is(notNullValue()));
-        }};
+        final ArgumentCaptor<Cookie> captor = ArgumentCaptor.forClass(Cookie.class);
+        verify(httpResponse, atLeastOnce()).addCookie(captor.capture());
+        
+        final Cookie cookie = captor.getValue();
+        assertThat(cookie.getName(), is("NABLARCH_SID"));
+        assertThat(cookie.getMaxAge(), is(-1));
+        assertThat(cookie.getValue(), is(notNullValue()));
     }
 
     /**
@@ -207,11 +207,7 @@ public class SessionStoreHandler_AlternateFlowTest {
                 is(systemTimeProvider.getTimestamp().getTime() - 1L));
 
         // クッキーが生成されていないこと
-        new Verifications() {{
-            Cookie cookie;
-            httpResponse.addCookie(cookie = withCapture());
-            times = 0;
-        }};
+        verify(httpResponse, never()).addCookie(any());
     }
 
     @Test
@@ -247,17 +243,15 @@ public class SessionStoreHandler_AlternateFlowTest {
                 (Long) servCtx.getSessionScopedVar("nablarch_sessionStore_expiration_date"),
                 is(systemTimeProvider.getTimestamp().getTime() + 900000L));
 
-        final Map<String, String> holder = new HashMap<String, String>();
-        new Verifications() {{
-            Cookie cookie;
-            httpResponse.addCookie(cookie = withCapture());
-            assertThat(cookie.getName(), is("NABLARCH_SID"));
-            assertThat(cookie.getMaxAge(), is(-1));
-            assertThat(cookie.getValue(), is(notNullValue()));
-            holder.put("sessionId", cookie.getValue());
-        }};
+        final ArgumentCaptor<Cookie> captor = ArgumentCaptor.forClass(Cookie.class);
+        verify(httpResponse, atLeastOnce()).addCookie(captor.capture());
 
-        List<SessionEntry> entries = store.load(holder.get("sessionId"), servCtx);
+        final Cookie cookie = captor.getValue();
+        assertThat(cookie.getName(), is("NABLARCH_SID"));
+        assertThat(cookie.getMaxAge(), is(-1));
+        assertThat(cookie.getValue(), is(notNullValue()));
+
+        List<SessionEntry> entries = store.load(cookie.getValue(), servCtx);
         assertThat(entries.size(), is(2));
         assertThat((String) find(entries, "hoge").getValue(), is("hoge_value"));
         assertThat((String) find(entries, "fuga").getValue(), is("fuga_value"));
@@ -315,12 +309,12 @@ public class SessionStoreHandler_AlternateFlowTest {
                 (Long) servCtx.getSessionScopedVar("nablarch_sessionStore_expiration_date"),
                 is(systemTimeProvider.getTimestamp().getTime() + 900000L));
 
-        new Verifications() {{
-            Cookie cookie;
-            httpResponse.addCookie(cookie = withCapture());
-            assertThat(cookie.getName(), is("NABLARCH_SID"));
-            assertThat(cookie.getMaxAge(), is(-1));
-        }};
+        final ArgumentCaptor<Cookie> captor = ArgumentCaptor.forClass(Cookie.class);
+        verify(httpResponse, atLeastOnce()).addCookie(captor.capture());
+
+        final Cookie cookie = captor.getValue();
+        assertThat(cookie.getName(), is("NABLARCH_SID"));
+        assertThat(cookie.getMaxAge(), is(-1));
 
         List<SessionEntry> entries = store.load(sessionId, servCtx);
         assertThat(entries.size(), is(2));
@@ -344,20 +338,15 @@ public class SessionStoreHandler_AlternateFlowTest {
 
         final String sessionId = createSessionId();
 
-        HttpServletRequest servletReq = new MockHttpServletRequest(){
-            @Mock
-            public HttpSession getSession() {
-                fail("セッションを生成してはダメ");
-                return null;
-            }
-            @Mock 
-            public HttpSession getSession(boolean b) { 
-                assertThat("セッションを生成してはダメ", b, is(false));
-                return null;
-            }
-        }
+        HttpServletRequest servletReq = new MockHttpServletRequest()
             .setCookies(new Cookie[]{new Cookie("NABLARCH_SID", sessionId)})
             .getMockInstance();
+        
+        when(servletReq.getSession()).thenThrow(new AssertionError("セッションを生成してはダメ"));
+        when(servletReq.getSession(anyBoolean())).then(context -> {
+            assertThat("セッションを生成してはダメ", context.getArgument(0, Boolean.class), is(false));
+            return null;
+        });
 
         HttpRequest request = new HttpRequestWrapper(
             new NablarchHttpServletRequestWrapper(servletReq) {
@@ -573,17 +562,15 @@ public class SessionStoreHandler_AlternateFlowTest {
         }
         assertThat(manager.getDefaultStore(), sameInstance(store));
 
-        final Map<String, String> holder = new HashMap<String, String>();
-        new Verifications() {{
-            Cookie cookie;
-            httpResponse.addCookie(cookie = withCapture());
-            assertThat(cookie.getName(), is("NABLARCH_SID"));
-            assertThat(cookie.getMaxAge(), is(-1));
-            assertThat(cookie.getValue(), is(notNullValue()));
-            holder.put("sessionId", cookie.getValue());
-        }};
+        final ArgumentCaptor<Cookie> captor = ArgumentCaptor.forClass(Cookie.class);
+        verify(httpResponse, atLeastOnce()).addCookie(captor.capture());
 
-        List<SessionEntry> entries = store.load(holder.get("sessionId"), servCtx);
+        final Cookie cookie = captor.getValue();
+        assertThat(cookie.getName(), is("NABLARCH_SID"));
+        assertThat(cookie.getMaxAge(), is(-1));
+        assertThat(cookie.getValue(), is(notNullValue()));
+
+        List<SessionEntry> entries = store.load(cookie.getValue(), servCtx);
         assertThat(entries.size(), is(1));
         assertThat(entries.get(0).getKey(), is("var_on_defaultStore"));
     }
@@ -634,20 +621,18 @@ public class SessionStoreHandler_AlternateFlowTest {
                 (Long) servCtx.getSessionScopedVar("nablarch_sessionStore_expiration_date"),
                 is(systemTimeProvider.getTimestamp().getTime() + 900000L));
 
-        final Map<String, String> holder = new HashMap<String, String>();
-        new Verifications() {{
-            Cookie cookie;
-            httpResponse.addCookie(cookie = withCapture());
-            assertThat(cookie.getName(), is("NABLARCH_SID"));
-            assertThat(cookie.getMaxAge(), is(-1));
-            assertThat(cookie.getValue(), is(notNullValue()));
-            holder.put("sessionIdAfterInvalidate", cookie.getValue());
-        }};
+        final ArgumentCaptor<Cookie> captor = ArgumentCaptor.forClass(Cookie.class);
+        verify(httpResponse, atLeastOnce()).addCookie(captor.capture());
+
+        final Cookie cookie = captor.getValue();
+        assertThat(cookie.getName(), is("NABLARCH_SID"));
+        assertThat(cookie.getMaxAge(), is(-1));
+        assertThat(cookie.getValue(), is(notNullValue()));
 
         List<SessionEntry> entries = store.load(sessionId, servCtx);
         assertThat(entries.size(), is(0));
 
-        entries = store.load(holder.get("sessionIdAfterInvalidate"), servCtx);
+        entries = store.load(cookie.getValue(), servCtx);
         assertThat(entries.size(), is(1));
         assertThat(entries.get(0).getKey(), is("test-var"));
     }
@@ -681,17 +666,15 @@ public class SessionStoreHandler_AlternateFlowTest {
         assertThat("想定したステータスコードのレスポンスが返却されること", res.getStatusCode(), is(200));
         assertThat("想定したコンテンツパスのレスポンスが返却されること", res.getContentPath().getPath(), is("success"));
 
-        final Map<String, String> holder = new HashMap<String, String>();
-        new Verifications() {{
-            Cookie cookie;
-            httpResponse.addCookie(cookie = withCapture());
-            assertThat(cookie.getName(), is("NABLARCH_SID"));
-            assertThat(cookie.getMaxAge(), is(-1));
-            assertThat(cookie.getValue(), is(notNullValue()));
-            holder.put("sessionIdAfterInvalidate", cookie.getValue());
-        }};
+        final ArgumentCaptor<Cookie> captor = ArgumentCaptor.forClass(Cookie.class);
+        verify(httpResponse, atLeastOnce()).addCookie(captor.capture());
 
-        List<SessionEntry> entries = store.load(holder.get("sessionIdAfterInvalidate"), servCtx);
+        final Cookie cookie = captor.getValue();
+        assertThat(cookie.getName(), is("NABLARCH_SID"));
+        assertThat(cookie.getMaxAge(), is(-1));
+        assertThat(cookie.getValue(), is(notNullValue()));
+
+        List<SessionEntry> entries = store.load(cookie.getValue(), servCtx);
         assertThat(entries.size(), is(1));
         assertThat(entries.get(0).getKey(), is("test-var"));
     }
@@ -781,20 +764,18 @@ public class SessionStoreHandler_AlternateFlowTest {
         assertThat("想定したステータスコードのレスポンスが返却されること", res.getStatusCode(), is(200));
         assertThat("想定したコンテンツパスのレスポンスが返却されること", res.getContentPath().getPath(), is("success"));
 
-        final Map<String, String> holder = new HashMap<String, String>();
-        new Verifications() {{
-            Cookie cookie;
-            httpResponse.addCookie(cookie = withCapture());
-            assertThat(cookie.getName(), is("NABLARCH_SID"));
-            assertThat(cookie.getMaxAge(), is(-1));
-            assertThat(cookie.getValue(), is(notNullValue()));
-            holder.put("sessionIdAfterInvalidate", cookie.getValue());
-        }};
+        final ArgumentCaptor<Cookie> captor = ArgumentCaptor.forClass(Cookie.class);
+        verify(httpResponse, atLeastOnce()).addCookie(captor.capture());
+
+        final Cookie cookie = captor.getValue();
+        assertThat(cookie.getName(), is("NABLARCH_SID"));
+        assertThat(cookie.getMaxAge(), is(-1));
+        assertThat(cookie.getValue(), is(notNullValue()));
 
         assertThat(httpSessionStore.load(sessionId, servCtx).size(), is(0));
 
         final List<SessionEntry> entriesInHttpSession
-                = httpSessionStore.load(holder.get("sessionIdAfterInvalidate"), servCtx);
+                = httpSessionStore.load(cookie.getValue(), servCtx);
         assertThat(entriesInHttpSession.size(), is(1));
         assertThat(entriesInHttpSession.get(0).getKey(), is("test3-key"));
         assertThat((String) entriesInHttpSession.get(0).getValue(), is("test3-value"));
@@ -802,7 +783,7 @@ public class SessionStoreHandler_AlternateFlowTest {
         assertThat(servCtx.getRequestScopedVar(parameterName), is(notNullValue()));
         servCtx.getHttpRequest().setParam(parameterName, servCtx.getRequestScopedVar(parameterName).toString());
         final List<SessionEntry> entriesInHidden
-                = hiddenStore.load(holder.get("sessionIdAfterInvalidate"), servCtx);
+                = hiddenStore.load(cookie.getValue(), servCtx);
         assertThat(entriesInHidden.size(), is(1));
         assertThat(entriesInHidden.get(0).getKey(), is("test4-key"));
         assertThat((String) entriesInHidden.get(0).getValue(), is("test4-value"));
@@ -954,11 +935,12 @@ public class SessionStoreHandler_AlternateFlowTest {
         final String storeValue = servCtx.getRequestScopedVar("nablarch_hiddenStore");
         servCtx.getHttpRequest().setParam("nablarch_hiddenStore", storeValue);
         // SessionStoreHandlerが設定するSessionIdの取得
-        final List<Cookie> cookies = new ArrayList<Cookie>();
-        new Verifications() {{
-            httpResponse.addCookie(withCapture(cookies));
-            assertNotNull("cookieが設定されていること", getSessionId(cookies));
-        }};
+        final ArgumentCaptor<Cookie> captor = ArgumentCaptor.forClass(Cookie.class);
+        verify(httpResponse, atLeastOnce()).addCookie(captor.capture());
+
+        final List<Cookie> cookies = captor.getAllValues();
+        assertNotNull("cookieが設定されていること", getSessionId(cookies));
+
         final List<SessionEntry> sessionEntryList = hiddenStore.load(getSessionId(cookies), servCtx);
         assertThat("key1は即削除しているので追加されているエントリーは1つだけ", sessionEntryList, IsCollectionWithSize.hasSize(1));
         assertThat("追加されているのはkey2のセッション情報のみ", sessionEntryList.get(0), allOf(

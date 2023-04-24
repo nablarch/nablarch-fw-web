@@ -1,6 +1,5 @@
 package nablarch.common.web.session.integration;
 
-import mockit.Verifications;
 import nablarch.TestUtil;
 import nablarch.core.util.StringUtil;
 import nablarch.fw.ExecutionContext;
@@ -11,8 +10,11 @@ import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.HttpServer;
 import nablarch.fw.web.MockHttpRequest;
 import org.junit.rules.ExternalResource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,11 +61,6 @@ import static org.junit.Assert.assertThat;
  *             // テストの実行。
  *             .test();
  * }
- * </pre>
- * 本クラスを使用する場合は、レスポンスメッセージをキャプチャするために、
- * テストクラスに下記のモックを定義してください。
- * <pre>
- * @Mocked("parse") HttpResponse unused;
  * </pre>
  */
 public class HttpServerResource extends ExternalResource {
@@ -113,20 +110,22 @@ public class HttpServerResource extends ExternalResource {
             System.out.println(request);
             System.out.println("************************************************************");
 
-            HttpResponse response = server.handle(request, new ExecutionContext());
+            try (final MockedStatic<HttpResponse> mocked = Mockito.mockStatic(HttpResponse.class)) {
+                HttpResponse response = server.handle(request, new ExecutionContext());
 
-            new Verifications() {{
-                byte[] bytes;
-                HttpResponse.parse(bytes = withCapture());
-                httpRequestCreator.responseMessage = StringUtil.toString(bytes, Charset.forName("UTF-8"));
-            }};
+                final ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+                mocked.verify(() -> HttpResponse.parse(captor.capture()), Mockito.atLeastOnce());
+                
+                byte[] bytes = captor.getValue();
+                httpRequestCreator.responseMessage = StringUtil.toString(bytes, StandardCharsets.UTF_8);
 
-            System.out.println("*** Response Message ***************************************");
-            System.out.println(httpRequestCreator.responseMessage);
-            System.out.println("************************************************************");
+                System.out.println("*** Response Message ***************************************");
+                System.out.println(httpRequestCreator.responseMessage);
+                System.out.println("************************************************************");
 
-            assertThat(getStatusCode(httpRequestCreator.responseMessage),
-                    is(testHandler.getExpectedStatusCode()));
+                assertThat(getStatusCode(httpRequestCreator.responseMessage),
+                        is(testHandler.getExpectedStatusCode()));
+            }
         }
     }
 

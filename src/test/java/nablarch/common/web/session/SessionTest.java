@@ -1,31 +1,28 @@
 package nablarch.common.web.session;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import mockit.Capturing;
-import mockit.Mocked;
 import nablarch.common.web.session.store.HttpSessionStore;
 import nablarch.core.repository.ObjectLoader;
 import nablarch.core.repository.SystemRepository;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.servlet.ServletExecutionContext;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author tajima
@@ -33,11 +30,9 @@ import org.junit.Test;
  */
 public class SessionTest {
 
-    @Capturing
-    private HttpServletResponse httpResponse;
+    private final HttpServletResponse httpResponse = mock(HttpServletResponse.class);
 
-    @Mocked
-    private ServletContext servletContext;
+    private final ServletContext servletContext = mock(ServletContext.class);
 
     @SuppressWarnings("serial")
     @Before

@@ -1,21 +1,8 @@
 package nablarch.fw.web.servlet;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import mockit.Expectations;
-import mockit.Mocked;
 import nablarch.TestUtil;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpRequest;
@@ -24,8 +11,26 @@ import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.HttpServer;
 import nablarch.fw.web.MockHttpRequest;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.MockedConstruction;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 public class ServletExecutionContextTest {
 
@@ -90,56 +95,51 @@ public class ServletExecutionContextTest {
 
 
     @Test
-    @Ignore("jacoco と jmockit が競合してエラーになるため")
-    public void testIsNewSession(
-            @Mocked final NablarchHttpServletRequestWrapper servletReq,
-            @Mocked final HttpServletResponse servletRes,
-            @Mocked final ServletContext servletCtx) {
+    public void testIsNewSession() {
+        final HttpServletRequest servletReq = mock(HttpServletRequest.class);
+        final HttpServletResponse servletRes = mock(HttpServletResponse.class);
+        final ServletContext servletCtx = mock(ServletContext.class);
 
-        new Expectations() {{
-            servletReq.getRequestURI(); result = "test";
-            servletReq.getContextPath(); result = "test";
-        }};
-        ServletExecutionContext ctx = new ServletExecutionContext(servletReq, servletRes, servletCtx);
+        try (final MockedConstruction<NablarchHttpServletRequestWrapper> mocked =
+                     mockConstruction(NablarchHttpServletRequestWrapper.class, withSettings().defaultAnswer(RETURNS_DEEP_STUBS), (mock, context) -> {
+            when(mock.getRequestURI()).thenReturn("test");
+            when(mock.getContextPath()).thenReturn("test");
+            when(mock.getSession(true).isNew()).thenReturn(true, false);
+        })) {
+            ServletExecutionContext ctx = new ServletExecutionContext(servletReq, servletRes, servletCtx);
 
-        // セッションが新規の場合、trueが返されることを確認
-        new Expectations() {{
-            servletReq.getSession(true).isNew(); result = true;
-        }};
-        assertThat(ctx.isNewSession(), is(true));
-        
-        // セッションが新規でない場合、falseが返されることを確認
-        new Expectations() {{
-            servletReq.getSession(true).isNew(); result = false;
-        }};
-        assertThat(ctx.isNewSession(), is(false));
+            // セッションが新規の場合、trueが返されることを確認
+            assertThat(ctx.isNewSession(), is(true));
+
+            // セッションが新規でない場合、falseが返されることを確認
+            assertThat(ctx.isNewSession(), is(false));
+        }
     }
     
     @Test
-    @Ignore("jacoco と jmockit が競合してエラーになるため")
-    public void testSetRequestScopeMap(
-            @Mocked final NablarchHttpServletRequestWrapper servletReq,
-            @Mocked final HttpServletResponse servletRes,
-            @Mocked final ServletContext servletCtx) {
+    public void testSetRequestScopeMap() {
+        final HttpServletRequest servletReq = mock(HttpServletRequest.class);
+        final HttpServletResponse servletRes = mock(HttpServletResponse.class);
+        final ServletContext servletCtx = mock(ServletContext.class);
 
-        new Expectations() {{
-            servletReq.getRequestURI(); result = "test";
-            servletReq.getContextPath(); result = "test";
-        }};
-        ServletExecutionContext ctx = new ServletExecutionContext(servletReq, servletRes, servletCtx);
-        
-        final Map<String, Object> scope = new HashMap<String, Object>();
-        scope.put("test1", "12345");
-        scope.put("test2", "67890");
-        
-        // 同一の引数が渡されることを確認
-        new Expectations() {{
-            servletReq.setScope(scope);
-        }};
-        ExecutionContext result = ctx.setRequestScopeMap(scope);
-        
-        // ServletExecutionContextのインスタンスであることを確認
-        assertThat(result, instanceOf(ServletExecutionContext.class));
+        try (final MockedConstruction<NablarchHttpServletRequestWrapper> mocked = mockConstruction(NablarchHttpServletRequestWrapper.class, (mock, context) -> {
+            when(mock.getRequestURI()).thenReturn("test");
+            when(mock.getContextPath()).thenReturn("test");
+        })) {
+            ServletExecutionContext ctx = new ServletExecutionContext(servletReq, servletRes, servletCtx);
+
+            final Map<String, Object> scope = new HashMap<String, Object>();
+            scope.put("test1", "12345");
+            scope.put("test2", "67890");
+
+            ExecutionContext result = ctx.setRequestScopeMap(scope);
+
+            // 同一の引数が渡されることを確認
+            final NablarchHttpServletRequestWrapper nablarchHttpServletRequestWrapper = mocked.constructed().get(0);
+            verify(nablarchHttpServletRequestWrapper).setScope(scope);
+            // ServletExecutionContextのインスタンスであることを確認
+            assertThat(result, instanceOf(ServletExecutionContext.class));
+        }
     }
 
 }

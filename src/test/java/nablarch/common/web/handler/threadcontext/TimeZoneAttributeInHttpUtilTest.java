@@ -1,7 +1,8 @@
 package nablarch.common.web.handler.threadcontext;
 
-import mockit.Expectations;
-import mockit.Mocked;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import nablarch.core.ThreadContext;
 import nablarch.core.repository.ObjectLoader;
 import nablarch.core.repository.SystemRepository;
@@ -9,49 +10,39 @@ import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * {@link TimeZoneAttributeInHttpUtilTest} のテスト。
  *
  */
-@Ignore("jacoco と jmockit が競合してエラーになるため")
 public class TimeZoneAttributeInHttpUtilTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    @Mocked
-    private HttpRequest mockHttpRequest;
+    private final HttpRequest mockHttpRequest = mock(HttpRequest.class);
 
-    @Mocked
-    private HttpServletRequest mockServletRequest;
+    private final HttpServletRequest mockServletRequest = mock(HttpServletRequest.class, RETURNS_DEEP_STUBS);
 
-    @Mocked
-    private HttpServletResponse mockServletResponse;
+    private final HttpServletResponse mockServletResponse = mock(HttpServletResponse.class);
 
-    @Mocked
-    private ServletContext mockServletContext;
+    private final ServletContext mockServletContext = mock(ServletContext.class);
 
     @Before
     public void setUp(){
-        new Expectations() {{
-            mockServletRequest.getContextPath();
-            result = "/";
-            mockServletRequest.getRequestURI();
-            result = "/";
-        }};
+        when(mockServletRequest.getContextPath()).thenReturn("/");
+        when(mockServletRequest.getRequestURI()).thenReturn("/");
     }
 
     private void setUpRepository(final TimeZoneAttributeInHttpSupport support){
