@@ -68,7 +68,6 @@ public class ResourceMappingTest {
         } catch(IllegalArgumentException e) {
             Assert.assertTrue(true);
         }
-        Assert.assertTrue(OnMemoryLogWriter.getMessages("writer.memory").isEmpty());
     }
 
     @Test

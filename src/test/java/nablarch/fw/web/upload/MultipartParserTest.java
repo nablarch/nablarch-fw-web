@@ -4,10 +4,14 @@ import nablarch.core.util.FilePathSetting;
 import nablarch.fw.results.BadRequest;
 import nablarch.fw.results.RequestEntityTooLarge;
 import nablarch.fw.web.servlet.MockServletInputStream;
+import nablarch.test.support.log.app.OnMemoryLogWriter;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
@@ -22,12 +26,17 @@ import java.util.List;
 import java.util.Map;
 
 import static nablarch.fw.web.upload.UploadTestUtil.readAll;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 /**
@@ -51,6 +60,11 @@ public class MultipartParserTest {
     public static void setUp() {
         FilePathSetting.getInstance().addBasePathSetting(UploadSettings.UPLOAD_FILE_TMP_DIR, TEMP_DIR.toURI().toString());
         clean();
+    }
+
+    @Before
+    public void setUpEach() throws Exception {
+        OnMemoryLogWriter.clear();
     }
 
     @After
@@ -506,6 +520,67 @@ public class MultipartParserTest {
         assertThat(holder.getDelegateMap().size(), is(1500));
 
         assertThat(paramMap.get("username")[0], is("hoge"));
+    }
+
+    /**
+     * 入力エラーが発生したときに {@link nablarch.fw.results.InternalError} がスローされることをテスト。
+     */
+    @Test
+    public void testThrowsInternalErrorIfIOExceptionThrown() {
+        MockServletInputStream in = new MockServletInputStream(new byte[0]);
+        String contentType = "multipart/form-data; boundary=---------------------------2394118477469; charset=utf-8";
+
+        MultipartContext ctx = new MultipartContext(contentType, -1, "UTF-8");
+        final IOException exception = new IOException("test");
+
+        try (
+            final MockedConstruction<MultipartInputStream> multipartInputStreamMocked = Mockito.mockConstruction(MultipartInputStream.class, (mock, context) -> {
+                when(mock.readLine()).thenThrow(exception);
+            });
+            final MockedConstruction<PartInfoHolder> partInfoHolderMocked = mockConstruction(PartInfoHolder.class);
+        ) {
+            MultipartParser target = new MultipartParser(in, paramMap, settings, ctx);
+
+            final nablarch.fw.results.InternalError error = assertThrows(nablarch.fw.results.InternalError.class, target::parse);
+            
+            assertThat(error.getCause(), is(sameInstance(exception)));
+            
+            final MultipartInputStream multipartInputStream = multipartInputStreamMocked.constructed().get(0);
+            verify(multipartInputStream).consume();
+
+            final PartInfoHolder partInfoHolder = partInfoHolderMocked.constructed().get(0);
+            verify(partInfoHolder).cleanup();
+        }
+    }
+
+    /**
+     * 入力エラー発生後のクリーンアップ処理で例外が発生した場合、警告ログが出力されることをテスト。
+     */
+    @Test
+    public void testWarnLogIfConsumeFailed() {
+        MockServletInputStream in = new MockServletInputStream(new byte[0]);
+        String contentType = "multipart/form-data; boundary=---------------------------2394118477469; charset=utf-8";
+
+        MultipartContext ctx = new MultipartContext(contentType, -1, "UTF-8");
+        final IOException exception = new IOException("test");
+
+        try (
+            final MockedConstruction<MultipartInputStream> multipartInputStreamMocked = Mockito.mockConstruction(MultipartInputStream.class, (mock, context) -> {
+                when(mock.readLine()).thenThrow(exception);
+            });
+            final MockedConstruction<PartInfoHolder> partInfoHolderMocked = mockConstruction(PartInfoHolder.class, (mock, context) -> {
+                doThrow(new RuntimeException("test-runtime")).when(mock).cleanup();
+            });
+        ) {
+            MultipartParser target = new MultipartParser(in, paramMap, settings, ctx);
+
+            final nablarch.fw.results.InternalError error = assertThrows(nablarch.fw.results.InternalError.class, target::parse);
+
+            assertThat(error.getCause(), is(sameInstance(exception)));
+            
+            OnMemoryLogWriter.assertLogContains("writer.memory", 
+                    "WARN", "failed to delete temp file.", "java.lang.RuntimeException: test-runtime");
+        }
     }
 
     /**
