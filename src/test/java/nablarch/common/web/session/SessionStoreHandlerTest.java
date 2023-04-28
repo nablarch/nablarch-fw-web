@@ -1,9 +1,9 @@
 package nablarch.common.web.session;
 
-import mockit.Capturing;
-import mockit.Mocked;
-import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import nablarch.common.web.session.store.HiddenStore;
 import nablarch.core.repository.ObjectLoader;
 import nablarch.core.repository.SystemRepository;
@@ -17,12 +17,8 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
 import nablarch.test.FixedSystemTimeProvider;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,21 +28,23 @@ import java.util.Map;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author kawasima
  * @author tajima
  */
-@RunWith(JMockit.class)
 public class SessionStoreHandlerTest {
 
     private HttpServletRequest httpRequest;
 
-    @Capturing
-    private HttpServletResponse httpResponse;
+    private final HttpServletResponse httpResponse = mock(HttpServletResponse.class);
 
-    @Mocked
-    private ServletContext servletContext;
+    private final ServletContext servletContext = mock(ServletContext.class);
 
     private FixedSystemTimeProvider systemTimeProvider = new FixedSystemTimeProvider() {{
         setFixedDate("20161231235959999");
@@ -126,17 +124,15 @@ public class SessionStoreHandlerTest {
                 (Long) ctx.getSessionScopedVar("nablarch_sessionStore_expiration_date"),
                 is(systemTimeProvider.getTimestamp().getTime() + 900000L));
 
-        new Verifications() {
-            {
-                Cookie cookie;
-                httpResponse.addCookie(cookie = withCapture());
-                assertThat(cookie.getDomain(), is("www.example.com"));
-                assertThat(cookie.getName(), is("SESSION_TRACKING_ID"));
-                assertThat(cookie.getPath(), is("/app"));
-                assertThat(cookie.getMaxAge(), is(-1));
-                assertThat(cookie.getSecure(), is(true));
-            }
-        };
+        final ArgumentCaptor<Cookie> captor = ArgumentCaptor.forClass(Cookie.class);
+        verify(httpResponse, atLeastOnce()).addCookie(captor.capture());
+
+        final Cookie cookie = captor.getValue();
+        assertThat(cookie.getDomain(), is("www.example.com"));
+        assertThat(cookie.getName(), is("SESSION_TRACKING_ID"));
+        assertThat(cookie.getPath(), is("/app"));
+        assertThat(cookie.getMaxAge(), is(-1));
+        assertThat(cookie.getSecure(), is(true));
     }
 
     @Test
@@ -156,12 +152,7 @@ public class SessionStoreHandlerTest {
 
         handler.handle(request, ctx);
         
-        new Verifications() {
-            {
-                Cookie cookie = null;
-                httpResponse.addCookie(cookie); times = 0;
-            }
-        };
+        verify(httpResponse, never()).addCookie(isNull());
     }
 
     @Test

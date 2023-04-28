@@ -1,23 +1,16 @@
 package nablarch.fw.web;
 
+import jakarta.servlet.http.Cookie;
+import nablarch.test.support.reflection.ReflectionUtil;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-
-import jakarta.servlet.http.Cookie;
-
-import nablarch.TestUtil;
-import org.junit.Assume;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import mockit.Deencapsulation;
-import mockit.Mocked;
 
 /**
  * {@link HttpCookie}のテストクラス。
@@ -31,9 +24,9 @@ public class HttpCookieTest {
      * @throws Exception
      */
     @Test
-    public void testGetMaxAge(@Mocked final Cookie cookie) throws Exception {
+    public void testGetMaxAge() throws Exception {
         sut = new HttpCookie();
-        Deencapsulation.setField(sut, "maxAge", 100);
+        ReflectionUtil.setFieldValue(sut, "maxAge", 100);
         assertThat("Max-Ageを取得できること", sut.getMaxAge(), is(100));
     }
 
@@ -42,10 +35,10 @@ public class HttpCookieTest {
      * @throws Exception
      */
     @Test
-    public void testSetMaxAge(@Mocked final Cookie cookie) throws Exception {
+    public void testSetMaxAge() throws Exception {
         sut = new HttpCookie();
         sut.setMaxAge(200);
-        assertThat("Max-Ageを設定できること", (Integer) Deencapsulation.getField(sut, "maxAge") , is(200));
+        assertThat("Max-Ageを設定できること", (Integer) ReflectionUtil.getFieldValue(sut, "maxAge") , is(200));
 
     }
 
@@ -54,9 +47,9 @@ public class HttpCookieTest {
      * @throws Exception
      */
     @Test
-    public void testGetPath(@Mocked final Cookie cookie) throws Exception {
+    public void testGetPath() throws Exception {
         sut = new HttpCookie();
-        Deencapsulation.setField(sut, "path", "/test");
+        ReflectionUtil.setFieldValue(sut, "path", "/test");
         assertThat("Pathを取得できること", sut.getPath(), is("/test"));
     }
 
@@ -65,10 +58,10 @@ public class HttpCookieTest {
      * @throws Exception
      */
     @Test
-    public void testSetPath(@Mocked final Cookie cookie) throws Exception {
+    public void testSetPath() throws Exception {
         sut = new HttpCookie();
         sut.setPath("/test");
-        assertThat("Pathを設定できること", Deencapsulation.getField(sut, "path").toString(), is("/test"));
+        assertThat("Pathを設定できること", ReflectionUtil.getFieldValue(sut, "path").toString(), is("/test"));
     }
 
     /**
@@ -76,9 +69,9 @@ public class HttpCookieTest {
      * @throws Exception
      */
     @Test
-    public void testGetDomain(@Mocked final Cookie cookie) throws Exception {
+    public void testGetDomain() throws Exception {
         sut = new HttpCookie();
-        Deencapsulation.setField(sut, "domain", "example.com");
+        ReflectionUtil.setFieldValue(sut, "domain", "example.com");
         assertThat("Domainを取得できること", sut.getDomain(), is("example.com"));
     }
 
@@ -87,10 +80,10 @@ public class HttpCookieTest {
      * @throws Exception
      */
     @Test
-    public void testSetDomain(@Mocked final Cookie cookie) throws Exception {
+    public void testSetDomain() throws Exception {
         sut = new HttpCookie();
         sut.setDomain("example.com");
-        assertThat("Domainを設定できること", Deencapsulation.getField(sut, "domain").toString(), is("example.com"));
+        assertThat("Domainを設定できること", ReflectionUtil.getFieldValue(sut, "domain").toString(), is("example.com"));
     }
 
     /**
@@ -98,9 +91,9 @@ public class HttpCookieTest {
      * @throws Exception
      */
     @Test
-    public void testIsSecure(@Mocked final Cookie cookie) throws Exception {
+    public void testIsSecure() throws Exception {
         sut = new HttpCookie();
-        Deencapsulation.setField(sut, "secure", true);
+        ReflectionUtil.setFieldValue(sut, "secure", true);
         assertThat("Secureを取得できること", sut.isSecure(), is(true));
     }
 
@@ -109,19 +102,19 @@ public class HttpCookieTest {
      * @throws Exception
      */
     @Test
-    public void testSetSecure(@Mocked final Cookie cookie) throws Exception {
+    public void testSetSecure() throws Exception {
         sut = new HttpCookie();
         sut.setSecure(false);
-        assertThat("Secureを設定できること", (Boolean) Deencapsulation.getField(sut, "secure"), is(false));
+        assertThat("Secureを設定できること", (Boolean) ReflectionUtil.getFieldValue(sut, "secure"), is(false));
     }
 
     /**
      * HttpOnlyを取得できることを確認
      */
     @Test
-    public void testIsHttpOnly(@Mocked final Cookie cookie) {
+    public void testIsHttpOnly() {
         sut = new HttpCookie();
-        Deencapsulation.setField(sut, "httpOnly", true);
+        ReflectionUtil.setFieldValue(sut, "httpOnly", true);
         assertThat("HttpOnlyを取得できること", sut.isHttpOnly(), is(true));
     }
 
@@ -129,10 +122,10 @@ public class HttpCookieTest {
      * HttpOnlyを設定できることを確認
      */
     @Test
-    public void testSetHttpOnly(@Mocked final Cookie cookie) {
+    public void testSetHttpOnly() {
         sut = new HttpCookie();
         sut.setHttpOnly(false);
-        assertThat("HttpOnlyを設定できること", (Boolean) Deencapsulation.getField(sut, "httpOnly"), is(false));
+        assertThat("HttpOnlyを設定できること", (Boolean) ReflectionUtil.getFieldValue(sut, "httpOnly"), is(false));
     }
 
     @Test

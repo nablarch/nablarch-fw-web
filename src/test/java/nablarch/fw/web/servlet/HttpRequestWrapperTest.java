@@ -1,9 +1,7 @@
 package nablarch.fw.web.servlet;
 
-import mockit.Deencapsulation;
-import mockit.Expectations;
-import mockit.Mocked;
-import mockit.Verifications;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.Cookie;
 import nablarch.core.repository.ObjectLoader;
 import nablarch.core.repository.SystemRepository;
 import nablarch.fw.web.HttpCookie;
@@ -11,12 +9,10 @@ import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.upload.PartInfo;
 import nablarch.fw.web.useragent.UserAgent;
 import nablarch.fw.web.useragent.UserAgentParser;
+import nablarch.test.support.reflection.ReflectionUtil;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.http.Cookie;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,39 +26,29 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.IsSame.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * {@link HttpRequestWrapper}のテストクラス。
  *
  * @author Naoki Yamamoto
  */
-@Ignore("jacoco と jmockit が競合してエラーになるため")
 public class HttpRequestWrapperTest {
 
-    @Mocked
-    public NablarchHttpServletRequestWrapper nablarchHttpServletRequestWrapper;
+    public NablarchHttpServletRequestWrapper nablarchHttpServletRequestWrapper = mock(NablarchHttpServletRequestWrapper.class);
 
     private HttpRequestWrapper sut;
 
     @Before
     public void setUp() throws Exception {
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getMethod();
-            minTimes = 0;
-            result = "GET";
-            nablarchHttpServletRequestWrapper.getContextPath();
-            minTimes = 0;
-            result = "www.example.com";
-            nablarchHttpServletRequestWrapper.getRequestURI();
-            minTimes = 0;
-            result = "www.example.com/index.html";
-            nablarchHttpServletRequestWrapper.getProtocol();
-            minTimes = 0;
-            result = "HTTP/1.1";
-            nablarchHttpServletRequestWrapper.getCookies();
-            minTimes = 0;
-            result = null;
-        }};
+        when(nablarchHttpServletRequestWrapper.getMethod()).thenReturn("GET");
+        when(nablarchHttpServletRequestWrapper.getContextPath()).thenReturn("www.example.com");
+        when(nablarchHttpServletRequestWrapper.getRequestURI()).thenReturn("www.example.com/index.html");
+        when(nablarchHttpServletRequestWrapper.getProtocol()).thenReturn("HTTP/1.1");
+        when(nablarchHttpServletRequestWrapper.getCookies()).thenReturn(null);
     }
 
     /**
@@ -88,10 +74,7 @@ public class HttpRequestWrapperTest {
         assertThat("メソッドを取得できること", sut.getMethod(), is("GET"));
 
         // メソッドの前後に空白が含まれるケース
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getMethod();
-            result = " POST ";
-        }};
+        when(nablarchHttpServletRequestWrapper.getMethod()).thenReturn(" POST ");
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
         assertThat("トリムされたメソッドを取得できること", sut.getMethod(), is("POST"));
     }
@@ -108,10 +91,7 @@ public class HttpRequestWrapperTest {
         assertThat("リクエストURIを取得できること", sut.getRequestUri(), is("/index.html"));
 
         // リクエストURIの前後に空白が含まれるケース
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getRequestURI();
-            result = "www.example.com /test.html ";
-        }};
+        when(nablarchHttpServletRequestWrapper.getRequestURI()).thenReturn("www.example.com /test.html ");
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
         assertThat("トリムされたリクエストURIを取得できること", sut.getRequestUri(), is("/test.html"));
     }
@@ -148,10 +128,7 @@ public class HttpRequestWrapperTest {
         assertThat("リクエストパスを取得できること", sut.getRequestPath(), is("/index.html"));
 
         // クエリストリングが設定されているケース
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getRequestURI();
-            result = "www.example.com/test.html?key=value";
-        }};
+        when(nablarchHttpServletRequestWrapper.getRequestURI()).thenReturn("www.example.com/test.html?key=value");
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
         assertThat("クエリストリングが除外されていること", sut.getRequestPath(), is("/test.html"));
     }
@@ -171,20 +148,14 @@ public class HttpRequestWrapperTest {
         assertThat("リクエストパスが設定されていること", sut.getRequestUri(), is("/test.html"));
 
         // クエリストリングが設定されているケース
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getRequestURI();
-            result = "www.example.com/index.html?key=value";
-        }};
+        when(nablarchHttpServletRequestWrapper.getRequestURI()).thenReturn("www.example.com/index.html?key=value");
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
         result = sut.setRequestPath("/test.html");
         assertThat("同一インスタンスが返却されること", sut, sameInstance(result));
         assertThat("クエリストリングが変更されていないこと", sut.getRequestUri(), is("/test.html?key=value"));
 
         // リクエストパスに$が含まれるケース
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getRequestURI();
-            result = "www.example.com/index.html?key=value";
-        }};
+        when(nablarchHttpServletRequestWrapper.getRequestURI()).thenReturn("www.example.com/index.html?key=value");
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
         result = sut.setRequestPath("/t$est$.html");
         assertThat("同一インスタンスが返却されること", sut, sameInstance(result));
@@ -210,12 +181,9 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetParamMap() throws Exception {
 
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getParameterMap();
-            result = new HashMap<String, String[]>() {{
-                put("key", new String[]{"value1", "value2"});
-            }};
-        }};
+        when(nablarchHttpServletRequestWrapper.getParameterMap()).thenReturn(new HashMap<String, String[]>() {{
+            put("key", new String[]{"value1", "value2"});
+        }});
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
         Map<String, String[]> map = sut.getParamMap();
         assertThat("リクエストパラメータのMapを取得できること", map.get("key"), is(notNullValue()));
@@ -231,12 +199,9 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetParam() throws Exception {
 
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getParameterMap();
-            result = new HashMap<String, String[]>() {{
-                put("key", new String[]{"value1", "value2"});
-            }};
-        }};
+        when(nablarchHttpServletRequestWrapper.getParameterMap()).thenReturn(new HashMap<String, String[]>() {{
+            put("key", new String[]{"value1", "value2"});
+        }});
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
         assertThat("リクエストパラメータの値を取得できること", sut.getParam("key")[0], is("value1"));
         assertThat("リクエストパラメータの値を取得できること", sut.getParam("key")[1], is("value2"));
@@ -254,11 +219,7 @@ public class HttpRequestWrapperTest {
             put("key", new String[]{"value"});
         }};
 
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getParameterMap();
-            result = paramMap;
-
-        }};
+        when(nablarchHttpServletRequestWrapper.getParameterMap()).thenReturn(paramMap);
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
         HttpRequest result = sut.setParam("test_key", "test_value1", "test_value2", "test_value3");
 
@@ -291,10 +252,9 @@ public class HttpRequestWrapperTest {
         HttpRequest result = sut.setParamMap(map);
 
         assertThat("同一インスタンスが返却されること", sut, sameInstance(result));
-        new Verifications() {{
-            // リクエストパラメータMapを設定していること
-            nablarchHttpServletRequestWrapper.setParamMap(map);
-        }};
+
+        // リクエストパラメータMapを設定していること
+        verify(nablarchHttpServletRequestWrapper, atLeastOnce()).setParamMap(map);
     }
 
     /**
@@ -305,12 +265,9 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetHeaderMap() throws Exception {
 
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getHeaderMap();
-            result = new HashMap<String, String>() {{
-                put("key", "value");
-            }};
-        }};
+        when(nablarchHttpServletRequestWrapper.getHeaderMap()).thenReturn(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
 
         Map<String, String> map = sut.getHeaderMap();
@@ -326,10 +283,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetHeader() throws Exception {
 
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getHeader("key");
-            result = "value";
-        }};
+        when(nablarchHttpServletRequestWrapper.getHeader("key")).thenReturn("value");
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
 
         assertThat("ヘッダに設定された値を取得できること", sut.getHeader("key"), is("value"));
@@ -343,10 +297,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetHost() throws Exception {
 
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getHeader("Host");
-            result = "host_value";
-        }};
+        when(nablarchHttpServletRequestWrapper.getHeader("Host")).thenReturn("host_value");
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
 
         assertThat("Hostを取得できること", sut.getHost(), is("host_value"));
@@ -360,10 +311,8 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetCookie() throws Exception {
 
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getCookies();
-            result = new Cookie[]{new Cookie("key1", "value1"), new Cookie("key2", "value2")};
-        }};
+        when(nablarchHttpServletRequestWrapper.getCookies())
+                .thenReturn(new Cookie[]{new Cookie("key1", "value1"), new Cookie("key2", "value2")});
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
 
         HttpCookie result = sut.getCookie();
@@ -384,7 +333,7 @@ public class HttpRequestWrapperTest {
 
         assertThat("空のListを取得できること", sut.getPart("key").isEmpty(), is(true));
 
-        Deencapsulation.setField(sut, "multipart", new HashMap<String, List<PartInfo>>() {{
+        ReflectionUtil.setFieldValue(sut, "multipart", new HashMap<String, List<PartInfo>>() {{
             put("key", new ArrayList<PartInfo>() {{
                 add(PartInfo.newInstance("name"));
             }});
@@ -436,8 +385,7 @@ public class HttpRequestWrapperTest {
     public void testGetMultipart() throws Exception {
 
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
-
-        Deencapsulation.setField(sut, "multipart"
+        ReflectionUtil.setFieldValue(sut, "multipart"
                 , new HashMap<String, List<PartInfo>>() {{
             put("key", new ArrayList<PartInfo>() {{
                 add(PartInfo.newInstance("name"));
@@ -459,10 +407,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetUserAgent_default() throws Exception {
 
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getHeader("User-Agent");
-            result = "test";
-        }};
+        when(nablarchHttpServletRequestWrapper.getHeader("User-Agent")).thenReturn("test");
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
 
         UserAgent result = sut.getUserAgent();
@@ -487,10 +432,7 @@ public class HttpRequestWrapperTest {
             }
         });
 
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getHeader("User-Agent");
-            result = "test";
-        }};
+        when(nablarchHttpServletRequestWrapper.getHeader("User-Agent")).thenReturn("test");
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
 
         UserAgent result = sut.getUserAgent();
@@ -506,10 +448,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetInputStream_success() throws Exception {
 
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getInputStream();
-            result = new MockServletInputStream(new byte[] {0});
-        }};
+        when(nablarchHttpServletRequestWrapper.getInputStream()).thenReturn(new MockServletInputStream(new byte[] {0}));
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
 
         ServletInputStream result = sut.getInputStream();
@@ -525,10 +464,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetInputStream_error() throws Exception {
 
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getInputStream();
-            result = new IOException();
-        }};
+        when(nablarchHttpServletRequestWrapper.getInputStream()).thenThrow(new IOException());
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
 
         try {
@@ -548,21 +484,14 @@ public class HttpRequestWrapperTest {
     public void testGetContentType_header() throws Exception {
 
         // ヘッダにのみ設定されているケース
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getHeader("Content-Type");
-            result = "type";
-        }};
+        when(nablarchHttpServletRequestWrapper.getHeader("Content-Type")).thenReturn("type");
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
 
         assertThat("Content-Typeを取得できること", sut.getContentType(), is("type"));
 
         // ヘッダとContentType両方に設定されているケース
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getHeader("Content-Type");
-            result = "type";
-            nablarchHttpServletRequestWrapper.getContentType();
-            result = "a";
-        }};
+        when(nablarchHttpServletRequestWrapper.getHeader("Content-Type")).thenReturn("type");
+        when(nablarchHttpServletRequestWrapper.getContentType()).thenReturn("a");
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
 
         assertThat("Content-Typeを取得できること", sut.getContentType(), is("type"));
@@ -577,21 +506,14 @@ public class HttpRequestWrapperTest {
     public void testGetContentType_contentType() throws Exception {
 
         // ContentTypeにのみ設定されているケース
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getContentType();
-            result = "type";
-        }};
+        when(nablarchHttpServletRequestWrapper.getContentType()).thenReturn("type");
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
 
         assertThat("Content-Typeを取得できること", sut.getContentType(), is("type"));
 
         // ヘッダとContentType両方に設定されているケース
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getContentType();
-            result = "type";
-            nablarchHttpServletRequestWrapper.getHeader("Content-Type");
-            result = "a";
-        }};
+        when(nablarchHttpServletRequestWrapper.getContentType()).thenReturn("type");
+        when(nablarchHttpServletRequestWrapper.getHeader("Content-Type")).thenReturn("a");
         assertThat("Content-Typeを取得できること", sut.getContentType(), is("type"));
     }
 
@@ -614,10 +536,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetContentLength() throws Exception {
 
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getContentLength();
-            result = 10;
-        }};
+        when(nablarchHttpServletRequestWrapper.getContentLength()).thenReturn(10);
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
 
         assertThat("Content-Lengthを取得できること", sut.getContentLength(), is(10));
@@ -631,10 +550,7 @@ public class HttpRequestWrapperTest {
     @Test
     public void testGetCharacterEncoding() throws Exception {
 
-        new Expectations() {{
-            nablarchHttpServletRequestWrapper.getCharacterEncoding();
-            result = "UTF-8";
-        }};
+        when(nablarchHttpServletRequestWrapper.getCharacterEncoding()).thenReturn("UTF-8");
         sut = new HttpRequestWrapper(nablarchHttpServletRequestWrapper);
 
         assertThat("エンコーディングを取得できること", sut.getCharacterEncoding(), is("UTF-8"));

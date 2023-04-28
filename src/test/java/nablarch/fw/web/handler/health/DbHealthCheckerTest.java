@@ -1,35 +1,30 @@
 package nablarch.fw.web.handler.health;
 
-import mockit.Expectations;
-import mockit.Mocked;
 import nablarch.core.db.dialect.Dialect;
 import org.junit.Test;
 
 import javax.sql.DataSource;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * {@link DbHealthChecker}のテスト。
  */
 public class DbHealthCheckerTest {
 
-    @Mocked
-    private DataSource dataSource;
+    private final DataSource dataSource = mock(DataSource.class);
 
-    @Mocked
-    private Dialect dialect;
+    private final Dialect dialect = mock(Dialect.class);
 
-    @Mocked
-    private Connection connection;
+    private final Connection connection = mock(Connection.class);
 
-    @Mocked
-    private PreparedStatement statement;
+    private final PreparedStatement statement = mock(PreparedStatement.class);
 
     /**
      * ヘルスチェックに成功した場合。
@@ -37,12 +32,8 @@ public class DbHealthCheckerTest {
     @Test
     public void success() throws Exception {
 
-        new Expectations() {{
-            dataSource.getConnection();
-            result = connection;
-            connection.prepareStatement(dialect.getPingSql());
-            result = statement;
-        }};
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(dialect.getPingSql())).thenReturn(statement);
 
         DbHealthChecker sut = new DbHealthChecker();
         sut.setDataSource(dataSource);
@@ -57,14 +48,9 @@ public class DbHealthCheckerTest {
     @Test
     public void failureByException() throws Exception {
 
-        new Expectations() {{
-            dataSource.getConnection();
-            result = connection;
-            connection.prepareStatement(dialect.getPingSql());
-            result = statement;
-            statement.execute();
-            result = new SQLException();
-        }};
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(dialect.getPingSql())).thenReturn(statement);
+        when(statement.execute()).thenThrow(new SQLException());
 
         DbHealthChecker sut = new DbHealthChecker();
         sut.setDataSource(dataSource);
@@ -79,10 +65,7 @@ public class DbHealthCheckerTest {
     @Test
     public void connectionError() throws Exception {
 
-        new Expectations() {{
-            dataSource.getConnection();
-            result = new SQLException();
-        }};
+        when(dataSource.getConnection()).thenThrow(new SQLException());
 
         DbHealthChecker sut = new DbHealthChecker();
         sut.setDataSource(dataSource);

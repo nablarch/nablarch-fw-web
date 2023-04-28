@@ -1,12 +1,9 @@
 package nablarch.fw.web.handler;
 
-import java.util.Collections;
-
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import nablarch.core.ThreadContext;
 import nablarch.core.repository.SystemRepository;
 import nablarch.fw.ExecutionContext;
@@ -15,34 +12,34 @@ import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.handler.secure.FrameOptionsHeader;
 import nablarch.fw.web.servlet.ServletExecutionContext;
-
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import mockit.Delegate;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Verifications;
+import java.util.Collections;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * {@link HttpResponseHandler}と{@link SecureHandler}を併用した場合に、
  * レスポンスヘッダが正しく書き込めることを確認するテスト。
  */
-@Ignore("jacoco と jmockit が競合してエラーになるため")
 public class HttpResponseHandlerWithSecureHandlerTest {
 
-    @Injectable
-    private HttpServletRequest mockServletRequest;
+    private final HttpServletRequest mockServletRequest = mock(HttpServletRequest.class, RETURNS_DEEP_STUBS);
 
-    @Injectable
-    private HttpServletResponse mockServletResponse;
+    private final HttpServletResponse mockServletResponse = mock(HttpServletResponse.class);
 
-    @Injectable
-    private ServletContext mockServletContext;
+    private final ServletContext mockServletContext = mock(ServletContext.class);
 
-    @Injectable
-    private HttpRequest mockHttpRequest;
+    private final HttpRequest mockHttpRequest = mock(HttpRequest.class);
 
     /** テスト対象 */
     private HttpResponseHandler sut = new HttpResponseHandler();
@@ -53,20 +50,9 @@ public class HttpResponseHandlerWithSecureHandlerTest {
     public void setUp() throws Exception {
         ThreadContext.clear();
         SystemRepository.clear();
-        new Expectations() {{
-            mockServletRequest.getRequestURI();
-            result = "/sampleapp/action/sample";
-            mockServletRequest.getContextPath();
-            result = "sampleapp";
-            mockServletResponse.encodeRedirectURL(anyString);
-            minTimes = 0;
-            result = new Delegate<String>() {
-                String delegate(String to) {
-                    return to;
-                }
-            };
-
-        }};
+        when(mockServletRequest.getRequestURI()).thenReturn("/sampleapp/action/sample");
+        when(mockServletRequest.getContextPath()).thenReturn("sampleapp");
+        when(mockServletResponse.encodeRedirectURL(anyString())).then(context -> context.getArgument(0));
         context = new ServletExecutionContext(mockServletRequest, mockServletResponse, mockServletContext);
         context.addHandler(new SecureHandler());
     }
@@ -87,16 +73,12 @@ public class HttpResponseHandlerWithSecureHandlerTest {
 
         sut.handle(mockHttpRequest, context);
 
-        new Verifications() {
-            {
-                mockServletRequest.getRequestDispatcher("test.jsp");
-                // セキュア関連のヘッダ及び後続ハンドラで設定したヘッダが移送されること
-                mockServletResponse.setHeader("X-Frame-Options", "SAMEORIGIN");
-                mockServletResponse.setHeader("X-XSS-Protection", "1; mode=block");
-                mockServletResponse.setHeader("X-Content-Type-Options", "nosniff");
-                mockServletResponse.setHeader("oreore-header", "oreore");
-            }
-        };
+        verify(mockServletRequest, atLeastOnce()).getRequestDispatcher("test.jsp");
+        // セキュア関連のヘッダ及び後続ハンドラで設定したヘッダが移送されること
+        verify(mockServletResponse, atLeastOnce()).setHeader("X-Frame-Options", "SAMEORIGIN");
+        verify(mockServletResponse, atLeastOnce()).setHeader("X-XSS-Protection", "1; mode=block");
+        verify(mockServletResponse, atLeastOnce()).setHeader("X-Content-Type-Options", "nosniff");
+        verify(mockServletResponse, atLeastOnce()).setHeader("oreore-header", "oreore");
     }
 
     /**
@@ -115,16 +97,14 @@ public class HttpResponseHandlerWithSecureHandlerTest {
 
         sut.handle(mockHttpRequest, context);
 
-        new Verifications() {{
-            // リダイレクト
-            mockServletResponse.sendRedirect("http://oreore.com");
+        // リダイレクト
+        verify(mockServletResponse, atLeastOnce()).sendRedirect("http://oreore.com");
 
-            // ヘッダが設定されること
-            mockServletResponse.setHeader("X-Frame-Options", "SAMEORIGIN");
-            mockServletResponse.setHeader("X-XSS-Protection", "1; mode=block");
-            mockServletResponse.setHeader("X-Content-Type-Options", "nosniff");
-            mockServletResponse.setHeader("oreore-header", "oreore");
-        }};
+        // ヘッダが設定されること
+        verify(mockServletResponse, atLeastOnce()).setHeader("X-Frame-Options", "SAMEORIGIN");
+        verify(mockServletResponse, atLeastOnce()).setHeader("X-XSS-Protection", "1; mode=block");
+        verify(mockServletResponse, atLeastOnce()).setHeader("X-Content-Type-Options", "nosniff");
+        verify(mockServletResponse, atLeastOnce()).setHeader("oreore-header", "oreore");
     }
 
     /**
@@ -142,17 +122,17 @@ public class HttpResponseHandlerWithSecureHandlerTest {
             }
         });
 
+        final ServletOutputStream stream = mock(ServletOutputStream.class);
+        when(mockServletResponse.getOutputStream()).thenReturn(stream);
+
         final HttpResponse response = sut.handle(mockHttpRequest, context);
 
-        new Verifications() {{
-            final ServletOutputStream stream = mockServletResponse.getOutputStream();
-            stream.write(withInstanceOf(byte[].class), anyInt, anyInt);
-            // ヘッダが設定されること
-            mockServletResponse.setHeader("X-Frame-Options", "SAMEORIGIN");
-            mockServletResponse.setHeader("X-XSS-Protection", "1; mode=block");
-            mockServletResponse.setHeader("X-Content-Type-Options", "nosniff");
-            mockServletResponse.setHeader("oreore-header", "oreore");
-        }};
+        verify(stream, atLeastOnce()).write(any(byte[].class), anyInt(), anyInt());
+        // ヘッダが設定されること
+        verify(mockServletResponse, atLeastOnce()).setHeader("X-Frame-Options", "SAMEORIGIN");
+        verify(mockServletResponse, atLeastOnce()).setHeader("X-XSS-Protection", "1; mode=block");
+        verify(mockServletResponse, atLeastOnce()).setHeader("X-Content-Type-Options", "nosniff");
+        verify(mockServletResponse, atLeastOnce()).setHeader("oreore-header", "oreore");
     }
 
     /**
@@ -176,20 +156,14 @@ public class HttpResponseHandlerWithSecureHandlerTest {
 
         sut.handle(mockHttpRequest, context);
 
-        new Verifications() {
-            {
-                mockServletRequest.getRequestDispatcher("test.jsp");
-                // 後続のハンドラで設定したものだけ移送されること
-                mockServletResponse.setHeader("X-Frame-Options", "SAMEORIGIN");
-                mockServletResponse.setHeader("oreore-header", "oreore");
+        verify(mockServletRequest, atLeastOnce()).getRequestDispatcher("test.jsp");
+        // 後続のハンドラで設定したものだけ移送されること
+        verify(mockServletResponse, atLeastOnce()).setHeader("X-Frame-Options", "SAMEORIGIN");
+        verify(mockServletResponse, atLeastOnce()).setHeader("oreore-header", "oreore");
 
-                // 以下は後続で設定していないもの（デフォルトの場合にだけ設定されるもの）
-                mockServletResponse.setHeader("X-XSS-Protection", "1; mode=block");
-                times = 0;
-                mockServletResponse.setHeader("X-Content-Type-Options", "nosniff");
-                times = 0;
-            }
-        };
+        // 以下は後続で設定していないもの（デフォルトの場合にだけ設定されるもの）
+        verify(mockServletResponse, never()).setHeader("X-XSS-Protection", "1; mode=block");
+        verify(mockServletResponse, never()).setHeader("X-Content-Type-Options", "nosniff");
     }
 }
 

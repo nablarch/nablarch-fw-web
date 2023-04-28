@@ -1,20 +1,8 @@
 package nablarch.common.web.interceptor;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import nablarch.common.web.interceptor.sample.form.SampleForm;
 import nablarch.core.ThreadContext;
 import nablarch.core.message.ApplicationException;
@@ -30,33 +18,39 @@ import nablarch.fw.web.MockHttpRequest;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 import nablarch.test.support.SystemRepositoryResource;
 import nablarch.test.support.message.MockStringResourceHolder;
-
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
-import mockit.Expectations;
-import mockit.Mocked;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Locale;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * {@link InjectForm}のテスト。
  * @author Kiyohito Itoh
  */
-@Ignore("jacoco と jmockit が競合してエラーになるため")
 public class InjectFormTest {
 
     @Rule
     public SystemRepositoryResource repositoryResource = new SystemRepositoryResource("nablarch/common/web/interceptor/sample/inject-form-test.xml");
 
-    @Mocked
-    private HttpServletRequest mockHttpServletRequest;
+    private final HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class, RETURNS_DEEP_STUBS);
 
-    @Mocked
-    private HttpServletResponse mockHttpServletResponse;
+    private final HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
 
-    @Mocked
-    private ServletContext mockServletContext;
+    private final ServletContext mockServletContext = mock(ServletContext.class);
 
     private ServletExecutionContext context;
 
@@ -81,26 +75,13 @@ public class InjectFormTest {
 
         ThreadContext.setLanguage(Locale.JAPANESE);
 
-        new Expectations() {{
-            mockHttpServletRequest.getContextPath();
-            result = "";
-            minTimes = 0;
+        when(mockHttpServletRequest.getContextPath()).thenReturn("");
+        when(mockHttpServletRequest.getRequestURI()).thenReturn("/dummy");
+        
+        context = spy(new ServletExecutionContext(mockHttpServletRequest,
+                mockHttpServletResponse, mockServletContext));
 
-            mockHttpServletRequest.getRequestURI();
-            result = "/dummy";
-            minTimes = 0;
-            
-        }};
-        
-        context = new ServletExecutionContext(mockHttpServletRequest,
-                mockHttpServletResponse, mockServletContext);
-        
-        new Expectations(context) {{
-            Map<String, Object> requestScope = new HashMap<String, Object>();
-            context.getRequestScopeMap();
-            result = requestScope;
-            minTimes = 0;
-        }};
+        doReturn(new HashMap<>()).when(context).getRequestScopeMap();
     }
 
     /**

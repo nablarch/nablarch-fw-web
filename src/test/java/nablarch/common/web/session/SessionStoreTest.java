@@ -1,22 +1,8 @@
 package nablarch.common.web.session;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.Serializable;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import mockit.Capturing;
-import mockit.Mocked;
 import nablarch.common.web.session.encoder.JavaSerializeStateEncoder;
 import nablarch.common.web.session.store.HiddenStore;
 import nablarch.core.repository.ObjectLoader;
@@ -26,21 +12,30 @@ import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.servlet.HttpRequestWrapper;
 import nablarch.fw.web.servlet.NablarchHttpServletRequestWrapper;
 import nablarch.fw.web.servlet.ServletExecutionContext;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author tajima
  *
  */
 public class SessionStoreTest {
-    @Capturing
-    private HttpServletResponse httpResponse;
+    private final HttpServletResponse httpResponse = mock(HttpServletResponse.class);
 
-    @Mocked
-    private ServletContext servletContext;
+    private final ServletContext servletContext = mock(ServletContext.class);
 
     @Before
     public void setUp() {

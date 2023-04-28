@@ -1,19 +1,8 @@
 package nablarch.fw.web.handler;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-
-import java.util.Arrays;
-import java.util.Map;
-
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.collection.IsMapContaining;
-
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.Handler;
 import nablarch.fw.web.HttpRequest;
@@ -21,33 +10,36 @@ import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.handler.secure.FrameOptionsHeader;
 import nablarch.fw.web.handler.secure.XssProtectionHeader;
 import nablarch.fw.web.servlet.ServletExecutionContext;
-
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.collection.IsMapContaining;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import mockit.Expectations;
-import mockit.Mocked;
+import java.util.Arrays;
+import java.util.Map;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * {@link SecureHandler}のテストクラス。
  */
-@Ignore("jacoco と jmockit が競合してエラーになるため")
 public class SecureHandlerTest {
 
-    @Mocked
-    private HttpServletRequest mockServletRequest;
+    private final HttpServletRequest mockServletRequest = mock(HttpServletRequest.class, RETURNS_DEEP_STUBS);
 
-    @Mocked
-    private HttpServletResponse mockServletResponse;
+    private final HttpServletResponse mockServletResponse = mock(HttpServletResponse.class);
 
-    @Mocked
-    private ServletContext mockServletContext;
+    private final ServletContext mockServletContext = mock(ServletContext.class);
 
-    @Mocked
-    private HttpRequest mockHttpRequest;
+    private final HttpRequest mockHttpRequest = mock(HttpRequest.class);
 
     /** テスト対象 */
     private SecureHandler sut = new SecureHandler();
@@ -66,12 +58,8 @@ public class SecureHandlerTest {
 
     @Before
     public void setUp() {
-        new Expectations() {{
-            mockServletRequest.getRequestURI();
-            result = "/sampleapp/action/sample";
-            mockServletRequest.getContextPath();
-            result = "sampleapp";
-        }};
+        when(mockServletRequest.getRequestURI()).thenReturn("/sampleapp/action/sample");
+        when(mockServletRequest.getContextPath()).thenReturn("sampleapp");
         context = new ServletExecutionContext(mockServletRequest, mockServletResponse, mockServletContext);
         context.addHandler(handler);
     }
