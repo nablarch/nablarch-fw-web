@@ -3,6 +3,7 @@ package nablarch.common.web.token;
 import nablarch.common.web.WebConfig;
 import nablarch.common.web.WebConfigFinder;
 import nablarch.core.repository.SystemRepository;
+import nablarch.core.util.annotation.Published;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.servlet.NablarchHttpServletRequestWrapper;
@@ -70,6 +71,7 @@ public final class TokenUtil {
      * @return トークンが有効な場合はtrue、有効でない場合はfalse
      * @throws ClassCastException Webコンテナ外で本メソッドが実行された場合。
      */
+    @Published(tag = "architect")
     public static synchronized boolean isValidToken(HttpRequest request, ExecutionContext context)
     throws ClassCastException {
         WebConfig webConfig = WebConfigFinder.getWebConfig();
