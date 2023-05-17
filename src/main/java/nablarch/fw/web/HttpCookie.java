@@ -241,10 +241,6 @@ public class HttpCookie extends MapWrapper<String, String> {
     private static final Pattern SET_COOKIE_DOMAIN_PATTERN = Pattern.compile(
         Pattern.compile(" Domain=", Pattern.CASE_INSENSITIVE) + "(.+?)(;|$)", Pattern.DOTALL);
 
-    // Set-CookieヘッダからExpires属性を取り出すためのパターン
-    private static final Pattern SET_COOKIE_EXPIRES_PATTERN = Pattern.compile(
-        Pattern.compile(" Expires=", Pattern.CASE_INSENSITIVE) + "(.+?)(;|$)", Pattern.DOTALL);
-
     // Set-CookieヘッダからMax-Age属性を取り出すためのパターン
     private static final Pattern SET_COOKIE_MAX_AGE_PATTERN = Pattern.compile(
         Pattern.compile(" Max-Age=", Pattern.CASE_INSENSITIVE) + "(.+?)(;|$)", Pattern.DOTALL);
