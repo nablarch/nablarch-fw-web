@@ -704,6 +704,10 @@ public class HttpResponse implements Result {
         return cookies;
     }
 
+    public List<HttpCookie> getHttpCookies() {
+        return HttpCookie.convertHttpCookies(cookies);
+    }
+
     /**
      * サーバ側から送信されたクッキー情報を設定する。
      * @param cookie クッキー情報オブジェクト
@@ -1093,7 +1097,7 @@ public class HttpResponse implements Result {
             parseError(header);
         }
         if ("Set-Cookie".equalsIgnoreCase(m.group(1))) {
-            this.cookies.addAll(HttpCookie.parseSetCookie(m.group(2)).convertServletCookies());
+            this.addCookie(HttpCookie.parseSetCookie(m.group(2)));
         }
         this.headers.put(m.group(1), m.group(2));
     }
