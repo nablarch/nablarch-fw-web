@@ -704,6 +704,7 @@ public class HttpResponse implements Result {
         return cookies;
     }
 
+    @Published
     public List<HttpCookie> getHttpCookies() {
         return HttpCookie.convertHttpCookies(cookies);
     }
