@@ -1098,7 +1098,7 @@ public class HttpResponse implements Result {
             parseError(header);
         }
         if ("Set-Cookie".equalsIgnoreCase(m.group(1))) {
-            this.addCookie(HttpCookie.parseSetCookie(m.group(2)));
+            this.addCookie(HttpCookie.parseSetCookie(header));
         }
         this.headers.put(m.group(1), m.group(2));
     }

@@ -1,5 +1,7 @@
 package nablarch.fw.web;
 
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
+import nablarch.core.repository.SystemRepository;
 import nablarch.core.util.annotation.Published;
 import nablarch.core.util.map.MapWrapper;
 
@@ -29,25 +31,25 @@ public class HttpCookie extends MapWrapper<String, String> {
 
     /** Set-CookieヘッダからCookie名を取り出すためのパターン */
     private static final Pattern SET_COOKIE_NAME_PATTERN = Pattern.compile(
-        Pattern.compile(" ([^=]+?)=", Pattern.CASE_INSENSITIVE) + "(.+?)(;|$)", Pattern.DOTALL);
+        "^Set-Cookie: ([^=]+?)=([^;]+?)(;|$)", Pattern.DOTALL);
 
     /** Set-CookieヘッダからPath属性を取り出すためのパターン */
     private static final Pattern SET_COOKIE_PATH_PATTERN = Pattern.compile(
-        Pattern.compile(" Path=", Pattern.CASE_INSENSITIVE) + "(.+?)(;|$)", Pattern.DOTALL);
+        " [pP][aA][tT][hH]=([^;]+?)(;|$)", Pattern.DOTALL);
 
     /** Set-CookieヘッダからDomain属性を取り出すためのパターン */
     private static final Pattern SET_COOKIE_DOMAIN_PATTERN = Pattern.compile(
-        Pattern.compile(" Domain=", Pattern.CASE_INSENSITIVE) + "(.+?)(;|$)", Pattern.DOTALL);
+        " [dD][oO][mM][aA][iI][nN]=([^;]+?)(;|$)", Pattern.DOTALL);
 
     /** Set-CookieヘッダからMax-Age属性を取り出すためのパターン */
     private static final Pattern SET_COOKIE_MAX_AGE_PATTERN = Pattern.compile(
-        Pattern.compile(" Max-Age=", Pattern.CASE_INSENSITIVE) + "(.+?)(;|$)", Pattern.DOTALL);
+        " [mM][aA][xX]-[aA][gG][eE]=([^;]+?)(;|$)", Pattern.DOTALL);
 
     /** Set-CookieヘッダからSecure属性を取り出すためのパターン */
-    private static final Pattern SET_COOKIE_SECURE_PATTERN = Pattern.compile(" Secure" + "(;|$)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern SET_COOKIE_SECURE_PATTERN = Pattern.compile(" [sS][eE][cC][uU][rR][eE](;|$)", Pattern.CASE_INSENSITIVE);
 
     /** Set-CookieヘッダからHttpOnly属性を取り出すためのパターン */
-    private static final Pattern SET_COOKIE_HTTP_ONLY_PATTERN = Pattern.compile(" HttpOnly" + "(;|$)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern SET_COOKIE_HTTP_ONLY_PATTERN = Pattern.compile(" [hH][tT][tT][pP][oO][nN][lL][yY](;|$)", Pattern.CASE_INSENSITIVE);
 
     static {
         Method isHttpOnlyMethod = null;
@@ -134,24 +136,31 @@ public class HttpCookie extends MapWrapper<String, String> {
         HttpCookie httpCookie = new HttpCookie();
 
         Matcher cookieNameValue = SET_COOKIE_NAME_PATTERN.matcher(cookieString);
-        if (!cookieNameValue.matches()) {
+        if (!cookieNameValue.find()) {
             parseError(cookieString);
         }
         httpCookie.put(cookieNameValue.group(1), cookieNameValue.group(2));
 
-        if (SET_COOKIE_PATH_PATTERN.matcher(cookieString).matches()) {
-            httpCookie.setPath(cookieString);
+        Matcher cookiePath = SET_COOKIE_PATH_PATTERN.matcher(cookieString);
+        if (cookiePath.find()) {
+            httpCookie.setPath(cookiePath.group(1));
         }
-        if (SET_COOKIE_DOMAIN_PATTERN.matcher(cookieString).matches()) {
-            httpCookie.setDomain(cookieString);
+
+        Matcher cookieDomain = SET_COOKIE_DOMAIN_PATTERN.matcher(cookieString);
+        if (cookieDomain.find()) {
+            httpCookie.setDomain(cookieDomain.group(1));
         }
-        if (SET_COOKIE_MAX_AGE_PATTERN.matcher(cookieString).matches()) {
-            httpCookie.setMaxAge(Integer.valueOf(cookieString));
+
+        Matcher cookieMaxAge = SET_COOKIE_MAX_AGE_PATTERN.matcher(cookieString);
+        if (cookieMaxAge.find()) {
+            httpCookie.setMaxAge(Integer.valueOf(cookieMaxAge.group(1)));
         }
-        if (SET_COOKIE_SECURE_PATTERN.matcher(cookieString).matches()) {
+
+        if (SET_COOKIE_SECURE_PATTERN.matcher(cookieString).find()) {
             httpCookie.setSecure(true);
         }
-        if (httpCookie.supportsHttpOnly() && SET_COOKIE_HTTP_ONLY_PATTERN.matcher(cookieString).matches()) {
+
+        if (httpCookie.supportsHttpOnly() && SET_COOKIE_HTTP_ONLY_PATTERN.matcher(cookieString).find()) {
             httpCookie.setHttpOnly(true);
         }
         return httpCookie;
