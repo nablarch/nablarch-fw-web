@@ -1,7 +1,5 @@
 package nablarch.fw.web;
 
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
-import nablarch.core.repository.SystemRepository;
 import nablarch.core.util.annotation.Published;
 import nablarch.core.util.map.MapWrapper;
 
@@ -9,11 +7,10 @@ import javax.servlet.http.Cookie;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Httpクッキーのパーサー及びその内容を保持するデータオブジェクト。
@@ -28,28 +25,6 @@ public class HttpCookie extends MapWrapper<String, String> {
 
     /** {@link Cookie}のsetHttpOnlyメソッドのメタ情報 */
     private static final Method SET_HTTP_ONLY_METHOD;
-
-    /** Set-CookieヘッダからCookie名を取り出すためのパターン */
-    private static final Pattern SET_COOKIE_NAME_PATTERN = Pattern.compile(
-        "^Set-Cookie: ([^=]+?)=([^;]+?)(;|$)", Pattern.DOTALL);
-
-    /** Set-CookieヘッダからPath属性を取り出すためのパターン */
-    private static final Pattern SET_COOKIE_PATH_PATTERN = Pattern.compile(
-        " [pP][aA][tT][hH]=([^;]+?)(;|$)", Pattern.DOTALL);
-
-    /** Set-CookieヘッダからDomain属性を取り出すためのパターン */
-    private static final Pattern SET_COOKIE_DOMAIN_PATTERN = Pattern.compile(
-        " [dD][oO][mM][aA][iI][nN]=([^;]+?)(;|$)", Pattern.DOTALL);
-
-    /** Set-CookieヘッダからMax-Age属性を取り出すためのパターン */
-    private static final Pattern SET_COOKIE_MAX_AGE_PATTERN = Pattern.compile(
-        " [mM][aA][xX]-[aA][gG][eE]=([^;]+?)(;|$)", Pattern.DOTALL);
-
-    /** Set-CookieヘッダからSecure属性を取り出すためのパターン */
-    private static final Pattern SET_COOKIE_SECURE_PATTERN = Pattern.compile(" [sS][eE][cC][uU][rR][eE](;|$)", Pattern.CASE_INSENSITIVE);
-
-    /** Set-CookieヘッダからHttpOnly属性を取り出すためのパターン */
-    private static final Pattern SET_COOKIE_HTTP_ONLY_PATTERN = Pattern.compile(" [hH][tT][tT][pP][oO][nN][lL][yY](;|$)", Pattern.CASE_INSENSITIVE);
 
     static {
         Method isHttpOnlyMethod = null;
@@ -94,82 +69,99 @@ public class HttpCookie extends MapWrapper<String, String> {
         cookies = new HashMap<String, String>();
     }
 
-    static List<HttpCookie> convertHttpCookies(List<Cookie> servletCookies) {
-        List<HttpCookie> httpCookies = new ArrayList<HttpCookie>();
-        for (Cookie servletCookie : servletCookies) {
-            HttpCookie httpCookie = new HttpCookie();
-
-            if (servletCookie.getName() == null) {
-                throw new IllegalArgumentException("Cookie name must not be null.");
-            }
-            httpCookie.put(servletCookie.getName(), servletCookie.getValue());
-
-            if (servletCookie.getMaxAge() != -1) {
-                httpCookie.setMaxAge(servletCookie.getMaxAge());
-            }
-
-            if (servletCookie.getPath() != null) {
-                httpCookie.setPath(servletCookie.getPath());
-            }
-
-            if (servletCookie.getDomain() != null) {
-                httpCookie.setDomain(servletCookie.getDomain());
-            }
-
-            httpCookie.setSecure(servletCookie.getSecure());
-            if (IS_HTTP_ONLY_METHOD != null) {
-                try {
-                    httpCookie.setHttpOnly((Boolean) IS_HTTP_ONLY_METHOD.invoke(servletCookie));
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            httpCookies.add(httpCookie);
-        }
-        return httpCookies;
-    }
-
-    static HttpCookie parseSetCookie(String cookieString) {
+    /**
+     * {@link Cookie}を{@link HttpCookie}に変換する。
+     * @param cookie JavaEE サーブレットAPIのCookieオブジェクト
+     * @return　{@link HttpCookie}オブジェクト
+     */
+    static HttpCookie convertHttpCookie(Cookie cookie) {
         HttpCookie httpCookie = new HttpCookie();
 
-        Matcher cookieNameValue = SET_COOKIE_NAME_PATTERN.matcher(cookieString);
-        if (!cookieNameValue.find()) {
-            parseError(cookieString);
+        if (cookie.getName() == null) {
+            throw new IllegalArgumentException("Cookie name must not be null.");
         }
-        httpCookie.put(cookieNameValue.group(1), cookieNameValue.group(2));
+        httpCookie.put(cookie.getName(), cookie.getValue());
 
-        Matcher cookiePath = SET_COOKIE_PATH_PATTERN.matcher(cookieString);
-        if (cookiePath.find()) {
-            httpCookie.setPath(cookiePath.group(1));
+        if (cookie.getMaxAge() != -1) {
+            httpCookie.setMaxAge(cookie.getMaxAge());
         }
 
-        Matcher cookieDomain = SET_COOKIE_DOMAIN_PATTERN.matcher(cookieString);
-        if (cookieDomain.find()) {
-            httpCookie.setDomain(cookieDomain.group(1));
+        if (cookie.getPath() != null) {
+            httpCookie.setPath(cookie.getPath());
         }
 
-        Matcher cookieMaxAge = SET_COOKIE_MAX_AGE_PATTERN.matcher(cookieString);
-        if (cookieMaxAge.find()) {
-            httpCookie.setMaxAge(Integer.valueOf(cookieMaxAge.group(1)));
+        if (cookie.getDomain() != null) {
+            httpCookie.setDomain(cookie.getDomain());
         }
 
-        if (SET_COOKIE_SECURE_PATTERN.matcher(cookieString).find()) {
-            httpCookie.setSecure(true);
+        httpCookie.setSecure(cookie.getSecure());
+
+        if (IS_HTTP_ONLY_METHOD != null) {
+            try {
+                httpCookie.setHttpOnly((Boolean) IS_HTTP_ONLY_METHOD.invoke(cookie));
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
         }
 
-        if (httpCookie.supportsHttpOnly() && SET_COOKIE_HTTP_ONLY_PATTERN.matcher(cookieString).find()) {
-            httpCookie.setHttpOnly(true);
-        }
         return httpCookie;
     }
 
-    private static void parseError(Object obj) {
-        throw new RuntimeException(
-            "Invalid Set-Cookie header: " + obj.toString()
-        );
+    /**
+     * RFC6265に従い、Set-Cookieヘッダをパースして{@link HttpCookie}オブジェクトを生成する。
+     * @see <a href="https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.1">RFC6265 4.1.1. Syntax</a>
+     * 本メソッドでは、Path、Domain、Max-Age、Secure、HttpOnly属性のみをサポートし、不適切な属性は無視する。
+     * @param cookieString　Set-Cookieヘッダ（Set-Cookie: を含む）
+     * @return {@link HttpCookie} インスタンス
+     */
+    static HttpCookie parseSetCookie(String cookieString) {
+
+        if (cookieString == null) {
+            throw new IllegalArgumentException("Cookie string must not be null.");
+        }
+        if (!cookieString.startsWith("Set-Cookie: ")) {
+            throw new IllegalArgumentException("Cookie string must start with 'Set-Cookie: '.");
+        }
+
+        HttpCookie httpCookie = new HttpCookie();
+        String[] cookieTokens = cookieString.substring("Set-Cookie: ".length()).split(";");
+
+        // Set-Cookieヘッダは最初にクッキー名と値のペアから始まる
+        String[] cookiePair = cookieTokens[0].trim().split("=");
+        if(cookiePair.length != 2){
+            throw new IllegalArgumentException("Cookie string must start with 'Set-Cookie: cookieName=cookieValue'.");
+        }
+
+        String cookieName = cookiePair[0];
+        String cookieValue = cookiePair[1].replaceAll("\"","");
+
+        httpCookie.put(cookieName, cookieValue);
+
+        // Set-Cookieヘッダの残りの属性を解析する。
+        for(int i = 1; i < cookieTokens.length; i++) {
+            String[] attributePair = cookieTokens[i].trim().split("=");
+            String attributeName = attributePair[0].toLowerCase();
+
+            if (attributePair.length == 2) {
+                if (attributeName.equals("path")) {
+                    httpCookie.setPath(attributePair[1]);
+                } else if (attributeName.equals("domain")) {
+                    httpCookie.setDomain(attributePair[1]);
+                } else if (attributeName.equals("max-age")) {
+                    httpCookie.setMaxAge(Integer.parseInt(attributePair[1]));
+                }
+            } else if (attributePair.length == 1) {
+                if (attributeName.equals("secure")) {
+                    httpCookie.setSecure(true);
+                } else if (httpCookie.supportsHttpOnly() && attributeName.equals("httponly")) {
+                    httpCookie.setHttpOnly(true);
+                }
+            }
+        }
+
+        return httpCookie;
     }
 
     /**

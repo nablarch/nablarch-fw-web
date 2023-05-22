@@ -704,9 +704,21 @@ public class HttpResponse implements Result {
         return cookies;
     }
 
+    /**
+     * サーバ側から送信されたクッキーのリストを{@link HttpCookie}として取得する。
+     * {@link HttpCookie}は同じ属性を持つ複数のクッキーを保持する仕様であるため、
+     * クッキーの属性が各々異なることを考慮し、リストとして返却する。
+     * @return クッキー ({@link HttpCookie})のリスト
+     */
     @Published
     public List<HttpCookie> getHttpCookies() {
-        return HttpCookie.convertHttpCookies(cookies);
+        List<HttpCookie> httpCookies = new ArrayList<HttpCookie>();
+
+        for(Cookie servletCookie: cookies) {
+            httpCookies.add(HttpCookie.convertHttpCookie(servletCookie));
+        }
+
+        return httpCookies;
     }
 
     /**
