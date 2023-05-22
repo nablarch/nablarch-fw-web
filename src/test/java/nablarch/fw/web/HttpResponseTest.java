@@ -313,23 +313,7 @@ public class HttpResponseTest {
         /***********************************************
         HTTP/1.1 400 Bad Request
         Set-Cookie: cookie00="value00"
-        Set-Cookie: cookie01=value01; Max-Age=3600
-        Set-Cookie: cookie02=value02; Path=/
-        Set-Cookie: cookie03=value03; Domain=example.com
-        Set-Cookie: cookie04=value04; Secure
-        Set-Cookie: cookie05=value05; HttpOnly
-        Set-Cookie: cookie06=value06; mAX-aGE=3600
-        Set-Cookie: cookie07=value07; pATH=/
-        Set-Cookie: cookie08=value08; dOMAIN=example.com
-        Set-Cookie: cookie09=value09; sECURE
-        Set-Cookie: cookie10=value10; hTTPoNLY
-        Set-Cookie: cookie11=value11; Max-Age=
-        Set-Cookie: cookie12=value12; Path=
-        Set-Cookie: cookie13=value13; Domain=
-        Set-Cookie: cookie14=value14; Max-Age
-        Set-Cookie: cookie15=value15; Path
-        Set-Cookie: cookie16=value16; Domain
-        Set-Cookie: cookie17=value17; Max-Age=3600; Path=/; Domain=example.com; Secure; HttpOnly
+        Set-Cookie: cookie01=value01; Max-Age=3600; Path=/; Domain=example.com; Secure; HttpOnly
 
         Hello world!
         ************************************************/
@@ -339,103 +323,18 @@ public class HttpResponseTest {
         assertEquals("Hello world!"             , res.getBodyString().trim());
         assertEquals(3, res.getHeaderMap().size());
 
-        assertEquals(18, res.getCookieList().size());
+        assertEquals(2, res.getCookieList().size());
         assertEquals("cookie00", res.getCookieList().get(0).getName());
         assertEquals("value00", res.getCookieList().get(0).getValue());
 
         assertEquals("cookie01", res.getCookieList().get(1).getName());
         assertEquals("value01", res.getCookieList().get(1).getValue());
         assertEquals(3600, res.getCookieList().get(1).getMaxAge());
-
-        assertEquals("cookie02", res.getCookieList().get(2).getName());
-        assertEquals("value02", res.getCookieList().get(2).getValue());
-        assertEquals("/", res.getCookieList().get(2).getPath());
-
-        assertEquals("cookie03", res.getCookieList().get(3).getName());
-        assertEquals("value03", res.getCookieList().get(3).getValue());
-        assertEquals("example.com", res.getCookieList().get(3).getDomain());
-
-        assertEquals("cookie04", res.getCookieList().get(4).getName());
-        assertEquals("value04", res.getCookieList().get(4).getValue());
-        assertTrue(res.getCookieList().get(4).getSecure());
-
-        assertEquals("cookie05", res.getCookieList().get(5).getName());
-        assertEquals("value05", res.getCookieList().get(5).getValue());
-//        assertEquals(true, Cookie.class.getMethod("isHttpOnly").invoke(res.getCookieList().get(5)));
-
-        assertEquals("cookie06", res.getCookieList().get(6).getName());
-        assertEquals("value06", res.getCookieList().get(6).getValue());
-        assertEquals(3600, res.getCookieList().get(6).getMaxAge());
-
-        assertEquals("cookie07", res.getCookieList().get(7).getName());
-        assertEquals("value07", res.getCookieList().get(7).getValue());
-        assertEquals("/", res.getCookieList().get(7).getPath());
-
-        assertEquals("cookie08", res.getCookieList().get(8).getName());
-        assertEquals("value08", res.getCookieList().get(8).getValue());
-        assertEquals("example.com", res.getCookieList().get(8).getDomain());
-
-        assertEquals("cookie09", res.getCookieList().get(9).getName());
-        assertEquals("value09", res.getCookieList().get(9).getValue());
-        assertTrue(res.getCookieList().get(9).getSecure());
-
-        assertEquals("cookie10", res.getCookieList().get(10).getName());
-        assertEquals("value10", res.getCookieList().get(10).getValue());
-//        assertEquals(true, Cookie.class.getMethod("isHttpOnly").invoke(res.getCookieList().get(10)));
-
-        assertEquals("cookie11", res.getCookieList().get(11).getName());
-        assertEquals("value11", res.getCookieList().get(11).getValue());
-        assertEquals(-1, res.getCookieList().get(11).getMaxAge());
-
-        assertEquals("cookie12", res.getCookieList().get(12).getName());
-        assertEquals("value12", res.getCookieList().get(12).getValue());
-        assertNull(res.getCookieList().get(12).getPath());
-
-        assertEquals("cookie13", res.getCookieList().get(13).getName());
-        assertEquals("value13", res.getCookieList().get(13).getValue());
-        assertNull(res.getCookieList().get(13).getDomain());
-
-        assertEquals("cookie14", res.getCookieList().get(14).getName());
-        assertEquals("value14", res.getCookieList().get(14).getValue());
-        assertEquals(-1, res.getCookieList().get(14).getMaxAge());
-
-        assertEquals("cookie15", res.getCookieList().get(15).getName());
-        assertEquals("value15", res.getCookieList().get(15).getValue());
-        assertNull(res.getCookieList().get(15).getPath());
-
-        assertEquals("cookie16", res.getCookieList().get(16).getName());
-        assertEquals("value16", res.getCookieList().get(16).getValue());
-        assertNull(res.getCookieList().get(16).getDomain());
-
-        assertEquals("cookie17", res.getCookieList().get(17).getName());
-        assertEquals("value17", res.getCookieList().get(17).getValue());
-        assertEquals(3600, res.getCookieList().get(17).getMaxAge());
-        assertEquals("/", res.getCookieList().get(17).getPath());
-        assertEquals("example.com", res.getCookieList().get(17).getDomain());
-        assertTrue(res.getCookieList().get(17).getSecure());
-//        assertEquals(true, Cookie.class.getMethod("isHttpOnly").invoke(res.getCookieList().get(17)));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testThrowsErrorWhenParsingInvalidSetCookieValue() {
-        HttpResponse.parse(Hereis.string());
-        /***********************************************
-        HTTP/1.1 400 Bad Request
-        Set-Cookie: cookie00
-
-        Hello world!
-        ************************************************/
-    }
-
-    @Test(expected = NumberFormatException.class)
-    public void testThrowsErrorWhenParsingInvalidSetCookieMaxAge() {
-        HttpResponse.parse(Hereis.string());
-        /***********************************************
-        HTTP/1.1 400 Bad Request
-        Set-Cookie: cookie01=ok; Max-Age=hoge
-
-        Hello world!
-        ************************************************/
+        assertEquals("/", res.getCookieList().get(1).getPath());
+        assertEquals("example.com", res.getCookieList().get(1).getDomain());
+        assertTrue(res.getCookieList().get(1).getSecure());
+        // 以下は実行できない
+        // assertEquals(true, Cookie.class.getMethod("isHttpOnly").invoke(res.getCookieList().get(1)));
     }
 
     @Test

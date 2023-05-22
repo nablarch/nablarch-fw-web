@@ -2,7 +2,10 @@ package nablarch.fw.web;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.lang.reflect.Method;
@@ -12,18 +15,23 @@ import java.util.List;
 import javax.servlet.http.Cookie;
 
 import nablarch.TestUtil;
+import org.hamcrest.Matchers;
 import org.junit.Assume;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 
 import mockit.Deencapsulation;
 import mockit.Mocked;
+import org.junit.rules.ExpectedException;
 
 /**
  * {@link HttpCookie}のテストクラス。
  */
 public class HttpCookieTest {
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     private HttpCookie sut;
 
     /**
@@ -240,5 +248,233 @@ public class HttpCookieTest {
                 assertThat("Secureが正しいこと", c.getSecure(), is(true));
             }
         }
+    }
+
+    @Test
+    public void testParsingSetCookieHeader() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=\"value\"");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderMaxAge() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; Max-Age=3600");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        assertEquals(3600, (int)cookie.getMaxAge());
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderPath() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; Path=/");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        assertEquals("/", cookie.getPath());
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderDomain() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; Domain=example.com");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        assertEquals("example.com", cookie.getDomain());
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderSecure() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; Secure");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        assertTrue(cookie.isSecure());
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderHttpOnly() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; HttpOnly");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        // 以下は実行できない
+        // assertEquals(true, Cookie.class.getMethod("isHttpOnly").invoke(cookie));
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderMaxAgeCaseInsensitive() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; mAX-aGE=3600");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        assertEquals(3600, (int)cookie.getMaxAge());
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderPathCaseInsensitive() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; pATH=/");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        assertEquals("/", cookie.getPath());
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderDomainCaseInsensitive() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; dOMAIN=example.com");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        assertEquals("example.com", cookie.getDomain());
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderSecureCaseInsensitive() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; sECURE");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        assertTrue(cookie.isSecure());
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderHttpOnlyCaseInsensitive() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; hTTPoNLY");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        // 以下は実行できない
+        // assertEquals(true, Cookie.class.getMethod("isHttpOnly").invoke(cookie));
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderMaxAgeNull1() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; Max-Age=");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        assertNull(cookie.getMaxAge());
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderMaxAgeNull2() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; Max-Age");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        assertNull(cookie.getMaxAge());
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderPathNull1() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; Path=");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        assertNull(cookie.getPath());
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderPathNull2() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; Path");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        assertNull(cookie.getPath());
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderDomainNull1() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; Domain=");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        assertNull(cookie.getDomain());
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderDomainNull2() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; Domain");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        assertNull(cookie.getDomain());
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderAllAttributes() {
+        HttpCookie cookie = HttpCookie.parseSetCookie("Set-Cookie: cookie=value; Max-Age=3600; Path=/; Domain=example.com; Secure; HttpOnly");
+        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
+        assertEquals("value", cookie.getDelegateMap().get("cookie"));
+        assertEquals(3600, (int)cookie.getMaxAge());
+        assertEquals("/", cookie.getPath());
+        assertEquals("example.com", cookie.getDomain());
+        assertTrue(cookie.isSecure());
+        // 以下は実行できない
+        // assertEquals(true, Cookie.class.getMethod("isHttpOnly").invoke(cookie));
+    }
+
+    @Test
+    public void testThrowsErrorWhenParsingInvalidSetCookieValue() {
+        expectedException.expect(Matchers.allOf(
+                Matchers.instanceOf(IllegalArgumentException.class),
+                Matchers.hasProperty("message", Matchers.is("Cookie string must start with 'Set-Cookie: cookieName=cookieValue'."))
+        ));
+
+        HttpCookie.parseSetCookie("Set-Cookie: cookie=");
+    }
+
+    @Test
+    public void testThrowsErrorWhenParsingInvalidSetCookieMaxAge() {
+        expectedException.expect(Matchers.instanceOf(NumberFormatException.class));
+
+        HttpCookie.parseSetCookie("Set-Cookie: cookie01=ok; Max-Age=hoge");
+    }
+
+    @Test
+    public void testThrowsErrorWhenSetCookieStringIsNull() {
+        expectedException.expect(Matchers.allOf(
+            Matchers.instanceOf(IllegalArgumentException.class),
+            Matchers.hasProperty("message", Matchers.is("Cookie string must not be null."))
+        ));
+
+        HttpCookie.parseSetCookie(null);
+    }
+
+    @Test
+    public void testThrowsErrorWhenSetCookieStringNotStartWithSetCookie() {
+        expectedException.expect(Matchers.allOf(
+            Matchers.instanceOf(IllegalArgumentException.class),
+            Matchers.hasProperty("message", Matchers.is("Cookie string must start with 'Set-Cookie: '."))
+        ));
+
+        HttpCookie.parseSetCookie("testName=testValue");
+
+    }
+
+    @Test
+    public void testThrowsErrorWhenSetCookieHeaderNotContainNameValuePair() {
+        expectedException.expect(Matchers.allOf(
+            Matchers.instanceOf(IllegalArgumentException.class),
+            Matchers.hasProperty("message", Matchers.is("Cookie string must start with 'Set-Cookie: cookieName=cookieValue'."))
+        ));
+
+        HttpCookie.parseSetCookie("Set-Cookie: testName=");
+
+    }
+
+    @Test
+    public void testConvertingServletCookieToHttpCookie() {
+
+        Cookie cookie = new Cookie("cookie", "value");
+        cookie.setMaxAge(3600);
+        cookie.setDomain("example.com");
+        cookie.setPath("/");
+        cookie.setSecure(true);
+
+        HttpCookie httpCookie = HttpCookie.convertHttpCookie(cookie);
+
+        assertEquals("value", httpCookie.getDelegateMap().get("cookie"));
+        assertEquals(3600, (int) httpCookie.getMaxAge());
+        assertEquals("example.com", httpCookie.getDomain());
+        assertEquals("/", httpCookie.getPath());
+        assertTrue(httpCookie.isSecure());
+    }
+
+    @Test
+    public void testThrowsErrorWhenEmptyServletCookie() {
+        expectedException.expect(Matchers.allOf(
+            Matchers.instanceOf(IllegalArgumentException.class),
+            Matchers.hasProperty("message", Matchers.is("Cookie value must not be null."))
+        ));
+
+        Cookie cookie = new Cookie("test", null);
+        HttpCookie.convertHttpCookie(cookie);
     }
 }

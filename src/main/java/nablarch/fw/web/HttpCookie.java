@@ -77,8 +77,8 @@ public class HttpCookie extends MapWrapper<String, String> {
     static HttpCookie convertHttpCookie(Cookie cookie) {
         HttpCookie httpCookie = new HttpCookie();
 
-        if (cookie.getName() == null) {
-            throw new IllegalArgumentException("Cookie name must not be null.");
+        if (cookie.getValue() == null) {
+            throw new IllegalArgumentException("Cookie value must not be null.");
         }
         httpCookie.put(cookie.getName(), cookie.getValue());
 
