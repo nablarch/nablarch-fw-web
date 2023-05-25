@@ -143,11 +143,10 @@ public class NablarchServletContextListener implements ServletContextListener {
      * @return 判定結果
      */
     private boolean isRequestTest() {
-        // 通常のアプリケーション実行時は、NablarchServletContextListenerでリポジトリを初期化しているが、
-        // NTFでテストを実施する時は、NTF側でリポジトリを初期化する。
-        // そのため、NTFでのテスト中はNablarchServletContextListenerで初期化しないように制御する必要がある。
-        // NTFでのテスト中かの判定にはテスト用コンポーネントが存在するか否かで判定するため、
-        // 本来本モジュールが依存しないテスト用コンポーネント名を参照している。
+        // リクエスト単体テスト実行時は、Nablarch Testing Frameworkにおいてリポジトリの初期化を行っている。
+        // リクエスト単体テスト実行中か否かの判定のため、リクエスト単体テスト実行時に必須となるテスト用コンポーネント
+        // (Webアプリケーション用のhttpTestConfiguration、RESTfulWebサービス用のrestTestConfiguration)が
+        // システムリポジトリに存在するかどうかを判定している。
         Object httpTestConfiguration = SystemRepository.get("httpTestConfiguration");
         Object restTestConfiguration = SystemRepository.get("restTestConfiguration");
         return (httpTestConfiguration != null || restTestConfiguration != null);
