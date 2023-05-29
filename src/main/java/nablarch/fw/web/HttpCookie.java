@@ -130,7 +130,7 @@ public class HttpCookie extends MapWrapper<String, String> {
 
         // Set-Cookieヘッダは最初にクッキー名と値のペアから始まる
         String[] cookiePair = cookieTokens[0].trim().split("=", 2);
-        if(cookiePair.length != 2) {
+        if(StringUtil.isNullOrEmpty(cookiePair[1])){
             throw new IllegalArgumentException("Cookie string must start with 'Set-Cookie: cookieName=cookieValue'.");
         }
 
