@@ -715,7 +715,7 @@ public class HttpResponse implements Result {
         List<HttpCookie> httpCookies = new ArrayList<HttpCookie>();
 
         for(Cookie servletCookie: cookies) {
-            httpCookies.add(HttpCookie.convertHttpCookie(servletCookie));
+            httpCookies.add(HttpCookie.fromServletCookie(servletCookie));
         }
 
         return httpCookies;
@@ -1110,7 +1110,7 @@ public class HttpResponse implements Result {
             parseError(header);
         }
         if ("Set-Cookie".equalsIgnoreCase(m.group(1))) {
-            this.addCookie(HttpCookie.parseSetCookie(header));
+            this.addCookie(HttpCookie.fromCookieString(header));
         }
         this.headers.put(m.group(1), m.group(2));
     }

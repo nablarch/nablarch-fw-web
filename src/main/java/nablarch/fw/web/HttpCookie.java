@@ -7,7 +7,6 @@ import javax.servlet.http.Cookie;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,11 +69,11 @@ public class HttpCookie extends MapWrapper<String, String> {
     }
 
     /**
-     * {@link Cookie}を{@link HttpCookie}に変換する。
+     * {@link Cookie}から{@link HttpCookie}を生成する。
      * @param cookie JavaEE サーブレットAPIのCookieオブジェクト
-     * @return　{@link HttpCookie}オブジェクト
+     * @return {@link HttpCookie}オブジェクト
      */
-    static HttpCookie convertHttpCookie(Cookie cookie) {
+    static HttpCookie fromServletCookie(Cookie cookie) {
         HttpCookie httpCookie = new HttpCookie();
 
         if (cookie.getValue() == null) {
@@ -110,13 +109,13 @@ public class HttpCookie extends MapWrapper<String, String> {
     }
 
     /**
-     * RFC6265に従い、Set-Cookieヘッダをパースして{@link HttpCookie}オブジェクトを生成する。
+     * RFC6265に従い、Set-Cookieヘッダをパースして{@link HttpCookie}を生成する。
+     * {@link HttpCookie}はPath、Domain、Max-Age、Secure、HttpOnly属性のみをサポートしているため、それ以外の属性はパース時に無視する。
      * @see <a href="https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.1">RFC6265 4.1.1. Syntax</a>
-     * 本メソッドでは、Path、Domain、Max-Age、Secure、HttpOnly属性のみをサポートし、不適切な属性は無視する。
      * @param cookieString　Set-Cookieヘッダ（Set-Cookie: を含む）
      * @return {@link HttpCookie} インスタンス
      */
-    static HttpCookie parseSetCookie(String cookieString) {
+    static HttpCookie fromCookieString(String cookieString) {
 
         if (cookieString == null) {
             throw new IllegalArgumentException("Cookie string must not be null.");
@@ -129,7 +128,7 @@ public class HttpCookie extends MapWrapper<String, String> {
         String[] cookieTokens = cookieString.substring("Set-Cookie: ".length()).split(";");
 
         // Set-Cookieヘッダは最初にクッキー名と値のペアから始まる
-        String[] cookiePair = cookieTokens[0].trim().split("=");
+        String[] cookiePair = cookieTokens[0].trim().split("=", 2);
         if(cookiePair.length != 2){
             throw new IllegalArgumentException("Cookie string must start with 'Set-Cookie: cookieName=cookieValue'.");
         }
@@ -141,7 +140,7 @@ public class HttpCookie extends MapWrapper<String, String> {
 
         // Set-Cookieヘッダの残りの属性を解析する。
         for(int i = 1; i < cookieTokens.length; i++) {
-            String[] attributePair = cookieTokens[i].trim().split("=");
+            String[] attributePair = cookieTokens[i].trim().split("=", 2);
             String attributeName = attributePair[0].toLowerCase();
 
             if (attributePair.length == 2) {
