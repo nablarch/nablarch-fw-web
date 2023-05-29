@@ -1,5 +1,6 @@
 package nablarch.fw.web;
 
+import nablarch.core.util.StringUtil;
 import nablarch.core.util.annotation.Published;
 import nablarch.core.util.map.MapWrapper;
 
@@ -129,7 +130,7 @@ public class HttpCookie extends MapWrapper<String, String> {
 
         // Set-Cookieヘッダは最初にクッキー名と値のペアから始まる
         String[] cookiePair = cookieTokens[0].trim().split("=", 2);
-        if(cookiePair.length != 2){
+        if(cookiePair.length != 2) {
             throw new IllegalArgumentException("Cookie string must start with 'Set-Cookie: cookieName=cookieValue'.");
         }
 
@@ -139,24 +140,28 @@ public class HttpCookie extends MapWrapper<String, String> {
         httpCookie.put(cookieName, cookieValue);
 
         // Set-Cookieヘッダの残りの属性を解析する。
-        for(int i = 1; i < cookieTokens.length; i++) {
-            String[] attributePair = cookieTokens[i].trim().split("=", 2);
-            String attributeName = attributePair[0].toLowerCase();
+        for(String cookieToken : cookieTokens) {
+            cookieToken = cookieToken.trim();
 
-            if (attributePair.length == 2) {
-                if (attributeName.equals("path")) {
-                    httpCookie.setPath(attributePair[1]);
-                } else if (attributeName.equals("domain")) {
-                    httpCookie.setDomain(attributePair[1]);
-                } else if (attributeName.equals("max-age")) {
-                    httpCookie.setMaxAge(Integer.parseInt(attributePair[1]));
+            if (cookieToken.toLowerCase().startsWith("path=")) {
+                String value = cookieToken.substring("path=".length());
+                if (StringUtil.hasValue(value)) {
+                    httpCookie.setPath(value);
                 }
-            } else if (attributePair.length == 1) {
-                if (attributeName.equals("secure")) {
-                    httpCookie.setSecure(true);
-                } else if (httpCookie.supportsHttpOnly() && attributeName.equals("httponly")) {
-                    httpCookie.setHttpOnly(true);
+            } else if (cookieToken.toLowerCase().startsWith("domain=")) {
+                String value = cookieToken.substring("domain=".length());
+                if (StringUtil.hasValue(value)) {
+                    httpCookie.setDomain(value);
                 }
+            } else if (cookieToken.toLowerCase().startsWith("max-age=")) {
+                String value = cookieToken.substring("max-age=".length());
+                if (StringUtil.hasValue(value)) {
+                    httpCookie.setMaxAge(Integer.parseInt(value));
+                }
+            } else if (cookieToken.equalsIgnoreCase("secure")) {
+                httpCookie.setSecure(true);
+            } else if (httpCookie.supportsHttpOnly() && cookieToken.equalsIgnoreCase("httponly")) {
+                httpCookie.setHttpOnly(true);
             }
         }
 
