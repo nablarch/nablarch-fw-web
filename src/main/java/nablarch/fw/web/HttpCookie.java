@@ -113,20 +113,20 @@ public class HttpCookie extends MapWrapper<String, String> {
      * RFC6265に従い、Set-Cookieヘッダをパースして{@link HttpCookie}を生成する。
      * {@link HttpCookie}はPath、Domain、Max-Age、Secure、HttpOnly属性のみをサポートしているため、それ以外の属性はパース時に無視する。
      * @see <a href="https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.1">RFC6265 4.1.1. Syntax</a>
-     * @param cookieString　Set-Cookieヘッダ（Set-Cookie: を含む）
+     * @param header　Set-Cookieヘッダ（Set-Cookie: を含む）
      * @return {@link HttpCookie} インスタンス
      */
-    static HttpCookie fromCookieString(String cookieString) {
+    static HttpCookie fromSetCookieHeader(String header) {
 
-        if (cookieString == null) {
+        if (header == null) {
             throw new IllegalArgumentException("Cookie string must not be null.");
         }
-        if (!cookieString.startsWith("Set-Cookie: ")) {
+        if (!header.startsWith("Set-Cookie: ")) {
             throw new IllegalArgumentException("Cookie string must start with 'Set-Cookie: '.");
         }
 
         HttpCookie httpCookie = new HttpCookie();
-        String[] cookieTokens = cookieString.substring("Set-Cookie: ".length()).split(";");
+        String[] cookieTokens = header.substring("Set-Cookie: ".length()).split(";");
 
         // Set-Cookieヘッダは最初にクッキー名と値のペアから始まる
         String[] cookiePair = cookieTokens[0].trim().split("=", 2);
