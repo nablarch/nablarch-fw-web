@@ -143,7 +143,7 @@ public class HttpCookie extends MapWrapper<String, String> {
 
         httpCookie.setDomain(seCookie.getDomain());
 
-        // HttpCookieクラスでは、JavaEEのCookieクラスに合わせて、Max-Age属性の値をint型で保持しているため、Long型の値をint型にキャストしている。
+        // HttpCookieクラスでは、JavaEEのCookieクラスに合わせて、Max-Age属性の値をInteger型で保持しているため、long型の値をint型にキャストしている。
         httpCookie.setMaxAge((int) seCookie.getMaxAge());
 
         httpCookie.setSecure(seCookie.getSecure());
