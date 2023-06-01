@@ -142,18 +142,19 @@ public class HttpCookie extends MapWrapper<String, String> {
         // Set-Cookieヘッダの残りの属性を解析する。
         for(String cookieToken : cookieTokens) {
             cookieToken = cookieToken.trim();
+            String cookieTokenLowerCase = cookieToken.toLowerCase();
 
-            if (cookieToken.toLowerCase().startsWith("path=")) {
+            if (cookieTokenLowerCase.startsWith("path=")) {
                 String value = cookieToken.substring("path=".length());
                 if (StringUtil.hasValue(value)) {
                     httpCookie.setPath(value);
                 }
-            } else if (cookieToken.toLowerCase().startsWith("domain=")) {
+            } else if (cookieTokenLowerCase.startsWith("domain=")) {
                 String value = cookieToken.substring("domain=".length());
                 if (StringUtil.hasValue(value)) {
                     httpCookie.setDomain(value);
                 }
-            } else if (cookieToken.toLowerCase().startsWith("max-age=")) {
+            } else if (cookieTokenLowerCase.startsWith("max-age=")) {
                 String value = cookieToken.substring("max-age=".length());
                 if (StringUtil.hasValue(value)) {
                     httpCookie.setMaxAge(Integer.parseInt(value));
