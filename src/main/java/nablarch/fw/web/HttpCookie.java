@@ -125,45 +125,29 @@ public class HttpCookie extends MapWrapper<String, String> {
             throw new IllegalArgumentException("Cookie string must start with 'Set-Cookie: '.");
         }
 
-        HttpCookie httpCookie = new HttpCookie();
-        String[] cookieTokens = header.substring("Set-Cookie: ".length()).split(";");
+        List<java.net.HttpCookie> seCookie = java.net.HttpCookie.parse(header);
 
-        // Set-Cookieヘッダは最初にクッキー名と値のペアから始まる
-        String[] cookiePair = cookieTokens[0].trim().split("=", 2);
-        if(StringUtil.isNullOrEmpty(cookiePair[1])){
-            throw new IllegalArgumentException("Cookie string must start with 'Set-Cookie: cookieName=cookieValue'.");
+        // java.net.HttpCookie.parse()は、複数のクッキーを含み得るSet-Cookie2ヘッダにも対応しているため、List型の値を返却している。
+        // しかし、本メソッドではSet-Cookieヘッダのみサポートするため、Listのサイズが1であることを確認する。
+        if (seCookie.size() != 1) {
+            throw new IllegalStateException("Cookie string must be one.");
         }
 
-        String cookieName = cookiePair[0];
-        String cookieValue = cookiePair[1].replaceAll("\"","");
+        HttpCookie httpCookie = new HttpCookie();
 
-        httpCookie.put(cookieName, cookieValue);
+        httpCookie.put(seCookie.get(0).getName(), seCookie.get(0).getValue());
 
-        // Set-Cookieヘッダの残りの属性を解析する。
-        for(String cookieToken : cookieTokens) {
-            cookieToken = cookieToken.trim();
-            String cookieTokenLowerCase = cookieToken.toLowerCase();
+        httpCookie.setPath(seCookie.get(0).getPath());
 
-            if (cookieTokenLowerCase.startsWith("path=")) {
-                String value = cookieToken.substring("path=".length());
-                if (StringUtil.hasValue(value)) {
-                    httpCookie.setPath(value);
-                }
-            } else if (cookieTokenLowerCase.startsWith("domain=")) {
-                String value = cookieToken.substring("domain=".length());
-                if (StringUtil.hasValue(value)) {
-                    httpCookie.setDomain(value);
-                }
-            } else if (cookieTokenLowerCase.startsWith("max-age=")) {
-                String value = cookieToken.substring("max-age=".length());
-                if (StringUtil.hasValue(value)) {
-                    httpCookie.setMaxAge(Integer.parseInt(value));
-                }
-            } else if (cookieToken.equalsIgnoreCase("secure")) {
-                httpCookie.setSecure(true);
-            } else if (httpCookie.supportsHttpOnly() && cookieToken.equalsIgnoreCase("httponly")) {
-                httpCookie.setHttpOnly(true);
-            }
+        httpCookie.setDomain(seCookie.get(0).getDomain());
+
+        // JavaEEのCookieクラスでは、Max-Age属性の値をint型で保持しているため、Long型の値をint型にキャストしている。
+        httpCookie.setMaxAge((int) seCookie.get(0).getMaxAge());
+
+        httpCookie.setSecure(seCookie.get(0).getSecure());
+
+        if(httpCookie.supportsHttpOnly()) {
+            httpCookie.setHttpOnly(seCookie.get(0).isHttpOnly());
         }
 
         return httpCookie;

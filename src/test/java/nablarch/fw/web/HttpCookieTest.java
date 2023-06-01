@@ -341,18 +341,21 @@ public class HttpCookieTest {
 
     @Test
     public void testParsingSetCookieHeaderMaxAgeNull1() {
-        HttpCookie cookie = HttpCookie.fromSetCookieHeader("Set-Cookie: cookie=value; Max-Age=");
-        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
-        assertEquals("value", cookie.getDelegateMap().get("cookie"));
-        assertNull(cookie.getMaxAge());
+        expectedException.expect(Matchers.allOf(
+                Matchers.instanceOf(IllegalArgumentException.class),
+                Matchers.hasProperty("message", Matchers.is("Illegal cookie max-age attribute"))
+        ));
+
+        HttpCookie.fromSetCookieHeader("Set-Cookie: cookie=value; Max-Age=");
     }
 
     @Test
     public void testParsingSetCookieHeaderMaxAgeNull2() {
-        HttpCookie cookie = HttpCookie.fromSetCookieHeader("Set-Cookie: cookie=value; Max-Age");
-        assertTrue(cookie.getDelegateMap().containsKey("cookie"));
-        assertEquals("value", cookie.getDelegateMap().get("cookie"));
-        assertNull(cookie.getMaxAge());
+        expectedException.expect(Matchers.allOf(
+                Matchers.instanceOf(IllegalArgumentException.class),
+                Matchers.hasProperty("message", Matchers.is("Illegal cookie max-age attribute"))
+        ));
+        HttpCookie.fromSetCookieHeader("Set-Cookie: cookie=value; Max-Age");
     }
 
     @Test
@@ -360,7 +363,7 @@ public class HttpCookieTest {
         HttpCookie cookie = HttpCookie.fromSetCookieHeader("Set-Cookie: cookie=value; Path=");
         assertTrue(cookie.getDelegateMap().containsKey("cookie"));
         assertEquals("value", cookie.getDelegateMap().get("cookie"));
-        assertNull(cookie.getPath());
+        assertEquals("", cookie.getPath());
     }
 
     @Test
@@ -376,7 +379,7 @@ public class HttpCookieTest {
         HttpCookie cookie = HttpCookie.fromSetCookieHeader("Set-Cookie: cookie=value; Domain=");
         assertTrue(cookie.getDelegateMap().containsKey("cookie"));
         assertEquals("value", cookie.getDelegateMap().get("cookie"));
-        assertNull(cookie.getDomain());
+        assertEquals("", cookie.getDomain());
     }
 
     @Test
@@ -401,18 +404,8 @@ public class HttpCookieTest {
     }
 
     @Test
-    public void testThrowsErrorWhenParsingInvalidSetCookieValue() {
-        expectedException.expect(Matchers.allOf(
-                Matchers.instanceOf(IllegalArgumentException.class),
-                Matchers.hasProperty("message", Matchers.is("Cookie string must start with 'Set-Cookie: cookieName=cookieValue'."))
-        ));
-
-        HttpCookie.fromSetCookieHeader("Set-Cookie: cookie=");
-    }
-
-    @Test
     public void testThrowsErrorWhenParsingInvalidSetCookieMaxAge() {
-        expectedException.expect(Matchers.instanceOf(NumberFormatException.class));
+        expectedException.expect(Matchers.instanceOf(IllegalArgumentException.class));
 
         HttpCookie.fromSetCookieHeader("Set-Cookie: cookie01=ok; Max-Age=hoge");
     }
@@ -435,17 +428,6 @@ public class HttpCookieTest {
         ));
 
         HttpCookie.fromSetCookieHeader("testName=testValue");
-
-    }
-
-    @Test
-    public void testThrowsErrorWhenSetCookieHeaderNotContainNameValuePair() {
-        expectedException.expect(Matchers.allOf(
-            Matchers.instanceOf(IllegalArgumentException.class),
-            Matchers.hasProperty("message", Matchers.is("Cookie string must start with 'Set-Cookie: cookieName=cookieValue'."))
-        ));
-
-        HttpCookie.fromSetCookieHeader("Set-Cookie: testName=");
 
     }
 
