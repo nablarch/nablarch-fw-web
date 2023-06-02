@@ -276,29 +276,29 @@ public class HttpResponseTest {
     @Test
     public void testConvertingServletCookieToHttpCookie() {
         HttpResponse res = new HttpResponse();
-        HttpCookie cookie00 = new HttpCookie(); cookie00.getDelegateMap().put("cookie00", "value00"); res.addCookie(cookie00);
-        HttpCookie cookie01 = new HttpCookie(); cookie01.getDelegateMap().put("cookie01", "value01"); cookie01.setMaxAge(3600); res.addCookie(cookie01);
-        HttpCookie cookie02 = new HttpCookie(); cookie02.getDelegateMap().put("cookie02", "value02"); cookie02.setDomain("example.com"); res.addCookie(cookie02);
-        HttpCookie cookie03 = new HttpCookie(); cookie03.getDelegateMap().put("cookie03", "value03"); cookie03.setPath("/"); res.addCookie(cookie03);
-        HttpCookie cookie04 = new HttpCookie(); cookie04.getDelegateMap().put("cookie04", "value04"); cookie04.setSecure(true); res.addCookie(cookie04);
+        HttpCookie cookie00 = new HttpCookie(); cookie00.put("cookie00", "value00"); res.addCookie(cookie00);
+        HttpCookie cookie01 = new HttpCookie(); cookie01.put("cookie01", "value01"); cookie01.setMaxAge(3600); res.addCookie(cookie01);
+        HttpCookie cookie02 = new HttpCookie(); cookie02.put("cookie02", "value02"); cookie02.setDomain("example.com"); res.addCookie(cookie02);
+        HttpCookie cookie03 = new HttpCookie(); cookie03.put("cookie03", "value03"); cookie03.setPath("/"); res.addCookie(cookie03);
+        HttpCookie cookie04 = new HttpCookie(); cookie04.put("cookie04", "value04"); cookie04.setSecure(true); res.addCookie(cookie04);
 
         List<HttpCookie> results = res.getHttpCookies();
         assertEquals(5, results.size());
 
         for(HttpCookie cookie : results) {
-            if (cookie.getDelegateMap().containsKey("cookie00")) {
-                assertEquals("value00", cookie.getDelegateMap().get("cookie00"));
-            } else if (cookie.getDelegateMap().containsKey("cookie01")) {
-                assertEquals("value01", cookie.getDelegateMap().get("cookie01"));
+            if (cookie.containsKey("cookie00")) {
+                assertEquals("value00", cookie.get("cookie00"));
+            } else if (cookie.containsKey("cookie01")) {
+                assertEquals("value01", cookie.get("cookie01"));
                 assertEquals(3600, (int) cookie.getMaxAge());
-            } else if (cookie.getDelegateMap().containsKey("cookie02")) {
-                assertEquals("value02", cookie.getDelegateMap().get("cookie02"));
+            } else if (cookie.containsKey("cookie02")) {
+                assertEquals("value02", cookie.get("cookie02"));
                 assertEquals("example.com", cookie.getDomain());
-            } else if (cookie.getDelegateMap().containsKey("cookie03")) {
-                assertEquals("value03", cookie.getDelegateMap().get("cookie03"));
+            } else if (cookie.containsKey("cookie03")) {
+                assertEquals("value03", cookie.get("cookie03"));
                 assertEquals("/", cookie.getPath());
-            } else if (cookie.getDelegateMap().containsKey("cookie04")) {
-                assertEquals("value04", cookie.getDelegateMap().get("cookie04"));
+            } else if (cookie.containsKey("cookie04")) {
+                assertEquals("value04", cookie.get("cookie04"));
                 assertTrue(cookie.isSecure());
             } else {
                 fail();

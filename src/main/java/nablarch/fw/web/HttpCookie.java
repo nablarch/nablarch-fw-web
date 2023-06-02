@@ -125,31 +125,31 @@ public class HttpCookie extends MapWrapper<String, String> {
             throw new IllegalArgumentException("Cookie string must start with 'Set-Cookie: '.");
         }
 
-        List<java.net.HttpCookie> seCookies = java.net.HttpCookie.parse(header);
+        List<java.net.HttpCookie> cookies = java.net.HttpCookie.parse(header);
 
         // java.net.HttpCookie.parse()は、複数のクッキーを含み得るSet-Cookie2ヘッダにも対応しているため、List型の値を返却している。
         // しかし、本メソッドではSet-Cookieヘッダのみサポートするため、Listのサイズが1であることを確認する。
-        if (seCookies.size() != 1) {
+        if (cookies.size() != 1) {
             throw new IllegalStateException("Cookie string must be one.");
         }
 
-        java.net.HttpCookie seCookie = seCookies.get(0);
+        java.net.HttpCookie cookie = cookies.get(0);
 
         HttpCookie httpCookie = new HttpCookie();
 
-        httpCookie.put(seCookie.getName(), seCookie.getValue());
+        httpCookie.put(cookie.getName(), cookie.getValue());
 
-        httpCookie.setPath(seCookie.getPath());
+        httpCookie.setPath(cookie.getPath());
 
-        httpCookie.setDomain(seCookie.getDomain());
+        httpCookie.setDomain(cookie.getDomain());
 
         // HttpCookieクラスでは、JavaEEのCookieクラスに合わせて、Max-Age属性の値をInteger型で保持しているため、long型の値をint型にキャストしている。
-        httpCookie.setMaxAge((int) seCookie.getMaxAge());
+        httpCookie.setMaxAge((int) cookie.getMaxAge());
 
-        httpCookie.setSecure(seCookie.getSecure());
+        httpCookie.setSecure(cookie.getSecure());
 
         if(httpCookie.supportsHttpOnly()) {
-            httpCookie.setHttpOnly(seCookie.isHttpOnly());
+            httpCookie.setHttpOnly(cookie.isHttpOnly());
         }
 
         return httpCookie;
