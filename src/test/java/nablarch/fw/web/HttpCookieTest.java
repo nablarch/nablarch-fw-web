@@ -2,7 +2,9 @@ package nablarch.fw.web;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.lang.reflect.Method;
@@ -12,18 +14,23 @@ import java.util.List;
 import javax.servlet.http.Cookie;
 
 import nablarch.TestUtil;
+import org.hamcrest.Matchers;
 import org.junit.Assume;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 
 import mockit.Deencapsulation;
 import mockit.Mocked;
+import org.junit.rules.ExpectedException;
 
 /**
  * {@link HttpCookie}のテストクラス。
  */
 public class HttpCookieTest {
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     private HttpCookie sut;
 
     /**
@@ -240,5 +247,68 @@ public class HttpCookieTest {
                 assertThat("Secureが正しいこと", c.getSecure(), is(true));
             }
         }
+    }
+
+    @Test
+    public void testParsingSetCookieHeaderWithAllAttributes() {
+        HttpCookie cookie = HttpCookie.fromSetCookieHeader("Set-Cookie: cookie=value; Max-Age=3600; Path=/; Domain=example.com; foo=bar; Secure; HttpOnly");
+        assertTrue(cookie.containsKey("cookie"));
+        assertEquals("value", cookie.get("cookie"));
+        assertEquals(3600, (int)cookie.getMaxAge());
+        assertEquals("/", cookie.getPath());
+        assertEquals("example.com", cookie.getDomain());
+        assertTrue(cookie.isSecure());
+        // 以下は実行できない
+        // assertEquals(true, Cookie.class.getMethod("isHttpOnly").invoke(cookie));
+    }
+
+    @Test
+    public void testThrowsErrorWhenSetCookieStringIsNull() {
+        expectedException.expect(Matchers.allOf(
+            Matchers.instanceOf(IllegalArgumentException.class),
+            Matchers.hasProperty("message", Matchers.is("Cookie string must not be null."))
+        ));
+
+        HttpCookie.fromSetCookieHeader(null);
+    }
+
+    @Test
+    public void testThrowsErrorWhenSetCookieStringNotStartWithSetCookie() {
+        expectedException.expect(Matchers.allOf(
+            Matchers.instanceOf(IllegalArgumentException.class),
+            Matchers.hasProperty("message", Matchers.is("Cookie string must start with 'Set-Cookie: '."))
+        ));
+
+        HttpCookie.fromSetCookieHeader("testName=testValue");
+
+    }
+
+    @Test
+    public void testConvertingServletCookieToHttpCookie() {
+
+        Cookie cookie = new Cookie("cookie", "value");
+        cookie.setMaxAge(3600);
+        cookie.setDomain("example.com");
+        cookie.setPath("/");
+        cookie.setSecure(true);
+
+        HttpCookie httpCookie = HttpCookie.fromServletCookie(cookie);
+
+        assertEquals("value", httpCookie.get("cookie"));
+        assertEquals(3600, (int) httpCookie.getMaxAge());
+        assertEquals("example.com", httpCookie.getDomain());
+        assertEquals("/", httpCookie.getPath());
+        assertTrue(httpCookie.isSecure());
+    }
+
+    @Test
+    public void testThrowsErrorWhenEmptyServletCookie() {
+        expectedException.expect(Matchers.allOf(
+            Matchers.instanceOf(IllegalArgumentException.class),
+            Matchers.hasProperty("message", Matchers.is("Cookie value must not be null."))
+        ));
+
+        Cookie cookie = new Cookie("test", null);
+        HttpCookie.fromServletCookie(cookie);
     }
 }

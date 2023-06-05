@@ -705,6 +705,23 @@ public class HttpResponse implements Result {
     }
 
     /**
+     * サーバ側から送信されたクッキーのリストを{@link HttpCookie}として取得する。
+     * {@link HttpCookie}は同じ属性を持つ複数のクッキーを保持する仕様であるため、
+     * クッキーの属性が各々異なることを考慮し、リストとして返却する。
+     * @return クッキー ({@link HttpCookie})のリスト
+     */
+    @Published
+    public List<HttpCookie> getHttpCookies() {
+        List<HttpCookie> httpCookies = new ArrayList<HttpCookie>();
+
+        for(Cookie servletCookie: cookies) {
+            httpCookies.add(HttpCookie.fromServletCookie(servletCookie));
+        }
+
+        return httpCookies;
+    }
+
+    /**
      * サーバ側から送信されたクッキー情報を設定する。
      * @param cookie クッキー情報オブジェクト
      * @return 本オブジェクト
@@ -1091,6 +1108,9 @@ public class HttpResponse implements Result {
         Matcher m = HTTP_HEADER_SYNTAX.matcher(header);
         if (!m.matches()) {
             parseError(header);
+        }
+        if ("Set-Cookie".equalsIgnoreCase(m.group(1))) {
+            this.addCookie(HttpCookie.fromSetCookieHeader(header));
         }
         this.headers.put(m.group(1), m.group(2));
     }

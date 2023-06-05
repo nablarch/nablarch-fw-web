@@ -1,16 +1,15 @@
 package nablarch.fw.web;
 
+import nablarch.core.util.annotation.Published;
+import nablarch.core.util.map.MapWrapper;
+
+import javax.servlet.http.Cookie;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.Cookie;
-
-import nablarch.core.util.annotation.Published;
-import nablarch.core.util.map.MapWrapper;
 
 /**
  * Httpクッキーのパーサー及びその内容を保持するデータオブジェクト。
@@ -67,6 +66,88 @@ public class HttpCookie extends MapWrapper<String, String> {
      */
     public HttpCookie() {
         cookies = new HashMap<String, String>();
+    }
+
+    /**
+     * {@link Cookie}から{@link HttpCookie}を生成する。
+     * @param cookie JavaEE サーブレットAPIのCookieオブジェクト
+     * @return {@link HttpCookie}オブジェクト
+     */
+    static HttpCookie fromServletCookie(Cookie cookie) {
+        HttpCookie httpCookie = new HttpCookie();
+
+        if (cookie.getValue() == null) {
+            throw new IllegalArgumentException("Cookie value must not be null.");
+        }
+        httpCookie.put(cookie.getName(), cookie.getValue());
+
+        if (cookie.getMaxAge() != -1) {
+            httpCookie.setMaxAge(cookie.getMaxAge());
+        }
+
+        if (cookie.getPath() != null) {
+            httpCookie.setPath(cookie.getPath());
+        }
+
+        if (cookie.getDomain() != null) {
+            httpCookie.setDomain(cookie.getDomain());
+        }
+
+        httpCookie.setSecure(cookie.getSecure());
+
+        if (IS_HTTP_ONLY_METHOD != null) {
+            try {
+                httpCookie.setHttpOnly((Boolean) IS_HTTP_ONLY_METHOD.invoke(cookie));
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return httpCookie;
+    }
+
+    /**
+     * RFC6265に従い、Set-Cookieヘッダをパースして{@link HttpCookie}を生成する。
+     * {@link HttpCookie}はPath、Domain、Max-Age、Secure、HttpOnly属性のみをサポートしているため、それ以外の属性はパース時に無視する。
+     * @see <a href="https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.1">RFC6265 4.1.1. Syntax</a>
+     * @param header　Set-Cookieヘッダ（Set-Cookie: を含む）
+     * @return {@link HttpCookie} インスタンス
+     */
+    static HttpCookie fromSetCookieHeader(String header) {
+
+        if (header == null) {
+            throw new IllegalArgumentException("Cookie string must not be null.");
+        }
+        if (!header.startsWith("Set-Cookie: ")) {
+            throw new IllegalArgumentException("Cookie string must start with 'Set-Cookie: '.");
+        }
+
+        List<java.net.HttpCookie> cookies = java.net.HttpCookie.parse(header);
+
+        // java.net.HttpCookie.parse()は、複数のクッキーを含み得るSet-Cookie2ヘッダにも対応しているため、List型の値を返却している。
+        // ただし、ヘッダが"Set-Cookie: "から始まることを上で確認しているので、Listのサイズは必ず1となる。
+        java.net.HttpCookie cookie = cookies.get(0);
+
+        HttpCookie httpCookie = new HttpCookie();
+
+        httpCookie.put(cookie.getName(), cookie.getValue());
+
+        httpCookie.setPath(cookie.getPath());
+
+        httpCookie.setDomain(cookie.getDomain());
+
+        // HttpCookieクラスでは、JavaEEのCookieクラスに合わせて、Max-Age属性の値をInteger型で保持しているため、long型の値をint型にキャストしている。
+        httpCookie.setMaxAge((int) cookie.getMaxAge());
+
+        httpCookie.setSecure(cookie.getSecure());
+
+        if(httpCookie.supportsHttpOnly()) {
+            httpCookie.setHttpOnly(cookie.isHttpOnly());
+        }
+
+        return httpCookie;
     }
 
     /**
