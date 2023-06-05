@@ -325,8 +325,9 @@ public class HttpResponseTest {
     }
 
     private static class CookieBuilder {
-        private HttpCookie cookie = new HttpCookie();
+        private final HttpCookie cookie;
         public CookieBuilder(String key, String value) {
+            cookie = new HttpCookie();
             cookie.put(key, value);
         }
         public CookieBuilder setMaxAge(int maxAge) {
