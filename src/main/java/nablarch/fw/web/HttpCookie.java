@@ -1,6 +1,5 @@
 package nablarch.fw.web;
 
-import nablarch.core.util.StringUtil;
 import nablarch.core.util.annotation.Published;
 import nablarch.core.util.map.MapWrapper;
 
