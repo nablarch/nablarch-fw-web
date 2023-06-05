@@ -1,6 +1,7 @@
 package nablarch.fw.web;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -276,11 +277,11 @@ public class HttpResponseTest {
     @Test
     public void testConvertingServletCookieToHttpCookie() {
         HttpResponse res = new HttpResponse();
-        HttpCookie cookie00 = new HttpCookie(); cookie00.put("cookie00", "value00"); res.addCookie(cookie00);
-        HttpCookie cookie01 = new HttpCookie(); cookie01.put("cookie01", "value01"); cookie01.setMaxAge(3600); res.addCookie(cookie01);
-        HttpCookie cookie02 = new HttpCookie(); cookie02.put("cookie02", "value02"); cookie02.setDomain("example.com"); res.addCookie(cookie02);
-        HttpCookie cookie03 = new HttpCookie(); cookie03.put("cookie03", "value03"); cookie03.setPath("/"); res.addCookie(cookie03);
-        HttpCookie cookie04 = new HttpCookie(); cookie04.put("cookie04", "value04"); cookie04.setSecure(true); res.addCookie(cookie04);
+        res.addCookie(new CookieBuilder("cookie00", "value00").build());
+        res.addCookie(new CookieBuilder("cookie01", "value01").setMaxAge(3600).build());
+        res.addCookie(new CookieBuilder("cookie02", "value02").setDomain("example.com").build());
+        res.addCookie(new CookieBuilder("cookie03", "value03").setPath("/").build());
+        res.addCookie(new CookieBuilder("cookie04", "value04").setSecure(true).build());
 
         List<HttpCookie> results = res.getHttpCookies();
         assertEquals(5, results.size());
@@ -288,17 +289,33 @@ public class HttpResponseTest {
         for(HttpCookie cookie : results) {
             if (cookie.containsKey("cookie00")) {
                 assertEquals("value00", cookie.get("cookie00"));
+                assertNull(cookie.getMaxAge());
+                assertNull(cookie.getDomain());
+                assertNull(cookie.getPath());
+                assertFalse(cookie.isSecure());
             } else if (cookie.containsKey("cookie01")) {
                 assertEquals("value01", cookie.get("cookie01"));
                 assertEquals(3600, (int) cookie.getMaxAge());
+                assertNull(cookie.getDomain());
+                assertNull(cookie.getPath());
+                assertFalse(cookie.isSecure());
             } else if (cookie.containsKey("cookie02")) {
                 assertEquals("value02", cookie.get("cookie02"));
+                assertNull(cookie.getMaxAge());
                 assertEquals("example.com", cookie.getDomain());
+                assertNull(cookie.getPath());
+                assertFalse(cookie.isSecure());
             } else if (cookie.containsKey("cookie03")) {
                 assertEquals("value03", cookie.get("cookie03"));
+                assertNull(cookie.getMaxAge());
+                assertNull(cookie.getDomain());
                 assertEquals("/", cookie.getPath());
+                assertFalse(cookie.isSecure());
             } else if (cookie.containsKey("cookie04")) {
                 assertEquals("value04", cookie.get("cookie04"));
+                assertNull(cookie.getMaxAge());
+                assertNull(cookie.getDomain());
+                assertNull(cookie.getPath());
                 assertTrue(cookie.isSecure());
             } else {
                 fail();
@@ -306,6 +323,33 @@ public class HttpResponseTest {
 
         }
     }
+
+    private static class CookieBuilder {
+        private HttpCookie cookie = new HttpCookie();
+        public CookieBuilder(String key, String value) {
+            cookie.put(key, value);
+        }
+        public CookieBuilder setMaxAge(int maxAge) {
+            cookie.setMaxAge(maxAge);
+            return this;
+        }
+        public CookieBuilder setDomain(String domain) {
+            cookie.setDomain(domain);
+            return this;
+        }
+        public CookieBuilder setPath(String path) {
+            cookie.setPath(path);
+            return this;
+        }
+        public CookieBuilder setSecure(boolean secure) {
+            cookie.setSecure(secure);
+            return this;
+        }
+        public HttpCookie build() {
+            return cookie;
+        }
+    }
+
 
     @Test
     public void testParsingMultilineSetCookieHeaders() {
