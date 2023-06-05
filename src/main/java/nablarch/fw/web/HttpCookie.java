@@ -128,11 +128,7 @@ public class HttpCookie extends MapWrapper<String, String> {
         List<java.net.HttpCookie> cookies = java.net.HttpCookie.parse(header);
 
         // java.net.HttpCookie.parse()は、複数のクッキーを含み得るSet-Cookie2ヘッダにも対応しているため、List型の値を返却している。
-        // しかし、本メソッドではSet-Cookieヘッダのみサポートするため、Listのサイズが1であることを確認する。
-        if (cookies.size() != 1) {
-            throw new IllegalStateException("Cookie string must be one.");
-        }
-
+        // ただし、ヘッダが"Set-Cookie: "から始まることを上で確認しているので、Listのサイズは必ず1となる。
         java.net.HttpCookie cookie = cookies.get(0);
 
         HttpCookie httpCookie = new HttpCookie();
