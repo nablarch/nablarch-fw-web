@@ -86,7 +86,7 @@ public class HttpCookie extends MapWrapper<String, String> {
      * @param cookie JavaEE サーブレットAPIのCookieオブジェクト
      * @return {@link HttpCookie}オブジェクト
      */
-    static HttpCookie fromServletCookie(Cookie cookie) {
+    public static HttpCookie fromServletCookie(Cookie cookie) {
         HttpCookie httpCookie = new HttpCookie();
 
         if (cookie.getValue() == null) {
@@ -128,7 +128,7 @@ public class HttpCookie extends MapWrapper<String, String> {
      * @param header　Set-Cookieヘッダ（Set-Cookie: を含む）
      * @return {@link HttpCookie} インスタンス
      */
-    static HttpCookie fromSetCookieHeader(String header) {
+    public static HttpCookie fromSetCookieHeader(String header) {
 
         if (header == null) {
             throw new IllegalArgumentException("Cookie string must not be null.");
