@@ -28,7 +28,7 @@ public class HttpCookie extends MapWrapper<String, String> {
     /**
      * {@link java.net.HttpCookie}のisHttpOnlyメソッドのメタ情報
      */
-    private static final Method IS_HTTP_ONLY_METHOD_JAVASE;
+    private static final Method IS_HTTP_ONLY_METHOD_JAVA_SE;
 
     static {
         Method isHttpOnlyMethod = null;
@@ -53,7 +53,7 @@ public class HttpCookie extends MapWrapper<String, String> {
         } catch (NoSuchMethodException ignore) {
             // NOP
         }
-        IS_HTTP_ONLY_METHOD_JAVASE = javaseIsHttpOnlyMethod;
+        IS_HTTP_ONLY_METHOD_JAVA_SE = javaseIsHttpOnlyMethod;
     }
 
     /** クッキー名と値のペアを格納したMap */
@@ -156,9 +156,9 @@ public class HttpCookie extends MapWrapper<String, String> {
 
         httpCookie.setSecure(cookie.getSecure());
 
-        if(httpCookie.supportsHttpOnly() && IS_HTTP_ONLY_METHOD_JAVASE != null) {
+        if(httpCookie.supportsHttpOnly() && IS_HTTP_ONLY_METHOD_JAVA_SE != null) {
             try {
-                httpCookie.setHttpOnly((Boolean) IS_HTTP_ONLY_METHOD_JAVASE.invoke(cookie));
+                httpCookie.setHttpOnly((Boolean) IS_HTTP_ONLY_METHOD_JAVA_SE.invoke(cookie));
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             } catch (InvocationTargetException e) {
