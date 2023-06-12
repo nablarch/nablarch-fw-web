@@ -7,6 +7,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -258,8 +259,9 @@ public class HttpCookieTest {
         assertEquals("/", cookie.getPath());
         assertEquals("example.com", cookie.getDomain());
         assertTrue(cookie.isSecure());
-        // 以下は実行できない
-        // assertEquals(true, Cookie.class.getMethod("isHttpOnly").invoke(cookie));
+        if(TestUtil.isJetty9()) {
+            assertTrue(cookie.isHttpOnly());
+        }
     }
 
     @Test
@@ -291,6 +293,17 @@ public class HttpCookieTest {
         cookie.setDomain("example.com");
         cookie.setPath("/");
         cookie.setSecure(true);
+        if(TestUtil.isJetty9()) {
+            try {
+                Cookie.class.getMethod("setHttpOnly", boolean.class).invoke(cookie, true);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         HttpCookie httpCookie = HttpCookie.fromServletCookie(cookie);
 
@@ -299,6 +312,9 @@ public class HttpCookieTest {
         assertEquals("example.com", httpCookie.getDomain());
         assertEquals("/", httpCookie.getPath());
         assertTrue(httpCookie.isSecure());
+        if(TestUtil.isJetty9()) {
+            assertTrue(httpCookie.isHttpOnly());
+        }
     }
 
     @Test
