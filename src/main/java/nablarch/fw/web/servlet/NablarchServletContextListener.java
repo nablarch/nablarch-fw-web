@@ -143,8 +143,13 @@ public class NablarchServletContextListener implements ServletContextListener {
      * @return 判定結果
      */
     private boolean isRequestTest() {
-        Object o = SystemRepository.get("httpTestConfiguration");
-        return (o != null);
+        // リクエスト単体テスト実行時は、Nablarch Testing Frameworkにおいてリポジトリの初期化を行っている。
+        // リクエスト単体テスト実行中か否かの判定のため、リクエスト単体テスト実行時に必須となるテスト用コンポーネント
+        // (Webアプリケーション用のhttpTestConfiguration、RESTfulWebサービス用のrestTestConfiguration)が
+        // システムリポジトリに存在するかどうかを判定している。
+        Object httpTestConfiguration = SystemRepository.get("httpTestConfiguration");
+        Object restTestConfiguration = SystemRepository.get("restTestConfiguration");
+        return (httpTestConfiguration != null || restTestConfiguration != null);
     }
 
     /** 各種ログの初期化を行う。 */

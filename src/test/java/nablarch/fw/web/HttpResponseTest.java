@@ -1,6 +1,7 @@
 package nablarch.fw.web;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -271,6 +272,114 @@ public class HttpResponseTest {
         assertEquals(4, customHeader.length);
         assertEquals("person1@domain1.org", customHeader[0]);
         assertEquals("person4@domain4.edu", customHeader[3]);
+    }
+
+    @Test
+    public void testConvertingServletCookieToHttpCookie() {
+        HttpResponse res = new HttpResponse();
+        res.addCookie(new CookieBuilder("cookie00", "value00").build());
+        res.addCookie(new CookieBuilder("cookie01", "value01").setMaxAge(3600).build());
+        res.addCookie(new CookieBuilder("cookie02", "value02").setDomain("example.com").build());
+        res.addCookie(new CookieBuilder("cookie03", "value03").setPath("/").build());
+        res.addCookie(new CookieBuilder("cookie04", "value04").setSecure(true).build());
+
+        List<HttpCookie> results = res.getHttpCookies();
+        assertEquals(5, results.size());
+
+        for(HttpCookie cookie : results) {
+            if (cookie.containsKey("cookie00")) {
+                assertEquals("value00", cookie.get("cookie00"));
+                assertNull(cookie.getMaxAge());
+                assertNull(cookie.getDomain());
+                assertNull(cookie.getPath());
+                assertFalse(cookie.isSecure());
+            } else if (cookie.containsKey("cookie01")) {
+                assertEquals("value01", cookie.get("cookie01"));
+                assertEquals(3600, (int) cookie.getMaxAge());
+                assertNull(cookie.getDomain());
+                assertNull(cookie.getPath());
+                assertFalse(cookie.isSecure());
+            } else if (cookie.containsKey("cookie02")) {
+                assertEquals("value02", cookie.get("cookie02"));
+                assertNull(cookie.getMaxAge());
+                assertEquals("example.com", cookie.getDomain());
+                assertNull(cookie.getPath());
+                assertFalse(cookie.isSecure());
+            } else if (cookie.containsKey("cookie03")) {
+                assertEquals("value03", cookie.get("cookie03"));
+                assertNull(cookie.getMaxAge());
+                assertNull(cookie.getDomain());
+                assertEquals("/", cookie.getPath());
+                assertFalse(cookie.isSecure());
+            } else if (cookie.containsKey("cookie04")) {
+                assertEquals("value04", cookie.get("cookie04"));
+                assertNull(cookie.getMaxAge());
+                assertNull(cookie.getDomain());
+                assertNull(cookie.getPath());
+                assertTrue(cookie.isSecure());
+            } else {
+                fail();
+            }
+
+        }
+    }
+
+    private static class CookieBuilder {
+        private final HttpCookie cookie;
+        public CookieBuilder(String key, String value) {
+            cookie = new HttpCookie();
+            cookie.put(key, value);
+        }
+        public CookieBuilder setMaxAge(int maxAge) {
+            cookie.setMaxAge(maxAge);
+            return this;
+        }
+        public CookieBuilder setDomain(String domain) {
+            cookie.setDomain(domain);
+            return this;
+        }
+        public CookieBuilder setPath(String path) {
+            cookie.setPath(path);
+            return this;
+        }
+        public CookieBuilder setSecure(boolean secure) {
+            cookie.setSecure(secure);
+            return this;
+        }
+        public HttpCookie build() {
+            return cookie;
+        }
+    }
+
+
+    @Test
+    public void testParsingMultilineSetCookieHeaders() {
+        HttpResponse res = HttpResponse.parse(Hereis.string());
+        /***********************************************
+        HTTP/1.1 400 Bad Request
+        Set-Cookie: cookie00="value00"
+        Set-Cookie: cookie01=value01; Max-Age=3600; Path=/; Domain=example.com; Secure; HttpOnly
+
+        Hello world!
+        ************************************************/
+
+        assertEquals(400                        , res.getStatusCode());
+        assertEquals("HTTP/1.1"                 , res.getHttpVersion());
+        assertEquals("Hello world!"             , res.getBodyString().trim());
+        assertEquals(3, res.getHeaderMap().size());
+
+        assertEquals(2, res.getCookieList().size());
+        assertEquals("cookie00", res.getCookieList().get(0).getName());
+        assertEquals("value00", res.getCookieList().get(0).getValue());
+
+        assertEquals("cookie01", res.getCookieList().get(1).getName());
+        assertEquals("value01", res.getCookieList().get(1).getValue());
+        assertEquals(3600, res.getCookieList().get(1).getMaxAge());
+        assertEquals("/", res.getCookieList().get(1).getPath());
+        assertEquals("example.com", res.getCookieList().get(1).getDomain());
+        assertTrue(res.getCookieList().get(1).getSecure());
+        // 以下は実行できない
+        // assertEquals(true, Cookie.class.getMethod("isHttpOnly").invoke(res.getCookieList().get(1)));
     }
 
     @Test

@@ -36,7 +36,7 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
 public class HttpAccessLogFormatter {
 
     /** デフォルトの日時フォーマット */
-    private static final DateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    private static final String DEFAULT_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
 
     /** デフォルトのリクエスト処理開始時のフォーマット */
     private static final String DEFAULT_BEGIN_FORMAT = "@@@@ BEGIN @@@@ rid = [$requestId$] uid = [$userId$] sid = [$sessionId$]"
@@ -268,7 +268,7 @@ public class HttpAccessLogFormatter {
      */
     protected DateFormat getDateFormat(Map<String, String> props) {
         String datePattern = props.get(PROPS_DATE_PATTERN);
-        return datePattern != null ? new SimpleDateFormat(datePattern) : DEFAULT_DATE_FORMAT;
+        return new SimpleDateFormat(datePattern != null ? datePattern : DEFAULT_DATE_PATTERN);
     }
 
     /**

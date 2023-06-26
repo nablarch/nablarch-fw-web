@@ -133,8 +133,8 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
         // リクエスト単体テストの場合(コンポーネント名「httpTestConfiguration」が含まれる場合)
         
         clear();
-        String path = "classpath:nablarch/fw/web/servlet/nablarch-servlet-context-requesttest-test.xml";
-        SystemRepository.load(new DiContainer(new XmlComponentDefinitionLoader(path)));
+        String pathHttpTestConfig = "classpath:nablarch/fw/web/servlet/nablarch-servlet-context-requesttest-test.xml";
+        SystemRepository.load(new DiContainer(new XmlComponentDefinitionLoader(pathHttpTestConfig)));
         
         ctx = new MockServletContext();
         ctx.getInitParams().put("di.config", "classpath:nablarch/fw/web/servlet/nablarch-servlet-context-test.xml");
@@ -144,6 +144,24 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
         listener.contextInitialized(ctxEvt);
         
         obj = SystemRepository.getObject("httpTestConfiguration");
+        assertNotNull(obj);
+        obj = SystemRepository.getObject("book");
+        assertNull(obj);
+
+        // リクエスト単体テストの場合(コンポーネント名「restTestConfiguration」が含まれる場合)
+
+        clear();
+        String pathRestTestConfig = "classpath:nablarch/fw/web/servlet/nablarch-servlet-context-restrequesttest-test.xml";
+        SystemRepository.load(new DiContainer(new XmlComponentDefinitionLoader(pathRestTestConfig)));
+
+        ctx = new MockServletContext();
+        ctx.getInitParams().put("di.config", "classpath:nablarch/fw/web/servlet/nablarch-servlet-context-test.xml");
+        ctxEvt = new ServletContextEvent(ctx);
+        listener = new NablarchServletContextListener();
+
+        listener.contextInitialized(ctxEvt);
+
+        obj = SystemRepository.getObject("restTestConfiguration");
         assertNotNull(obj);
         obj = SystemRepository.getObject("book");
         assertNull(obj);
