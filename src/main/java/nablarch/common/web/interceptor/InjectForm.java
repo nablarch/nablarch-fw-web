@@ -128,6 +128,12 @@ public @interface InjectForm {
     String validate() default "";
 
     /**
+     * Bean Validationのグループ
+     * @return
+     */
+    Class<?>[] validationGroup() default {};
+
+    /**
      * {@link InjectForm}アノテーションのインターセプタ。
      * @author kawasima
      * @author Kiyohito Itoh

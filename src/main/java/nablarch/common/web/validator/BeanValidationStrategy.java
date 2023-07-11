@@ -65,9 +65,10 @@ public class BeanValidationStrategy implements ValidationStrategy {
         Map<String, String[]> requestParamMap = getMapWithConvertedKey(annotation.prefix(), rawRequestParamMap);
 
         Serializable bean = formFactory.create(annotation.form());
+        Class<?>[] groups = annotation.validationGroup();
         BeanUtil.copy(annotation.form(), bean, requestParamMap, CopyOptions.empty());
         Validator validator = ValidatorUtil.getValidator();
-        Set<ConstraintViolation<Serializable>> results = validator.validate(bean);
+        Set<ConstraintViolation<Serializable>> results = validator.validate(bean, groups);
         if (!results.isEmpty()) {
             if (copyBeanToRequestScopeOnError) {
                 // エラーのとき、リクエストスコープにbeanを設定する

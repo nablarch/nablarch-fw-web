@@ -100,8 +100,9 @@ public class BeanValidationStrategyTest {
     }
 
     /**
-     * [Bean Validation] プレフィックス指定あり、初期化メソッド指定なし、バリデーションOKの場合、
+     * [Bean Validation] プレフィックス指定あり、初期化メソッド指定なし、グループ指定なし、バリデーションOKの場合、
      * Beanが生成され、リクエストスコープに設定される。
+     * グループ指定なしの場合、Test1グループ、Test2グループは検証されない。
      */
     @Test
     public void testValidateWithValidParametersUsingBeanValidator() {
@@ -113,6 +114,7 @@ public class BeanValidationStrategyTest {
                 assertNotNull(bean);
                 assertThat(bean.getUserId(), is("1234567"));
                 assertThat(bean.getUserName(), is("ABCDEFG"));
+                assertThat(bean.getValidationGroupCheckItem(), is("0123456789"));
                 return new HttpResponse();
             }
         };
@@ -120,6 +122,94 @@ public class BeanValidationStrategyTest {
         context.handleNext(new MockHttpRequest("GET /index.html HTTP/1.1")
                 .setParam("sample.userId", "1234567")
                 .setParam("sample.userName", "ABCDEFG")
+                .setParam("sample.validationGroupCheckItem", "0123456789")
+                .setParam("correlationCheckItem2", "12345")     // prefixがついていないのでコピー対象外
+        );
+    }
+
+    /**
+     * [Bean Validation] プレフィックス指定あり、初期化メソッド指定なし、グループ指定あり、バリデーションOKの場合、
+     * Beanが生成され、リクエストスコープに設定される。
+     * グループは、Test1のみ検証され、Test2は検証されない。
+     */
+    @Test
+    public void testValidateByGroupWithValidParametersUsingBeanValidator() {
+        Object action = new Object() {
+            @InjectForm(form = SampleBean.class, prefix = "sample", validationGroup = SampleBean.Test1.class)
+            public HttpResponse getIndexHtml(HttpRequest req, ExecutionContext ctx) {
+                SampleBean bean = ctx.getRequestScopedVar("form");
+                assertNotNull(bean);
+                assertThat(bean.getUserId(), is("1234567"));
+                assertThat(bean.getUserName(), is("ABCDEFG"));
+                assertThat(bean.getValidationGroupCheckItem(), is("ABCDEFGHIJKLMN"));
+                return new HttpResponse();
+            }
+        };
+        context.addHandler("//", new HttpMethodBinding(action));
+        context.handleNext(new MockHttpRequest("GET /index.html HTTP/1.1")
+                .setParam("sample.userId", "1234567")
+                .setParam("sample.userName", "ABCDEFG")
+                .setParam("sample.validationGroupCheckItem", "ABCDEFGHIJKLMN")
+                .setParam("correlationCheckItem2", "12345")     // prefixがついていないのでコピー対象外
+        );
+    }
+
+    /**
+     * [Bean Validation] プレフィックス指定あり、初期化メソッド指定なし、グループ指定あり、バリデーションNGの場合、
+     * Beanが生成され、リクエストスコープに設定される。
+     * グループは、Test2のみ検証され、Test1は検証されない。
+     */
+    @Test
+    public void testValidateByGroupWithInValidParametersUsingBeanValidator() {
+        Object action = new Object() {
+            @InjectForm(form = SampleBean.class, prefix = "sample", validationGroup = SampleBean.Test2.class)
+            public HttpResponse getIndexHtml(HttpRequest req, ExecutionContext ctx) {
+                return new HttpResponse();
+            }
+        };
+        context.addHandler("//", new HttpMethodBinding(action));
+        try {
+            context.handleNext(new MockHttpRequest("GET /index.html HTTP/1.1")
+                    .setParam("sample.validationGroupCheckItem", "ABCDEFGHIJKLMN")
+            );
+            fail("must be thrown ApplicationException");
+        } catch (ApplicationException e) {
+            assertThat(e.getMessages()
+                        .size(), is(1));
+            assertThat(e.getMessages()
+                        .get(0)
+                        .formatMessage(), is("4文字で入力してください。"));
+            // バリデーションエラー時、リクエストスコープにBeanが設定されること
+            // (InjectFormのnameが指定されていないので、キーはデフォルトの"form")
+            SampleBean sampleBean = context.getRequestScopedVar("form");
+            assertThat(sampleBean.getValidationGroupCheckItem(), is("ABCDEFGHIJKLMN"));
+        }
+
+    }
+
+    /**
+     * [Bean Validation] プレフィックス指定あり、初期化メソッド指定なし、グループ複数指定、バリデーションOKの場合、
+     * Beanが生成され、リクエストスコープに設定される。
+     * グループは、Test1とTest2両方とも検証される。
+     */
+    @Test
+    public void testValidateByMultiGroupWithValidParametersUsingBeanValidator() {
+        Object action = new Object() {
+            @InjectForm(form = SampleBean.class, prefix = "sample", validationGroup = {SampleBean.Test1.class, SampleBean.Test2.class})
+            public HttpResponse getIndexHtml(HttpRequest req, ExecutionContext ctx) {
+                SampleBean bean = ctx.getRequestScopedVar("form");
+                assertNotNull(bean);
+                assertThat(bean.getUserId(), is("1234567"));
+                assertThat(bean.getUserName(), is("ABCDEFG"));
+                assertThat(bean.getValidationGroupCheckItem(), is("ABCD"));
+                return new HttpResponse();
+            }
+        };
+        context.addHandler("//", new HttpMethodBinding(action));
+        context.handleNext(new MockHttpRequest("GET /index.html HTTP/1.1")
+                .setParam("sample.userId", "1234567")
+                .setParam("sample.userName", "ABCDEFG")
+                .setParam("sample.validationGroupCheckItem", "ABCD")
                 .setParam("correlationCheckItem2", "12345")     // prefixがついていないのでコピー対象外
         );
     }
