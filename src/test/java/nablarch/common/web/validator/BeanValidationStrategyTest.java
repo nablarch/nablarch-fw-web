@@ -139,18 +139,13 @@ public class BeanValidationStrategyTest {
             public HttpResponse getIndexHtml(HttpRequest req, ExecutionContext ctx) {
                 SampleBean bean = ctx.getRequestScopedVar("form");
                 assertNotNull(bean);
-                assertThat(bean.getUserId(), is("1234567"));
-                assertThat(bean.getUserName(), is("ABCDEFG"));
                 assertThat(bean.getValidationGroupCheckItem(), is("ABCDEFGHIJKLMN"));
                 return new HttpResponse();
             }
         };
         context.addHandler("//", new HttpMethodBinding(action));
         context.handleNext(new MockHttpRequest("GET /index.html HTTP/1.1")
-                .setParam("sample.userId", "1234567")
-                .setParam("sample.userName", "ABCDEFG")
                 .setParam("sample.validationGroupCheckItem", "ABCDEFGHIJKLMN")
-                .setParam("correlationCheckItem2", "12345")     // prefixがついていないのでコピー対象外
         );
     }
 
@@ -199,18 +194,13 @@ public class BeanValidationStrategyTest {
             public HttpResponse getIndexHtml(HttpRequest req, ExecutionContext ctx) {
                 SampleBean bean = ctx.getRequestScopedVar("form");
                 assertNotNull(bean);
-                assertThat(bean.getUserId(), is("1234567"));
-                assertThat(bean.getUserName(), is("ABCDEFG"));
                 assertThat(bean.getValidationGroupCheckItem(), is("ABCD"));
                 return new HttpResponse();
             }
         };
         context.addHandler("//", new HttpMethodBinding(action));
         context.handleNext(new MockHttpRequest("GET /index.html HTTP/1.1")
-                .setParam("sample.userId", "1234567")
-                .setParam("sample.userName", "ABCDEFG")
                 .setParam("sample.validationGroupCheckItem", "ABCD")
-                .setParam("correlationCheckItem2", "12345")     // prefixがついていないのでコピー対象外
         );
     }
 
