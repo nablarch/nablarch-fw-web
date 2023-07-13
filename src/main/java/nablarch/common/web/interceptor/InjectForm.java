@@ -128,8 +128,7 @@ public @interface InjectForm {
     String validate() default "";
 
     /**
-     * Bean Validationのグループ
-     * @return
+     * Bean Validationのグループ。
      */
     Class<?>[] validationGroup() default {};
 
