@@ -28,7 +28,7 @@ public class SampleBean implements Serializable {
     @SystemChar(charsetDef = "英大文字")
     @Length(min = 5, max = 7)
     private String customizedGroupItem;
-    
+
     @SystemChar(charsetDef = "数字")
     @Length(max = 5)
     private String correlationCheckItem1;
@@ -36,6 +36,13 @@ public class SampleBean implements Serializable {
     @SystemChar(charsetDef = "数字")
     @Length(max = 4)
     private String correlationCheckItem2;
+
+    @SystemChar(charsetDef = "英大文字", groups = Test1.class)
+    @Length(max = 4, min = 4, groups = Test2.class)
+    private String validationGroupCheckItem;
+
+    public interface Test1 {}
+    public interface Test2 {}
 
     public String getUserId() {
         return userId;
@@ -75,6 +82,14 @@ public class SampleBean implements Serializable {
 
     public void setCorrelationCheckItem2(String correlationCheckItem2) {
         this.correlationCheckItem2 = correlationCheckItem2;
+    }
+
+    public String getValidationGroupCheckItem() {
+        return validationGroupCheckItem;
+    }
+
+    public void setValidationGroupCheckItem(String validationGroupCheckItem) {
+        this.validationGroupCheckItem = validationGroupCheckItem;
     }
 
     public void setInitValues(HttpRequest request, ExecutionContext context) {

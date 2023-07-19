@@ -4,6 +4,7 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import nablarch.common.web.interceptor.sample.form.SampleForm;
+import nablarch.common.web.validator.bean.SampleBean;
 import nablarch.core.ThreadContext;
 import nablarch.core.message.ApplicationException;
 import nablarch.core.repository.SystemRepository;
@@ -303,6 +304,27 @@ public class InjectFormTest {
         } catch (IllegalArgumentException e) {
             assertThat(e.getMessage(), is("form initialization failed. form = [nablarch.common.web.interceptor.sample.form.SampleForm], method = [init]"));
             assertNotNull(e.getCause());
+        }
+    }
+
+    /**
+     * validationGroupが指定されていた場合、実行時例外が送出されること。
+     */
+    @Test
+    public void testUnexpectedAttributeValidationGroup() {
+        Object action = new Object() {
+            @InjectForm(form=SampleForm.class, validationGroup = SampleBean.Test1.class)
+            public HttpResponse getIndexHtml(HttpRequest req, ExecutionContext ctx) {
+                return new HttpResponse();
+            }
+        };
+        try {
+            context.addHandler("//", new HttpMethodBinding(action));
+            context.handleNext(new MockHttpRequest("GET /index.html HTTP/1.1"));
+            fail("must be thrown IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage(), is("validationGroup attribute cannot be specified when using NablarchValidationStrategy"));
+            assertNull(e.getCause());
         }
     }
 

@@ -27,6 +27,10 @@ public class NablarchValidationStrategy implements ValidationStrategy {
     public Serializable validate(
             HttpRequest request, InjectForm annotation, boolean canValidate, final ServletExecutionContext context) {
 
+        if (annotation.validationGroup().length != 0) {
+            throw new IllegalArgumentException("validationGroup attribute cannot be specified when using NablarchValidationStrategy");
+        }
+
         if (!canValidate) {
             return null;
         }
