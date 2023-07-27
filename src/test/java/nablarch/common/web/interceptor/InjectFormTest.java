@@ -1,9 +1,9 @@
 package nablarch.common.web.interceptor;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.Serializable;
@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import nablarch.common.web.interceptor.sample.form.SampleForm;
+import nablarch.common.web.validator.NablarchValidationStrategy;
 import nablarch.common.web.validator.bean.SampleBean;
 import nablarch.core.ThreadContext;
 import nablarch.core.message.ApplicationException;
@@ -73,7 +74,7 @@ public class InjectFormTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
 
         MockStringResourceHolder resourceHolder = repositoryResource.getComponent("stringResourceHolder");
         resourceHolder.setMessages(MESSAGES);
