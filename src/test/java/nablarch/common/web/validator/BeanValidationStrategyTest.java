@@ -1,10 +1,10 @@
 package nablarch.common.web.validator;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.beans.HasPropertyWithValue.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -74,7 +74,7 @@ public class BeanValidationStrategyTest {
     private ServletExecutionContext context;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         ThreadContext.setLanguage(Locale.JAPANESE);
 
         new Expectations() {{
@@ -323,7 +323,7 @@ public class BeanValidationStrategyTest {
             fail("must be thrown ApplicationException");
         } catch (ApplicationException e) {
             assertThat(e, hasProperty(
-                    "messages", hasItems(hasProperty("propertyName", is("userId")))));
+                    "messages", hasItem(hasProperty("propertyName", is("userId")))));
 
             // バリデーションエラー時、リクエストスコープにBeanが設定されること
             SampleBean sampleBean = context.getRequestScopedVar("form");
@@ -365,11 +365,9 @@ public class BeanValidationStrategyTest {
     
     /**
      * メッセージが、{@link ServletRequest#getParameterNames()}の順にソートされること。
-     *
-     * @throws Exception
      */
     @Test
-    public void testSortMessages() throws Exception {
+    public void testSortMessages() {
         new Expectations() {{
             final List<String> paramNames = new ArrayList<String>();
             paramNames.add("form.name");
@@ -420,11 +418,9 @@ public class BeanValidationStrategyTest {
     /**
      * メッセージが、{@link ServletRequest#getParameterNames()}の順にソートされること。
      * 項目名を付加するコンバータを使った場合、メッセージに項目名が付加されること。
-     *
-     * @throws Exception
      */
     @Test
-    public void testSortMessagesWithItemName() throws Exception {
+    public void testSortMessagesWithItemName() {
         SystemRepository.load(new ObjectLoader() {
             @Override
             public Map<String, Object> load() {
@@ -482,11 +478,9 @@ public class BeanValidationStrategyTest {
 
     /**
      * 配列項目のコピーテスト
-     *
-     * @throws Exception
      */
     @Test
-    public void testArrayItem() throws Exception {
+    public void testArrayItem() {
         Object action = new Object() {
             @InjectForm(form = WithArrayBean.class, prefix = "form")
             public HttpResponse getIndexHtml(HttpRequest req, ExecutionContext ctx) {
