@@ -4,6 +4,7 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import nablarch.common.web.interceptor.sample.form.SampleForm;
+import nablarch.common.web.validator.NablarchValidationStrategy;
 import nablarch.common.web.validator.bean.SampleBean;
 import nablarch.core.ThreadContext;
 import nablarch.core.message.ApplicationException;
@@ -28,9 +29,9 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
@@ -69,7 +70,7 @@ public class InjectFormTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
 
         MockStringResourceHolder resourceHolder = repositoryResource.getComponent("stringResourceHolder");
         resourceHolder.setMessages(MESSAGES);

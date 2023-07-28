@@ -97,18 +97,6 @@ public class SampleBean implements Serializable {
         this.userName = "XXXXX";
     }
 
-// TODO ネストした構成のBeanにおける検証
-//  @Valid
-//  private SampleSubBean subBeans;
-//
-//  public SampleSubBean getSubBeans() {
-//      return subBeans;
-//  }
-//
-//  public void setSubBeans(SampleSubBean subBeans) {
-//      this.subBeans = subBeans;
-//  }
-
     @AssertTrue(message = "項目間バリデーションエラーです。")
     public boolean isCorrelationCheckValid() {
         return (StringUtil.isNullOrEmpty(correlationCheckItem1, correlationCheckItem2)
