@@ -471,6 +471,10 @@ public class HttpResponseHandler implements Handler<HttpRequest, HttpResponse> {
             if ("Content-Length".equals(key)) {
                 continue;
             }
+            // Jetty 12でContent-Typeを複数回設定するとCharacterEncodingがリセットされてしまうため回避
+            if ("Content-Type".equals(key)) {
+                continue;
+            }
             if ("Content-Disposition".equals(key)) {
                 val = replaceContentDisposition(val, ctx.getServletRequest());
             }
