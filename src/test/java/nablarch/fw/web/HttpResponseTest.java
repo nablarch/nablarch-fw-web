@@ -31,6 +31,7 @@ public class HttpResponseTest {
         SystemRepository.clear();
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testDefaultConstructorAndAccessorsWorkProperly() {
         HttpResponse res = new HttpResponse();
@@ -142,6 +143,7 @@ public class HttpResponseTest {
         cookie1.put("foo", "bar"); // 先頭を固定したいので1個だけ設定
         HttpResponse res = new HttpResponse().addCookie(cookie1);
 
+        //noinspection MismatchedQueryAndUpdateOfCollection
         HttpCookie cookie2 = new HttpCookie();
         cookie2.put("hoge", "hogehoge");
         cookie2.put("fuga", "fugafuga");
@@ -149,6 +151,7 @@ public class HttpResponseTest {
 
         HttpCookie cookie3 = new HttpCookie();
         cookie3.put("egg", "egg");
+        //noinspection deprecation
         res = res.setCookie(cookie3);
 
         List<Cookie> list = res.getCookieList();
@@ -164,6 +167,7 @@ public class HttpResponseTest {
             }
         }
 
+        //noinspection deprecation
         Map.Entry<String, String> result = res.getCookie().entrySet().iterator().next();
         assertEquals(result.getKey(), "foo");
         assertEquals(result.getValue(), "bar");
@@ -171,9 +175,11 @@ public class HttpResponseTest {
         // クッキーが設定されなかった場合
         res = new HttpResponse();
         assertTrue(res.getCookieList().isEmpty());
+        //noinspection deprecation
         assertNull(res.getCookie());
      }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testWritingToBodyBuffer() {
         
@@ -208,6 +214,7 @@ public class HttpResponseTest {
 
         byte[] bytes = new byte[expectedBytes.length];
         InputStream input = res.getBodyStream();
+        //noinspection ResultOfMethodCallIgnored
         input.read(bytes);
         
         assertEquals(expectedBytes.length, bytes.length);
@@ -219,6 +226,7 @@ public class HttpResponseTest {
         assertTrue(res.toString().contains(expectedString));
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testParsingHttpResponseMessage() {
         HttpResponse res = HttpResponse.parse(Hereis.string());
@@ -245,6 +253,7 @@ public class HttpResponseTest {
         assertEquals("Hello world!"  , res.getBodyString().trim());
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testParsingMultilineHeaders() {
         HttpResponse res = HttpResponse.parse(Hereis.string());
@@ -352,6 +361,7 @@ public class HttpResponseTest {
     }
 
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testParsingMultilineSetCookieHeaders() {
         HttpResponse res = HttpResponse.parse(Hereis.string());
@@ -382,6 +392,7 @@ public class HttpResponseTest {
         // assertEquals(true, Cookie.class.getMethod("isHttpOnly").invoke(res.getCookieList().get(1)));
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testThrowsErrorWhenItReadsIllegalResponseFormat() {
         try {
@@ -468,6 +479,7 @@ public class HttpResponseTest {
         assertNull(res.getContentType());
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testGetContentTypeExistBodyWithAddDefaultContentTypeForNoBodyResponseDefault() {
         HttpResponse res = HttpResponse.parse(Hereis.string());

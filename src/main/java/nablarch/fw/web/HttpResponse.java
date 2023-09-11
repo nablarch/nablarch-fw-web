@@ -353,7 +353,7 @@ public class HttpResponse implements Result {
      */
     @Published
     public int getStatusCode() {
-        if (body != null && body.getContentPath() != null && body.getContentPath().isRedirect() && !isRedirectStatusCode()) {
+        if (body.getContentPath() != null && body.getContentPath().isRedirect() && !isRedirectStatusCode()) {
             return Status.FOUND.code;
         }
         return this.status.code;
@@ -433,6 +433,7 @@ public class HttpResponse implements Result {
      * @return 本オブジェクト
      * @throws IllegalArgumentException HTTPバージョンの書式が無効な場合
      */
+    @SuppressWarnings("UnusedReturnValue")
     public HttpResponse setHttpVersion(String httpVersion) {
         if (!HTTP_VERSION_SYNTAX.matcher(httpVersion).matches()) {
             throw new IllegalArgumentException("invalid : " + httpVersion);
@@ -673,6 +674,7 @@ public class HttpResponse implements Result {
      * @return 本オブジェクト
      * @see Status#SEE_OTHER
      */
+    @SuppressWarnings("UnusedReturnValue")
     public HttpResponse setTransferEncoding(String encoding) {
         headers.put("Transfer-Encoding", encoding);
         return this;
@@ -684,6 +686,7 @@ public class HttpResponse implements Result {
      * @deprecated 本メソッドは、複数のクッキー情報のうち先頭のクッキーを返すことしかできません。
      *              複数のクッキー情報を返すことができる{@link #getCookieList()}を使用してください。
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Published
     @Deprecated
     public HttpCookie getCookie() {
@@ -728,6 +731,7 @@ public class HttpResponse implements Result {
      * @deprecated 本メソッドは、複数のクッキー情報を設定することを意図したメソッド名を持つ
      *             {@link #addCookie(HttpCookie)}に置き換わりました。
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Published
     @Deprecated
     public HttpResponse setCookie(HttpCookie cookie) {
@@ -837,6 +841,7 @@ public class HttpResponse implements Result {
      * リソースを開放する。
      * @return 本オブジェクト
      */
+    @SuppressWarnings("UnusedReturnValue")
     public HttpResponse cleanup() {
         ResponseBody.cleanup();
         return this;
@@ -845,7 +850,7 @@ public class HttpResponse implements Result {
     /**
      * HTTPレスポンスのボディ内容を格納するオブジェクト。
      */
-    private ResponseBody body = new ResponseBody(this);
+    private final ResponseBody body = new ResponseBody(this);
 
     /**
      * HTTPレスポンスボディの内容が設定されていなければ{@code true}を返す。
@@ -995,7 +1000,7 @@ public class HttpResponse implements Result {
         String header = null;
         while (responseMessage.hasNextLine()) {
             String line = responseMessage.nextLine();
-            if (line.length() == 0) {
+            if (line.isEmpty()) {
                 break; // Blank line. following lines are message body.
             }
             if (header == null) {
@@ -1136,7 +1141,7 @@ public class HttpResponse implements Result {
      */
     private void scanHttpStatus(Scanner scanner) {
         String statusCode = scanner.next(HTTP_STATUS_CODE_SYNTAX);
-        this.status = Status.valueOfCode(Integer.valueOf(statusCode));
+        this.status = Status.valueOfCode(Integer.parseInt(statusCode));
     }
 
     /** HTTPステータスコードの書式 */

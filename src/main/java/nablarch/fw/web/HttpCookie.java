@@ -33,6 +33,7 @@ public class HttpCookie extends MapWrapper<String, String> {
     static {
         Method isHttpOnlyMethod = null;
         try {
+            //noinspection JavaReflectionMemberAccess
             isHttpOnlyMethod = Cookie.class.getMethod("isHttpOnly");
         } catch (NoSuchMethodException ignore) {
             // NOP
@@ -41,6 +42,7 @@ public class HttpCookie extends MapWrapper<String, String> {
 
         Method setHttpOnlyMethod = null;
         try {
+            //noinspection JavaReflectionMemberAccess
             setHttpOnlyMethod = Cookie.class.getMethod("setHttpOnly", boolean.class);
         } catch (NoSuchMethodException ignore) {
             // NOP
@@ -185,6 +187,7 @@ public class HttpCookie extends MapWrapper<String, String> {
      *            このクッキーの最長の存続期間（秒）
      * @return このオブジェクト自体
      */
+    @SuppressWarnings("UnusedReturnValue")
     public HttpCookie setMaxAge(final Integer maxAge) {
         this.maxAge = maxAge;
         return this;
@@ -227,6 +230,7 @@ public class HttpCookie extends MapWrapper<String, String> {
      *            このクッキーが送信されるドメイン階層
      * @return このオブジェクト自体
      */
+    @SuppressWarnings("UnusedReturnValue")
     public HttpCookie setDomain(String domain) {
         this.domain = domain;
         return this;
@@ -271,6 +275,7 @@ public class HttpCookie extends MapWrapper<String, String> {
      * @param httpOnly trueの場合は、HttpOnly Cookie
      * @return このオブジェクト自体
      */
+    @SuppressWarnings("UnusedReturnValue")
     public HttpCookie setHttpOnly(final boolean httpOnly) {
         if (SET_HTTP_ONLY_METHOD == null) {
             throw new UnsupportedOperationException("ServletAPI in use is unsupported the HttpOnly attribute. " +

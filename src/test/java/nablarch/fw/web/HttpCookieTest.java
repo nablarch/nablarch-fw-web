@@ -2,8 +2,8 @@ package nablarch.fw.web;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -30,13 +30,14 @@ import org.junit.rules.ExpectedException;
  */
 public class HttpCookieTest {
 
+    @SuppressWarnings("deprecation")
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private HttpCookie sut;
 
     /**
      * Max-Ageを取得できることを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testGetMaxAge(@Mocked final Cookie cookie) throws Exception {
@@ -47,7 +48,7 @@ public class HttpCookieTest {
 
     /**
      * Max-Ageを設定できることを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testSetMaxAge(@Mocked final Cookie cookie) throws Exception {
@@ -59,7 +60,7 @@ public class HttpCookieTest {
 
     /**
      * Pathを取得できることを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testGetPath(@Mocked final Cookie cookie) throws Exception {
@@ -70,7 +71,7 @@ public class HttpCookieTest {
 
     /**
      * Pathを設定できることを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testSetPath(@Mocked final Cookie cookie) throws Exception {
@@ -81,7 +82,7 @@ public class HttpCookieTest {
 
     /**
      * Domainを取得できることを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testGetDomain(@Mocked final Cookie cookie) throws Exception {
@@ -92,7 +93,7 @@ public class HttpCookieTest {
 
     /**
      * Domainを設定できることを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testSetDomain(@Mocked final Cookie cookie) throws Exception {
@@ -103,7 +104,7 @@ public class HttpCookieTest {
 
     /**
      * Secureを取得できることを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testIsSecure(@Mocked final Cookie cookie) throws Exception {
@@ -114,7 +115,7 @@ public class HttpCookieTest {
 
     /**
      * Secureを設定できることを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testSetSecure(@Mocked final Cookie cookie) throws Exception {
@@ -125,7 +126,7 @@ public class HttpCookieTest {
 
     /**
      * ServletAPIのバージョンが3.0以前の場合に、HttpOnly取得時に例外が発生することを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testIsHttpOnly_error() throws Exception {
@@ -145,7 +146,7 @@ public class HttpCookieTest {
 
     /**
      * ServletAPIのバージョンが3.0以前の場合に、HttpOnly設定時に例外が発生することを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testSetHttpOnly_error() throws Exception {
@@ -271,6 +272,7 @@ public class HttpCookieTest {
             Matchers.hasProperty("message", Matchers.is("Cookie string must not be null."))
         ));
 
+        //noinspection DataFlowIssue
         HttpCookie.fromSetCookieHeader(null);
     }
 
@@ -295,6 +297,7 @@ public class HttpCookieTest {
         cookie.setSecure(true);
         if(TestUtil.isJetty9()) {
             try {
+                //noinspection JavaReflectionMemberAccess
                 Cookie.class.getMethod("setHttpOnly", boolean.class).invoke(cookie, true);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
