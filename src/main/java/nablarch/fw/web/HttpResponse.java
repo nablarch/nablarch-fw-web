@@ -57,6 +57,7 @@ public class HttpResponse implements Result {
     private static final Charset UTF_8 = Charset.forName("UTF-8");
 
     /** Content-Typeヘッダのcharsetが設定されたパターン */
+    @SuppressWarnings("RegExpUnexpectedAnchor")
     private static final Pattern CHARSET_ATTR_IN_CONTENT_PATH = Pattern.compile(
         "^.*?;\\s*charset=\\s*\"?(.*?)\"?\\s*$(;.*)?"
     );
@@ -71,7 +72,7 @@ public class HttpResponse implements Result {
      * @author Iwauo Tajima <iwauo@tis.co.jp>
      */
     @Published
-    public static enum Status implements HttpRequestHandler {
+    public enum Status implements HttpRequestHandler {
         /** 継続 */
         CONTINUE(100),
 
@@ -204,7 +205,7 @@ public class HttpResponse implements Result {
          *
          * @param code HTTPステータスコード
          */
-        private Status(int code) {
+        Status(int code) {
             this.code = code;
             this.phrase = this.name();
         }
@@ -411,7 +412,7 @@ public class HttpResponse implements Result {
      */
     @Published
     public String getMessage() {
-        return String.valueOf(this.status.code) + ": " + getReasonPhrase();
+        return this.status.code + ": " + getReasonPhrase();
     }
 
     /**
@@ -982,7 +983,7 @@ public class HttpResponse implements Result {
             }
         }
         buffer.append(LS + LS)
-              .append(body.toString());
+              .append(body);
         return buffer.toString();
     }
 
@@ -997,25 +998,25 @@ public class HttpResponse implements Result {
         scanHttpVersion(statusLine);
         scanHttpStatus(statusLine);
 
-        String header = null;
+        StringBuilder header = null;
         while (responseMessage.hasNextLine()) {
             String line = responseMessage.nextLine();
             if (line.isEmpty()) {
                 break; // Blank line. following lines are message body.
             }
             if (header == null) {
-                header = line;
+                header = new StringBuilder(line);
                 continue;
             }
             if (line.matches("\\s+.*")) {
-                header += (" " + line.trim());
+                header.append(" ").append(line.trim());
                 continue;
             }
-            scanHttpResponseHeader(header);
-            header = line;
+            scanHttpResponseHeader(header.toString());
+            header = new StringBuilder(line);
         }
         if (header != null) {
-            scanHttpResponseHeader(header);
+            scanHttpResponseHeader(header.toString());
         }
 
         String transferEncoding = getTransferEncoding();
@@ -1070,7 +1071,7 @@ public class HttpResponse implements Result {
      * @param message HTTPレスポンスメッセージ
      */
     private void scanChunkedBody(Scanner message) {
-        long chunkSize = -1;
+        long chunkSize;
         StringBuilder buffer = new StringBuilder();
         while (message.hasNextLong(16)) {
             chunkSize = message.nextLong(16);
