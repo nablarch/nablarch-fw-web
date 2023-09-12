@@ -143,11 +143,10 @@ public class HttpResponseTest {
         cookie1.put("foo", "bar"); // 先頭を固定したいので1個だけ設定
         HttpResponse res = new HttpResponse().addCookie(cookie1);
 
-        //noinspection MismatchedQueryAndUpdateOfCollection
         HttpCookie cookie2 = new HttpCookie();
         cookie2.put("hoge", "hogehoge");
         cookie2.put("fuga", "fugafuga");
-        res = res.addCookie(cookie1);
+        res = res.addCookie(cookie2);
 
         HttpCookie cookie3 = new HttpCookie();
         cookie3.put("egg", "egg");
