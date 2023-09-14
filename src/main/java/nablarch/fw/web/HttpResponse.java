@@ -983,7 +983,7 @@ public class HttpResponse implements Result {
             }
         }
         buffer.append(LS + LS)
-              .append(body);
+              .append(body.toString());
         return buffer.toString();
     }
 
