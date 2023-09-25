@@ -1,5 +1,6 @@
 package nablarch.fw.web.servlet;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
@@ -7,7 +8,6 @@ import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -64,7 +64,7 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
         listener.contextInitialized(ctxEvt);
         
         Object obj = SystemRepository.getObject("book");
-        assertThat(Book.class.cast(obj).getName(), is("Nablarch入門Vol2"));
+        assertThat(((Book) obj).getName(), is("Nablarch入門Vol2"));
         
         // 設定値の上書き時の動作設定にOVERRIDEを指定した場合
         // コンポーネント定義を重複させた設定ファイルを指定する。
@@ -79,7 +79,7 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
         listener.contextInitialized(ctxEvt);
         
         obj = SystemRepository.getObject("book");
-        assertThat(Book.class.cast(obj).getName(), is("Nablarch入門Vol2"));
+        assertThat(((Book) obj).getName(), is("Nablarch入門Vol2"));
         
         // 設定値の上書き時の動作設定にDENYを指定した場合
         // コンポーネント定義を重複させた設定ファイルを指定する。
@@ -112,7 +112,7 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
         listener.contextInitialized(ctxEvt);
         
         obj = SystemRepository.getObject("book");
-        assertThat(Book.class.cast(obj).getName(), is("Nablarch入門"));
+        assertThat(((Book) obj).getName(), is("Nablarch入門"));
         
         // 設定値の上書き時の動作設定に規定していない動作ポリシー名が指定された場合
 
@@ -169,7 +169,7 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
     
     /**
      * 設定に応じてリポジトリが初期化されること。(file指定)
-     * @throws IOException 
+     * @throws IOException IOException
      */
     @Test
     public void testRepositoryInitializationForFileConfig() throws IOException {
@@ -202,7 +202,7 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
         listener.contextInitialized(ctxEvt);
         
         Object obj = SystemRepository.getObject("book");
-        assertThat(Book.class.cast(obj).getName(), is("Nablarch入門"));
+        assertThat(((Book) obj).getName(), is("Nablarch入門"));
     }
     
     /**
@@ -284,7 +284,7 @@ public class NablarchServletContextListenerTest extends LogTestSupport {
         listener.contextInitialized(ctxEvt);
 
         Bar bar = SystemRepository.get("bar");
-        assertThat(Foo.getBar(), is(sameInstance(bar)));;
+        assertThat(Foo.getBar(), is(sameInstance(bar)));
     }
 
     /** デフォルトでは、staticプロパティにインジェクションが行われず例外が発生すること。 */

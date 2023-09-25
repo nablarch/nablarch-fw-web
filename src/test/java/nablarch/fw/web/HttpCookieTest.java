@@ -3,6 +3,7 @@ package nablarch.fw.web;
 import jakarta.servlet.http.Cookie;
 import nablarch.test.support.reflection.ReflectionUtil;
 import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -11,7 +12,6 @@ import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import org.hamcrest.Matchers;
@@ -23,13 +23,14 @@ import org.junit.rules.ExpectedException;
  */
 public class HttpCookieTest {
 
+    @SuppressWarnings("deprecation")
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private HttpCookie sut;
 
     /**
      * Max-Ageを取得できることを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testGetMaxAge() throws Exception {
@@ -40,7 +41,7 @@ public class HttpCookieTest {
 
     /**
      * Max-Ageを設定できることを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testSetMaxAge() throws Exception {
@@ -52,7 +53,7 @@ public class HttpCookieTest {
 
     /**
      * Pathを取得できることを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testGetPath() throws Exception {
@@ -63,7 +64,7 @@ public class HttpCookieTest {
 
     /**
      * Pathを設定できることを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testSetPath() throws Exception {
@@ -74,7 +75,7 @@ public class HttpCookieTest {
 
     /**
      * Domainを取得できることを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testGetDomain() throws Exception {
@@ -85,7 +86,7 @@ public class HttpCookieTest {
 
     /**
      * Domainを設定できることを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testSetDomain() throws Exception {
@@ -96,7 +97,7 @@ public class HttpCookieTest {
 
     /**
      * Secureを取得できることを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testIsSecure() throws Exception {
@@ -107,7 +108,7 @@ public class HttpCookieTest {
 
     /**
      * Secureを設定できることを確認
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void testSetSecure() throws Exception {
@@ -230,6 +231,7 @@ public class HttpCookieTest {
             Matchers.hasProperty("message", Matchers.is("Cookie string must not be null."))
         ));
 
+        //noinspection DataFlowIssue
         HttpCookie.fromSetCookieHeader(null);
     }
 
