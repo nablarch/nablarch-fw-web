@@ -1,9 +1,9 @@
 package nablarch.common.web.interceptor;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.Serializable;
@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import nablarch.common.web.interceptor.sample.form.SampleForm;
+import nablarch.common.web.validator.NablarchValidationStrategy;
+import nablarch.common.web.validator.bean.SampleBean;
 import nablarch.core.ThreadContext;
 import nablarch.core.message.ApplicationException;
 import nablarch.core.repository.SystemRepository;
@@ -72,7 +74,7 @@ public class InjectFormTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
 
         MockStringResourceHolder resourceHolder = repositoryResource.getComponent("stringResourceHolder");
         resourceHolder.setMessages(MESSAGES);
@@ -320,6 +322,27 @@ public class InjectFormTest {
         } catch (IllegalArgumentException e) {
             assertThat(e.getMessage(), is("form initialization failed. form = [nablarch.common.web.interceptor.sample.form.SampleForm], method = [init]"));
             assertNotNull(e.getCause());
+        }
+    }
+
+    /**
+     * validationGroupが指定されていた場合、実行時例外が送出されること。
+     */
+    @Test
+    public void testUnexpectedAttributeValidationGroup() {
+        Object action = new Object() {
+            @InjectForm(form=SampleForm.class, validationGroup = SampleBean.Test1.class)
+            public HttpResponse getIndexHtml(HttpRequest req, ExecutionContext ctx) {
+                return new HttpResponse();
+            }
+        };
+        try {
+            context.addHandler("//", new HttpMethodBinding(action));
+            context.handleNext(new MockHttpRequest("GET /index.html HTTP/1.1"));
+            fail("must be thrown IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage(), is("validationGroup attribute cannot be specified when using NablarchValidationStrategy"));
+            assertNull(e.getCause());
         }
     }
 

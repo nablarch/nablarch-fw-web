@@ -57,6 +57,7 @@ public class HttpResponse implements Result {
     private static final Charset UTF_8 = Charset.forName("UTF-8");
 
     /** Content-Typeヘッダのcharsetが設定されたパターン */
+    @SuppressWarnings("RegExpUnexpectedAnchor")
     private static final Pattern CHARSET_ATTR_IN_CONTENT_PATH = Pattern.compile(
         "^.*?;\\s*charset=\\s*\"?(.*?)\"?\\s*$(;.*)?"
     );
@@ -71,7 +72,7 @@ public class HttpResponse implements Result {
      * @author Iwauo Tajima <iwauo@tis.co.jp>
      */
     @Published
-    public static enum Status implements HttpRequestHandler {
+    public enum Status implements HttpRequestHandler {
         /** 継続 */
         CONTINUE(100),
 
@@ -204,7 +205,7 @@ public class HttpResponse implements Result {
          *
          * @param code HTTPステータスコード
          */
-        private Status(int code) {
+        Status(int code) {
             this.code = code;
             this.phrase = this.name();
         }
@@ -353,7 +354,7 @@ public class HttpResponse implements Result {
      */
     @Published
     public int getStatusCode() {
-        if (body != null && body.getContentPath() != null && body.getContentPath().isRedirect() && !isRedirectStatusCode()) {
+        if (body.getContentPath() != null && body.getContentPath().isRedirect() && !isRedirectStatusCode()) {
             return Status.FOUND.code;
         }
         return this.status.code;
@@ -411,7 +412,7 @@ public class HttpResponse implements Result {
      */
     @Published
     public String getMessage() {
-        return String.valueOf(this.status.code) + ": " + getReasonPhrase();
+        return this.status.code + ": " + getReasonPhrase();
     }
 
     /**
@@ -433,6 +434,7 @@ public class HttpResponse implements Result {
      * @return 本オブジェクト
      * @throws IllegalArgumentException HTTPバージョンの書式が無効な場合
      */
+    @SuppressWarnings("UnusedReturnValue")
     public HttpResponse setHttpVersion(String httpVersion) {
         if (!HTTP_VERSION_SYNTAX.matcher(httpVersion).matches()) {
             throw new IllegalArgumentException("invalid : " + httpVersion);
@@ -673,6 +675,7 @@ public class HttpResponse implements Result {
      * @return 本オブジェクト
      * @see Status#SEE_OTHER
      */
+    @SuppressWarnings("UnusedReturnValue")
     public HttpResponse setTransferEncoding(String encoding) {
         headers.put("Transfer-Encoding", encoding);
         return this;
@@ -684,6 +687,7 @@ public class HttpResponse implements Result {
      * @deprecated 本メソッドは、複数のクッキー情報のうち先頭のクッキーを返すことしかできません。
      *              複数のクッキー情報を返すことができる{@link #getCookieList()}を使用してください。
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Published
     @Deprecated
     public HttpCookie getCookie() {
@@ -705,12 +709,30 @@ public class HttpResponse implements Result {
     }
 
     /**
+     * サーバ側から送信されたクッキーのリストを{@link HttpCookie}として取得する。
+     * {@link HttpCookie}は同じ属性を持つ複数のクッキーを保持する仕様であるため、
+     * クッキーの属性が各々異なることを考慮し、リストとして返却する。
+     * @return クッキー ({@link HttpCookie})のリスト
+     */
+    @Published
+    public List<HttpCookie> getHttpCookies() {
+        List<HttpCookie> httpCookies = new ArrayList<HttpCookie>();
+
+        for(Cookie servletCookie: cookies) {
+            httpCookies.add(HttpCookie.fromServletCookie(servletCookie));
+        }
+
+        return httpCookies;
+    }
+
+    /**
      * サーバ側から送信されたクッキー情報を設定する。
      * @param cookie クッキー情報オブジェクト
      * @return 本オブジェクト
      * @deprecated 本メソッドは、複数のクッキー情報を設定することを意図したメソッド名を持つ
      *             {@link #addCookie(HttpCookie)}に置き換わりました。
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Published
     @Deprecated
     public HttpResponse setCookie(HttpCookie cookie) {
@@ -820,6 +842,7 @@ public class HttpResponse implements Result {
      * リソースを開放する。
      * @return 本オブジェクト
      */
+    @SuppressWarnings("UnusedReturnValue")
     public HttpResponse cleanup() {
         ResponseBody.cleanup();
         return this;
@@ -828,7 +851,7 @@ public class HttpResponse implements Result {
     /**
      * HTTPレスポンスのボディ内容を格納するオブジェクト。
      */
-    private ResponseBody body = new ResponseBody(this);
+    private final ResponseBody body = new ResponseBody(this);
 
     /**
      * HTTPレスポンスボディの内容が設定されていなければ{@code true}を返す。
@@ -975,25 +998,25 @@ public class HttpResponse implements Result {
         scanHttpVersion(statusLine);
         scanHttpStatus(statusLine);
 
-        String header = null;
+        StringBuilder header = null;
         while (responseMessage.hasNextLine()) {
             String line = responseMessage.nextLine();
-            if (line.length() == 0) {
+            if (line.isEmpty()) {
                 break; // Blank line. following lines are message body.
             }
             if (header == null) {
-                header = line;
+                header = new StringBuilder(line);
                 continue;
             }
             if (line.matches("\\s+.*")) {
-                header += (" " + line.trim());
+                header.append(" ").append(line.trim());
                 continue;
             }
-            scanHttpResponseHeader(header);
-            header = line;
+            scanHttpResponseHeader(header.toString());
+            header = new StringBuilder(line);
         }
         if (header != null) {
-            scanHttpResponseHeader(header);
+            scanHttpResponseHeader(header.toString());
         }
 
         String transferEncoding = getTransferEncoding();
@@ -1048,7 +1071,7 @@ public class HttpResponse implements Result {
      * @param message HTTPレスポンスメッセージ
      */
     private void scanChunkedBody(Scanner message) {
-        long chunkSize = -1;
+        long chunkSize;
         StringBuilder buffer = new StringBuilder();
         while (message.hasNextLong(16)) {
             chunkSize = message.nextLong(16);
@@ -1092,6 +1115,9 @@ public class HttpResponse implements Result {
         if (!m.matches()) {
             parseError(header);
         }
+        if ("Set-Cookie".equalsIgnoreCase(m.group(1))) {
+            this.addCookie(HttpCookie.fromSetCookieHeader(header));
+        }
         this.headers.put(m.group(1), m.group(2));
     }
 
@@ -1116,7 +1142,7 @@ public class HttpResponse implements Result {
      */
     private void scanHttpStatus(Scanner scanner) {
         String statusCode = scanner.next(HTTP_STATUS_CODE_SYNTAX);
-        this.status = Status.valueOfCode(Integer.valueOf(statusCode));
+        this.status = Status.valueOfCode(Integer.parseInt(statusCode));
     }
 
     /** HTTPステータスコードの書式 */

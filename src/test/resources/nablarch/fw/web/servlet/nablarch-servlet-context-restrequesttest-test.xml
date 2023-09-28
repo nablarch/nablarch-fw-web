@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration">
+
+    <component name="restTestConfiguration" class="nablarch.fw.web.servlet.NablarchServletContextListenerTest$Book">
+        <property name="name" value="Nablarch入門" />
+    </component>
+
+</component-configuration>

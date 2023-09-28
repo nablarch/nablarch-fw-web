@@ -128,14 +128,20 @@ public @interface InjectForm {
     String validate() default "";
 
     /**
+     * Bean Validationのグループ。
+     */
+    Class<?>[] validationGroup() default {};
+
+    /**
      * {@link InjectForm}アノテーションのインターセプタ。
      * @author kawasima
      * @author Kiyohito Itoh
      */
-    public static class Impl extends Interceptor.Impl<HttpRequest, HttpResponse, InjectForm> {
+    @SuppressWarnings("ClassNameSameAsAncestorName")
+    class Impl extends Interceptor.Impl<HttpRequest, HttpResponse, InjectForm> {
 
         /** バリデーションストラテジ */
-        private ValidationStrategy validationStrategy = getValidationStrategy();
+        private final ValidationStrategy validationStrategy = getValidationStrategy();
 
         /**
          * フォームを生成し、リクエストスコープに設定する。

@@ -1,6 +1,7 @@
 package nablarch.fw.web;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -30,6 +31,7 @@ public class HttpResponseTest {
         SystemRepository.clear();
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testDefaultConstructorAndAccessorsWorkProperly() {
         HttpResponse res = new HttpResponse();
@@ -144,10 +146,11 @@ public class HttpResponseTest {
         HttpCookie cookie2 = new HttpCookie();
         cookie2.put("hoge", "hogehoge");
         cookie2.put("fuga", "fugafuga");
-        res = res.addCookie(cookie1);
+        res = res.addCookie(cookie2);
 
         HttpCookie cookie3 = new HttpCookie();
         cookie3.put("egg", "egg");
+        //noinspection deprecation
         res = res.setCookie(cookie3);
 
         List<Cookie> list = res.getCookieList();
@@ -163,6 +166,7 @@ public class HttpResponseTest {
             }
         }
 
+        //noinspection deprecation
         Map.Entry<String, String> result = res.getCookie().entrySet().iterator().next();
         assertEquals(result.getKey(), "foo");
         assertEquals(result.getValue(), "bar");
@@ -170,9 +174,11 @@ public class HttpResponseTest {
         // クッキーが設定されなかった場合
         res = new HttpResponse();
         assertTrue(res.getCookieList().isEmpty());
+        //noinspection deprecation
         assertNull(res.getCookie());
      }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testWritingToBodyBuffer() {
         
@@ -207,6 +213,7 @@ public class HttpResponseTest {
 
         byte[] bytes = new byte[expectedBytes.length];
         InputStream input = res.getBodyStream();
+        //noinspection ResultOfMethodCallIgnored
         input.read(bytes);
         
         assertEquals(expectedBytes.length, bytes.length);
@@ -218,6 +225,7 @@ public class HttpResponseTest {
         assertTrue(res.toString().contains(expectedString));
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testParsingHttpResponseMessage() {
         HttpResponse res = HttpResponse.parse(Hereis.string());
@@ -244,6 +252,7 @@ public class HttpResponseTest {
         assertEquals("Hello world!"  , res.getBodyString().trim());
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testParsingMultilineHeaders() {
         HttpResponse res = HttpResponse.parse(Hereis.string());
@@ -273,6 +282,116 @@ public class HttpResponseTest {
         assertEquals("person4@domain4.edu", customHeader[3]);
     }
 
+    @Test
+    public void testConvertingServletCookieToHttpCookie() {
+        HttpResponse res = new HttpResponse();
+        res.addCookie(new CookieBuilder("cookie00", "value00").build());
+        res.addCookie(new CookieBuilder("cookie01", "value01").setMaxAge(3600).build());
+        res.addCookie(new CookieBuilder("cookie02", "value02").setDomain("example.com").build());
+        res.addCookie(new CookieBuilder("cookie03", "value03").setPath("/").build());
+        res.addCookie(new CookieBuilder("cookie04", "value04").setSecure(true).build());
+
+        List<HttpCookie> results = res.getHttpCookies();
+        assertEquals(5, results.size());
+
+        for(HttpCookie cookie : results) {
+            if (cookie.containsKey("cookie00")) {
+                assertEquals("value00", cookie.get("cookie00"));
+                assertNull(cookie.getMaxAge());
+                assertNull(cookie.getDomain());
+                assertNull(cookie.getPath());
+                assertFalse(cookie.isSecure());
+            } else if (cookie.containsKey("cookie01")) {
+                assertEquals("value01", cookie.get("cookie01"));
+                assertEquals(3600, (int) cookie.getMaxAge());
+                assertNull(cookie.getDomain());
+                assertNull(cookie.getPath());
+                assertFalse(cookie.isSecure());
+            } else if (cookie.containsKey("cookie02")) {
+                assertEquals("value02", cookie.get("cookie02"));
+                assertNull(cookie.getMaxAge());
+                assertEquals("example.com", cookie.getDomain());
+                assertNull(cookie.getPath());
+                assertFalse(cookie.isSecure());
+            } else if (cookie.containsKey("cookie03")) {
+                assertEquals("value03", cookie.get("cookie03"));
+                assertNull(cookie.getMaxAge());
+                assertNull(cookie.getDomain());
+                assertEquals("/", cookie.getPath());
+                assertFalse(cookie.isSecure());
+            } else if (cookie.containsKey("cookie04")) {
+                assertEquals("value04", cookie.get("cookie04"));
+                assertNull(cookie.getMaxAge());
+                assertNull(cookie.getDomain());
+                assertNull(cookie.getPath());
+                assertTrue(cookie.isSecure());
+            } else {
+                fail();
+            }
+
+        }
+    }
+
+    private static class CookieBuilder {
+        private final HttpCookie cookie;
+        public CookieBuilder(String key, String value) {
+            cookie = new HttpCookie();
+            cookie.put(key, value);
+        }
+        public CookieBuilder setMaxAge(int maxAge) {
+            cookie.setMaxAge(maxAge);
+            return this;
+        }
+        public CookieBuilder setDomain(String domain) {
+            cookie.setDomain(domain);
+            return this;
+        }
+        public CookieBuilder setPath(String path) {
+            cookie.setPath(path);
+            return this;
+        }
+        public CookieBuilder setSecure(boolean secure) {
+            cookie.setSecure(secure);
+            return this;
+        }
+        public HttpCookie build() {
+            return cookie;
+        }
+    }
+
+
+    @SuppressWarnings("DanglingJavadoc")
+    @Test
+    public void testParsingMultilineSetCookieHeaders() {
+        HttpResponse res = HttpResponse.parse(Hereis.string());
+        /***********************************************
+        HTTP/1.1 400 Bad Request
+        Set-Cookie: cookie00="value00"
+        Set-Cookie: cookie01=value01; Max-Age=3600; Path=/; Domain=example.com; Secure; HttpOnly
+
+        Hello world!
+        ************************************************/
+
+        assertEquals(400                        , res.getStatusCode());
+        assertEquals("HTTP/1.1"                 , res.getHttpVersion());
+        assertEquals("Hello world!"             , res.getBodyString().trim());
+        assertEquals(3, res.getHeaderMap().size());
+
+        assertEquals(2, res.getCookieList().size());
+        assertEquals("cookie00", res.getCookieList().get(0).getName());
+        assertEquals("value00", res.getCookieList().get(0).getValue());
+
+        assertEquals("cookie01", res.getCookieList().get(1).getName());
+        assertEquals("value01", res.getCookieList().get(1).getValue());
+        assertEquals(3600, res.getCookieList().get(1).getMaxAge());
+        assertEquals("/", res.getCookieList().get(1).getPath());
+        assertEquals("example.com", res.getCookieList().get(1).getDomain());
+        assertTrue(res.getCookieList().get(1).getSecure());
+        // 以下は実行できない
+        // assertEquals(true, Cookie.class.getMethod("isHttpOnly").invoke(res.getCookieList().get(1)));
+    }
+
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testThrowsErrorWhenItReadsIllegalResponseFormat() {
         try {
@@ -359,6 +478,7 @@ public class HttpResponseTest {
         assertNull(res.getContentType());
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testGetContentTypeExistBodyWithAddDefaultContentTypeForNoBodyResponseDefault() {
         HttpResponse res = HttpResponse.parse(Hereis.string());

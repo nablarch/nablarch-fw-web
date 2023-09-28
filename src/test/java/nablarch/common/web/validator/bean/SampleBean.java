@@ -28,7 +28,7 @@ public class SampleBean implements Serializable {
     @SystemChar(charsetDef = "英大文字")
     @Length(min = 5, max = 7)
     private String customizedGroupItem;
-    
+
     @SystemChar(charsetDef = "数字")
     @Length(max = 5)
     private String correlationCheckItem1;
@@ -36,6 +36,13 @@ public class SampleBean implements Serializable {
     @SystemChar(charsetDef = "数字")
     @Length(max = 4)
     private String correlationCheckItem2;
+
+    @SystemChar(charsetDef = "英大文字", groups = Test1.class)
+    @Length(max = 4, min = 4, groups = Test2.class)
+    private String validationGroupCheckItem;
+
+    public interface Test1 {}
+    public interface Test2 {}
 
     public String getUserId() {
         return userId;
@@ -77,22 +84,18 @@ public class SampleBean implements Serializable {
         this.correlationCheckItem2 = correlationCheckItem2;
     }
 
+    public String getValidationGroupCheckItem() {
+        return validationGroupCheckItem;
+    }
+
+    public void setValidationGroupCheckItem(String validationGroupCheckItem) {
+        this.validationGroupCheckItem = validationGroupCheckItem;
+    }
+
     public void setInitValues(HttpRequest request, ExecutionContext context) {
         this.userId = "0000000001";
         this.userName = "XXXXX";
     }
-
-// TODO ネストした構成のBeanにおける検証
-//  @Valid
-//  private SampleSubBean subBeans;
-//
-//  public SampleSubBean getSubBeans() {
-//      return subBeans;
-//  }
-//
-//  public void setSubBeans(SampleSubBean subBeans) {
-//      this.subBeans = subBeans;
-//  }
 
     @AssertTrue(message = "項目間バリデーションエラーです。")
     public boolean isCorrelationCheckValid() {

@@ -5,7 +5,7 @@
 
   <groupId>com.nablarch.framework</groupId>
   <artifactId>nablarch-fw-web</artifactId>
-  <version>1.11.0</version>
+  <version>1.12.0</version>
 
   <scm>
     <connection>scm:git:git://github.com/nablarch/${project.artifactId}.git</connection>
@@ -16,7 +16,7 @@
   <parent>
     <groupId>com.nablarch</groupId>
     <artifactId>nablarch-parent</artifactId>
-    <version>5u22</version>
+    <version>5u23</version>
   </parent>
 
   <properties>

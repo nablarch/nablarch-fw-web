@@ -67,7 +67,7 @@ public class BeanValidationStrategy implements ValidationStrategy {
         Serializable bean = formFactory.create(annotation.form());
         BeanUtil.copy(annotation.form(), bean, requestParamMap, CopyOptions.empty());
         Validator validator = ValidatorUtil.getValidator();
-        Set<ConstraintViolation<Serializable>> results = validator.validate(bean);
+        Set<ConstraintViolation<Serializable>> results = validator.validate(bean, annotation.validationGroup());
         if (!results.isEmpty()) {
             if (copyBeanToRequestScopeOnError) {
                 // エラーのとき、リクエストスコープにbeanを設定する
