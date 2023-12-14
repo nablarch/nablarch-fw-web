@@ -67,7 +67,7 @@ public abstract class ResourcePathRule {
         String pathForLanguage = createPathForLanguage(pathFromContextRoot, locale.getLanguage());
 
         // 言語対応のリソースパスが指すファイルが存在しない場合。
-        if (!existsResource(pathForLanguage, request)) {
+        if (!existsResource(removeQueryParameter(pathForLanguage), request)) {
             return path;
         }
 
