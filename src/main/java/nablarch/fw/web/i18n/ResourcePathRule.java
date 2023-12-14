@@ -55,7 +55,7 @@ public abstract class ResourcePathRule {
             return path;
         }
 
-        int extensionIndex = path.lastIndexOf('.');
+        int extensionIndex = removeQueryParameter(path).lastIndexOf('.');
         if (extensionIndex == -1) { // 拡張子を含まない場合。
             return path;
         }
@@ -122,4 +122,18 @@ public abstract class ResourcePathRule {
      * @return 言語対応のリソースパス
      */
     protected abstract String createPathForLanguage(String pathFromContextRoot, String language);
+
+    /**
+     * リソースパスからクエリパラメータ部分を除去する。
+     *
+     * @param path リソースパス
+     * @return クエリパラメータ部分を除去したリソースパス
+     */
+    private String removeQueryParameter(String path) {
+        int queryParameterIndex = path.indexOf('?');
+        if (queryParameterIndex == -1) {
+            return path;
+        }
+        return path.substring(0, queryParameterIndex);
+    }
 }
