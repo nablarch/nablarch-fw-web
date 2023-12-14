@@ -55,29 +55,35 @@ public abstract class ResourcePathRule {
             return path;
         }
 
-        int extensionIndex = removeQueryParameter(path).lastIndexOf('.');
+        // リソースパスの判定にクエリパラメータは不要なため除去
+        String basePath = removeQueryParameter(path);
+
+        int extensionIndex = basePath.lastIndexOf('.');
         if (extensionIndex == -1) { // 拡張子を含まない場合。
             return path;
         }
 
         // コンテキストルートからのパスに変換。
-        String pathFromContextRoot = convertToPathFromContextRoot(path, request);
+        String pathFromContextRoot = convertToPathFromContextRoot(basePath, request);
 
         // 言語対応のリソースパスの作成。
         String pathForLanguage = createPathForLanguage(pathFromContextRoot, locale.getLanguage());
 
         // 言語対応のリソースパスが指すファイルが存在しない場合。
+        // （クエリパラメータがあると正しい存在チェックができず、クエリパラメータに含まれる
+        //   文字列が原因でエラーになる可能性もあるため、クエリパラメータは除去する）
         if (!existsResource(removeQueryParameter(pathForLanguage), request)) {
             return path;
         }
 
         // コンテキストルートからのパス変換時に追加されたパスがある場合は取り除く。
-        String addedPath = pathFromContextRoot.replace(path, "");
+        String addedPath = pathFromContextRoot.replace(basePath, "");
         if (!addedPath.isEmpty()) {
             pathForLanguage = pathForLanguage.substring(addedPath.length());
         }
 
-        return pathForLanguage;
+        // 変換後のリソースパスにクエリパラメータを戻して返却
+        return pathForLanguage + path.replace(basePath, "");
     }
 
     /**

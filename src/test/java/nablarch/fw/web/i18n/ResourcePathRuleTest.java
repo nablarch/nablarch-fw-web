@@ -186,10 +186,20 @@ public class ResourcePathRuleTest {
         ThreadContext.setLanguage(new Locale("ja"));
         assertThat(rule.getPathForLanguage(path, request), is("i18n/test"));
 
+        // 拡張子を含まない場合。（クエリパラメータ付き）
+        path = "i18n/test?key=value";
+        ThreadContext.setLanguage(new Locale("ja"));
+        assertThat(rule.getPathForLanguage(path, request), is("i18n/test?key=value"));
+
         // 言語対応のリソースファイルが存在する場合。(相対パス)
         path = "i18n/test.jsp";
         ThreadContext.setLanguage(new Locale("ja"));
         assertThat(rule.getPathForLanguage(path, request), is("i18n/test.jsp_ja"));
+
+        // 言語対応のリソースファイルが存在する場合。(相対パス)（クエリパラメータ付き）
+        path = "i18n/test.jsp?key=value";
+        ThreadContext.setLanguage(new Locale("ja"));
+        assertThat(rule.getPathForLanguage(path, request), is("i18n/test.jsp_ja?key=value"));
 
         // 言語対応のリソースファイルが存在しない場合。(相対パス)
         path = "i18n/test.jsp";
