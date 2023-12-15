@@ -56,6 +56,8 @@ public abstract class ResourcePathRule {
         }
 
         // リソースパスの判定にクエリパラメータは不要なため除去
+        // （クエリパラメータがあると正しい存在チェックができず、クエリパラメータに含まれる
+        //   文字列が原因でエラーになる可能性もあるため、クエリパラメータは除去する）
         String basePath = removeQueryParameter(path);
 
         int extensionIndex = basePath.lastIndexOf('.');
@@ -70,9 +72,7 @@ public abstract class ResourcePathRule {
         String pathForLanguage = createPathForLanguage(pathFromContextRoot, locale.getLanguage());
 
         // 言語対応のリソースパスが指すファイルが存在しない場合。
-        // （クエリパラメータがあると正しい存在チェックができず、クエリパラメータに含まれる
-        //   文字列が原因でエラーになる可能性もあるため、クエリパラメータは除去する）
-        if (!existsResource(removeQueryParameter(pathForLanguage), request)) {
+        if (!existsResource(pathForLanguage, request)) {
             return path;
         }
 
