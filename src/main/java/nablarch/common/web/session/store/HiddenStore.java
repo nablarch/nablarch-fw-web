@@ -9,7 +9,7 @@ import nablarch.core.util.FileUtil;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 
-import javax.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.DatatypeConverter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;

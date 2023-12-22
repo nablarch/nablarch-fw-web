@@ -3,8 +3,8 @@ package nablarch.fw.web.i18n;
 import java.net.MalformedURLException;
 import java.util.Locale;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 import nablarch.core.ThreadContext;
 import nablarch.core.util.annotation.Published;
@@ -55,13 +55,18 @@ public abstract class ResourcePathRule {
             return path;
         }
 
-        int extensionIndex = path.lastIndexOf('.');
+        // リソースパスの判定にクエリパラメータは不要なため除去
+        // （クエリパラメータがあると正しい存在チェックができず、クエリパラメータに含まれる
+        //   文字列が原因でエラーになる可能性もあるため、クエリパラメータは除去する）
+        String basePath = removeQueryParameter(path);
+
+        int extensionIndex = basePath.lastIndexOf('.');
         if (extensionIndex == -1) { // 拡張子を含まない場合。
             return path;
         }
 
         // コンテキストルートからのパスに変換。
-        String pathFromContextRoot = convertToPathFromContextRoot(path, request);
+        String pathFromContextRoot = convertToPathFromContextRoot(basePath, request);
 
         // 言語対応のリソースパスの作成。
         String pathForLanguage = createPathForLanguage(pathFromContextRoot, locale.getLanguage());
@@ -72,12 +77,13 @@ public abstract class ResourcePathRule {
         }
 
         // コンテキストルートからのパス変換時に追加されたパスがある場合は取り除く。
-        String addedPath = pathFromContextRoot.replace(path, "");
+        String addedPath = pathFromContextRoot.replace(basePath, "");
         if (!addedPath.isEmpty()) {
             pathForLanguage = pathForLanguage.substring(addedPath.length());
         }
 
-        return pathForLanguage;
+        // 変換後のリソースパスにクエリパラメータを戻して返却
+        return pathForLanguage + path.replace(basePath, "");
     }
 
     /**
@@ -122,4 +128,18 @@ public abstract class ResourcePathRule {
      * @return 言語対応のリソースパス
      */
     protected abstract String createPathForLanguage(String pathFromContextRoot, String language);
+
+    /**
+     * リソースパスからクエリパラメータ部分を除去する。
+     *
+     * @param path リソースパス
+     * @return クエリパラメータ部分を除去したリソースパス
+     */
+    private String removeQueryParameter(String path) {
+        int queryParameterIndex = path.indexOf('?');
+        if (queryParameterIndex == -1) {
+            return path;
+        }
+        return path.substring(0, queryParameterIndex);
+    }
 }

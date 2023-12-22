@@ -1,13 +1,8 @@
 package nablarch.fw.web.servlet;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-
-import mockit.Mocked;
-import mockit.Verifications;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import nablarch.TestUtil;
 import nablarch.common.web.session.MockHttpServletRequest;
 import nablarch.core.ThreadContext;
@@ -23,22 +18,30 @@ import nablarch.fw.web.handler.HttpErrorHandler;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Kiyohito Itoh
  */
 public class WebFrontControllerTest {
-    @Mocked
-    public Handler<Object, ?> handler;
-    @Mocked
-    public HttpServletResponse response;
-    @Mocked
-    public FilterChain filterChain;
+    @SuppressWarnings("unchecked")
+    public Handler<Object, ?> handler = mock(Handler.class);
+    public HttpServletResponse response = mock(HttpServletResponse.class);
+    public FilterChain filterChain = mock(FilterChain.class);
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -109,14 +112,13 @@ public class WebFrontControllerTest {
         sut.setPreventSessionCreation(false);
         sut.doFilter(new MockHttpServletRequest().getMockInstance(), response, filterChain);
 
-        new Verifications() {{
-            ExecutionContext context;
-            handler.handle(any, context = withCapture());
+        final ArgumentCaptor<ExecutionContext> captor = ArgumentCaptor.forClass(ExecutionContext.class);
+        verify(handler, atLeastOnce()).handle(any(), captor.capture());
 
-            ServletRequest servletRequest = ((ServletExecutionContext) context).getServletRequest().getRequest();
-            assertThat(servletRequest, is(notNullValue()));
-            assertThat(servletRequest, is(not(instanceOf(PreventSessionCreationHttpServletRequestWrapper.class))));
-        }};
+        final ExecutionContext context = captor.getValue();
+        ServletRequest servletRequest = ((ServletExecutionContext) context).getServletRequest().getRequest();
+        assertThat(servletRequest, is(notNullValue()));
+        assertThat(servletRequest, is(not(instanceOf(PreventSessionCreationHttpServletRequestWrapper.class))));
     }
 
     @Test
@@ -128,13 +130,12 @@ public class WebFrontControllerTest {
         sut.setPreventSessionCreation(true);
         sut.doFilter(new MockHttpServletRequest().getMockInstance(), response, filterChain);
 
-        new Verifications() {{
-            ExecutionContext context;
-            handler.handle(any, context = withCapture());
-
-            ServletRequest servletRequest = ((ServletExecutionContext) context).getServletRequest().getRequest();
-            assertThat(servletRequest, is(instanceOf(PreventSessionCreationHttpServletRequestWrapper.class)));
-        }};
+        final ArgumentCaptor<ExecutionContext> captor = ArgumentCaptor.forClass(ExecutionContext.class);
+        verify(handler, atLeastOnce()).handle(any(), captor.capture());
+        
+        final ExecutionContext context = captor.getValue();
+        ServletRequest servletRequest = ((ServletExecutionContext) context).getServletRequest().getRequest();
+        assertThat(servletRequest, is(instanceOf(PreventSessionCreationHttpServletRequestWrapper.class)));
     }
 
     @After

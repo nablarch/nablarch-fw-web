@@ -1,29 +1,9 @@
 package nablarch.common.web.validator;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.beans.HasPropertyWithValue.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.collection.IsIterableContainingInOrder;
-import org.hamcrest.collection.IsIterableWithSize;
-
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import nablarch.common.web.interceptor.InjectForm;
 import nablarch.common.web.validator.bean.SampleBean;
 import nablarch.common.web.validator.bean.UserForm;
@@ -43,13 +23,34 @@ import nablarch.fw.web.MockHttpRequest;
 import nablarch.fw.web.handler.NormalizationHandler;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 import nablarch.test.support.SystemRepositoryResource;
-
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
+import org.hamcrest.collection.IsIterableContainingInOrder;
+import org.hamcrest.collection.IsIterableWithSize;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import mockit.Expectations;
-import mockit.Mocked;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * {@link InjectForm}のテスト(Bean Validationによるバリデーション).
@@ -62,14 +63,11 @@ public class BeanValidationStrategyTest {
     public SystemRepositoryResource repositoryResource
             = new SystemRepositoryResource("nablarch/common/web/validator/inject-bean-test.xml");
 
-    @Mocked
-    private HttpServletRequest mockHttpServletRequest;
+    private final HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class, RETURNS_DEEP_STUBS);
 
-    @Mocked
-    private HttpServletResponse mockHttpServletResponse;
+    private final HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
 
-    @Mocked
-    private ServletContext mockServletContext;
+    private final ServletContext mockServletContext = mock(ServletContext.class);
 
     private ServletExecutionContext context;
 
@@ -77,26 +75,13 @@ public class BeanValidationStrategyTest {
     public void setUp() {
         ThreadContext.setLanguage(Locale.JAPANESE);
 
-        new Expectations() {{
-            mockHttpServletRequest.getContextPath();
-            result = "";
-            minTimes = 0;
+        when(mockHttpServletRequest.getContextPath()).thenReturn("");
+        when(mockHttpServletRequest.getRequestURI()).thenReturn("/dummy");
 
-            mockHttpServletRequest.getRequestURI();
-            result = "/dummy";
-            minTimes = 0;
+        context = spy(new ServletExecutionContext(mockHttpServletRequest,
+                mockHttpServletResponse, mockServletContext));
 
-        }};
-
-        context = new ServletExecutionContext(mockHttpServletRequest,
-                mockHttpServletResponse, mockServletContext);
-
-        new Expectations(context) {{
-            Map<String, Object> requestScope = new HashMap<String, Object>();
-            context.getRequestScopeMap();
-            result = requestScope;
-            minTimes = 0;
-        }};
+        doReturn(new HashMap<>()).when(context).getRequestScopeMap();
     }
 
     /**
@@ -367,17 +352,13 @@ public class BeanValidationStrategyTest {
      * メッセージが、{@link ServletRequest#getParameterNames()}の順にソートされること。
      */
     @Test
-    public void testSortMessages() {
-        new Expectations() {{
-            final List<String> paramNames = new ArrayList<String>();
-            paramNames.add("form.name");
-            paramNames.add("form.sub.sub3");
-            paramNames.add("form.birthday");
-            paramNames.add("form.age");
-            mockHttpServletRequest.getParameterNames();
-            result = Collections.enumeration(paramNames);
-            minTimes = 0;
-        }};
+    public void testSortMessages() throws Exception {
+        final List<String> paramNames = new ArrayList<>();
+        paramNames.add("form.name");
+        paramNames.add("form.sub.sub3");
+        paramNames.add("form.birthday");
+        paramNames.add("form.age");
+        when(mockHttpServletRequest.getParameterNames()).thenReturn(Collections.enumeration(paramNames));
 
         final Object action = new Object() {
             @InjectForm(form = UserForm.class, prefix = "form")
@@ -429,16 +410,13 @@ public class BeanValidationStrategyTest {
                 return result;
             }
         });
-        new Expectations() {{
-            final List<String> paramNames = new ArrayList<String>();
-            paramNames.add("form.name");
-            paramNames.add("form.sub.sub3");
-            paramNames.add("form.birthday");
-            paramNames.add("form.age");
-            mockHttpServletRequest.getParameterNames();
-            result = Collections.enumeration(paramNames);
-            minTimes = 0;
-        }};
+        
+        final List<String> paramNames = new ArrayList<>();
+        paramNames.add("form.name");
+        paramNames.add("form.sub.sub3");
+        paramNames.add("form.birthday");
+        paramNames.add("form.age");
+        when(mockHttpServletRequest.getParameterNames()).thenReturn(Collections.enumeration(paramNames));
 
         final Object action = new Object() {
             @InjectForm(form = UserForm.class, prefix = "form")

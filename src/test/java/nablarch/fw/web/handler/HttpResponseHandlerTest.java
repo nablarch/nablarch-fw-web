@@ -640,11 +640,7 @@ public class HttpResponseHandlerTest {
         ).readLine();
         assertThat(line.length(),is(BODY_SIZE));
         //明示的にContent-Typeを設定していない場合に、Content-Typeが自動設定されることを確認
-        if (TestUtil.isJetty9()) {
-            assertEquals("text/plain;charset=utf-8", res.getHeader("Content-Type"));
-        } else {
-            assertEquals("text/plain;charset=UTF-8", res.getHeader("Content-Type"));
-        }
+        assertEquals("text/plain;charset=utf-8", res.getHeader("Content-Type"));
     }
 
     /**
@@ -837,11 +833,7 @@ public class HttpResponseHandlerTest {
                 new MockHttpRequest("GET /test1 HTTP/1.1")
                 , new ExecutionContext()
         );
-        if (TestUtil.isJetty9()) {
-            assertEquals("text/plain;charset=utf-8", res.getHeader("Content-Type"));
-        } else {
-            assertEquals("text/plain;charset=UTF-8", res.getHeader("Content-Type"));
-        }
+        assertEquals("text/plain;charset=utf-8", res.getHeader("Content-Type"));
     }
 
     /**
@@ -997,13 +989,6 @@ public class HttpResponseHandlerTest {
                 res.getStatusCode(), is(302));
         String jsessionid = getCookieValue(res.getHeader("Set-Cookie"), "JSESSIONID");
         assertThat("jsessionidが発行されていること。", jsessionid, is(notNullValue()));
-
-        if (!TestUtil.isJetty9()) {
-            // nablarch-testing-jetty9経由だとレスポンスのLocationヘッダにjsessionidが付与されてこないので、
-            // 以下のアサートはスキップ
-            assertThat("リダイレクト先URLにjsessionidが付与されていること。",
-                    res.getLocation(), containsString("jsessionid=" + jsessionid));
-        }
 
         // Cookieを使ってアクセス
         res = server.handle(new MockHttpRequest("GET /redirect HTTP/1.1\r\nCookie: JSESSIONID=" + jsessionid + "\r\n\r\n"), new ExecutionContext());

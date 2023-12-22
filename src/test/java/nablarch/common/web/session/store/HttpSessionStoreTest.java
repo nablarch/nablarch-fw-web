@@ -1,29 +1,26 @@
 package nablarch.common.web.session.store;
 
-import mockit.Mocked;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletResponse;
 import nablarch.common.web.session.MockHttpServletRequest;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletResponse;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * {@link HttpSessionStore}のテスト。
  */
 public class HttpSessionStoreTest {
 
-    @Mocked
-    private ServletContext unusedHttpContext;
+    private final ServletContext unusedHttpContext = mock(ServletContext.class);
 
-    @Mocked
-    private HttpServletResponse unusedHttpResponse;
+    private final HttpServletResponse unusedHttpResponse = mock(HttpServletResponse.class);
 
     @Before
     public void setUp() {

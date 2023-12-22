@@ -3,7 +3,7 @@ package nablarch.fw.web.upload;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import javax.servlet.ServletInputStream;
+import jakarta.servlet.ServletInputStream;
 
 import nablarch.core.log.Logger;
 import nablarch.core.log.LoggerManager;

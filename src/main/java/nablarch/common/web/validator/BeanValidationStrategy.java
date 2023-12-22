@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.ServletRequest;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
+import jakarta.servlet.ServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 
 import nablarch.common.web.interceptor.InjectForm;
 import nablarch.core.beans.BeanUtil;

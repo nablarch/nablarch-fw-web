@@ -2,7 +2,7 @@ package nablarch.fw.web.servlet;
 
 import java.util.Enumeration;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import nablarch.core.util.map.AttributeMap;
 

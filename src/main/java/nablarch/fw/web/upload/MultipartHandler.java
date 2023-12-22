@@ -16,7 +16,7 @@ import nablarch.fw.web.servlet.HttpRequestWrapper;
  * <p/>
  * <p>
  * 本ハンドラは、サーブレットの入力ストリーム
- * （{@link javax.servlet.http.HttpServletRequest#getInputStream()}）から
+ * （{@link jakarta.servlet.http.HttpServletRequest#getInputStream()}）から
  * リクエストのメッセージボディを読み込み、マルチパートの解析を行う。
  * HTTPリクエストがマルチパートでない場合（Content-Typeがmultipart/form-dataでない場合）、
  * 何もせずに後続のハンドラに処理を委譲する。

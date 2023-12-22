@@ -1,22 +1,13 @@
 package nablarch.common.web.session;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletResponse;
 import nablarch.common.web.session.store.HiddenStore;
 import nablarch.common.web.session.store.HttpSessionStore;
 import nablarch.core.repository.ObjectLoader;
 import nablarch.core.repository.SystemRepository;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.servlet.ServletExecutionContext;
-
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,8 +16,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import mockit.Capturing;
-import mockit.Mocked;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * {@link SessionUtil}のテスト
@@ -35,11 +34,9 @@ import mockit.Mocked;
  */
 public class SessionUtilTest {
 
-    @Capturing
-    private HttpServletResponse httpResponse;
+    private final HttpServletResponse httpResponse = mock(HttpServletResponse.class);
 
-    @Mocked
-    private ServletContext servletContext;
+    private final ServletContext servletContext = mock(ServletContext.class);
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

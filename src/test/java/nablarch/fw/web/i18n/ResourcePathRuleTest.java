@@ -1,19 +1,7 @@
 package nablarch.fw.web.i18n;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-
-import mockit.Expectations;
-import mockit.Mocked;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 import nablarch.core.ThreadContext;
 import nablarch.core.repository.ObjectLoader;
 import nablarch.core.repository.SystemRepository;
@@ -25,6 +13,19 @@ import nablarch.fw.web.servlet.WebFrontController;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * {@link ResourcePathRule}のテスト。
@@ -185,10 +186,20 @@ public class ResourcePathRuleTest {
         ThreadContext.setLanguage(new Locale("ja"));
         assertThat(rule.getPathForLanguage(path, request), is("i18n/test"));
 
+        // 拡張子を含まない場合。（クエリパラメータ付き）
+        path = "i18n/test?key=value";
+        ThreadContext.setLanguage(new Locale("ja"));
+        assertThat(rule.getPathForLanguage(path, request), is("i18n/test?key=value"));
+
         // 言語対応のリソースファイルが存在する場合。(相対パス)
         path = "i18n/test.jsp";
         ThreadContext.setLanguage(new Locale("ja"));
         assertThat(rule.getPathForLanguage(path, request), is("i18n/test.jsp_ja"));
+
+        // 言語対応のリソースファイルが存在する場合。(相対パス)（クエリパラメータ付き）
+        path = "i18n/test.jsp?key=value";
+        ThreadContext.setLanguage(new Locale("ja"));
+        assertThat(rule.getPathForLanguage(path, request), is("i18n/test.jsp_ja?key=value"));
 
         // 言語対応のリソースファイルが存在しない場合。(相対パス)
         path = "i18n/test.jsp";
@@ -236,7 +247,8 @@ public class ResourcePathRuleTest {
     }
     
     @Test
-    public void testGetServletContextCreatorDefault(@Mocked final HttpServletRequest request) {
+    public void testGetServletContextCreatorDefault() {
+        final HttpServletRequest request = mock(HttpServletRequest.class);
 
         SystemRepository.load(new ObjectLoader() {
             @Override
@@ -247,9 +259,7 @@ public class ResourcePathRuleTest {
             }
         });
         
-        new Expectations() {{
-            request.getSession(false); result = null;
-        }};
+        when(request.getSession(false)).thenReturn(null);
         
         try {
             rule.existsResource("test", request);
@@ -259,7 +269,8 @@ public class ResourcePathRuleTest {
     }
     
     @Test
-    public void testGetServletContextCreatorBasic(@Mocked final HttpServletRequest request) {
+    public void testGetServletContextCreatorBasic() {
+        final HttpServletRequest request = mock(HttpServletRequest.class);
 
         SystemRepository.load(new ObjectLoader() {
             @Override
@@ -270,9 +281,7 @@ public class ResourcePathRuleTest {
             }
         });
         
-        new Expectations() {{
-            request.getSession(false); result = null;
-        }};
+        when(request.getSession(false)).thenReturn(null);
         
         rule.setServletContextCreator(new BasicServletContextCreator());
         
@@ -284,7 +293,8 @@ public class ResourcePathRuleTest {
     }
     
     @Test
-    public void testGetServletContextCreatorTest(@Mocked final HttpServletRequest request) {
+    public void testGetServletContextCreatorTest() {
+        final HttpServletRequest request = mock(HttpServletRequest.class, RETURNS_DEEP_STUBS);
 
         SystemRepository.load(new ObjectLoader() {
             @Override

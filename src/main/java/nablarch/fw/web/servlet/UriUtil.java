@@ -1,6 +1,6 @@
 package nablarch.fw.web.servlet;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * フレームワークで使用するURIの取り扱いを助けるユーティリティ。
@@ -65,10 +65,8 @@ public final class UriUtil {
             // フォワードされた場合を考慮し、オリジナルのリクエストURI取得を先に試みる。
             // オリジナルのリクエストURIの取得方法は、よく知られたServlet仕様でないため
             // 参照先をここに記載しておく。
-            // Java Servlet Specification 2.4 SRV.8.4.2 Forwarded Request Parameters
-            // Java Servlet Specification 2.5 SRV.8.4.2 Forwarded Request Parameters
-            // Java Servlet Specification 3.0 9.4.2 Forwarded Request Parameters
-            String uri = (String) request.getAttribute("javax.servlet.forward.request_uri");
+            // Jakarta Servlet Specification 6.0.0 9.4.2. Forwarded Request Parameters
+            String uri = (String) request.getAttribute("jakarta.servlet.forward.request_uri");
             if (uri == null) {
                 uri = request.getRequestURI();
             }

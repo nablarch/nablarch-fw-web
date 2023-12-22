@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 import nablarch.core.util.map.AttributeMap;
 import nablarch.core.util.map.EnumerableIterator;

@@ -10,15 +10,13 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import nablarch.fw.web.handler.csrf.VerificationFailureHandler;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import mockit.integration.junit4.JMockit;
 import nablarch.common.web.MockHttpSession;
 import nablarch.common.web.WebConfig;
 import nablarch.common.web.csrf.CsrfTokenUtil;
@@ -48,7 +46,6 @@ import nablarch.test.support.log.app.OnMemoryLogWriter;
  * {@link CsrfTokenVerificationHandler}のテストクラス。
  *
  */
-@RunWith(JMockit.class)
 public class CsrfTokenVerificationHandlerTest {
 
     @Rule

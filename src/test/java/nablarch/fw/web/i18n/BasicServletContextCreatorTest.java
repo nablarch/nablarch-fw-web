@@ -1,17 +1,8 @@
 package nablarch.fw.web.i18n;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-
-import java.util.HashMap;
-import java.util.Map;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import mockit.Expectations;
-import mockit.Mocked;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import nablarch.common.util.BasicRequestIdExtractor;
 import nablarch.core.repository.ObjectLoader;
 import nablarch.core.repository.SystemRepository;
@@ -21,6 +12,16 @@ import nablarch.fw.web.servlet.MockServletRequest;
 import nablarch.fw.web.servlet.WebFrontController;
 import org.junit.After;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * {@link BasicRequestIdExtractor}のテスト。
@@ -45,11 +46,11 @@ public class BasicServletContextCreatorTest {
      * セッションからサーブレットコンテキストを取得するケース。
      */
     @Test
-    public void testCreateFromSession(@Mocked final HttpServletRequest request, @Mocked final HttpSession session) {
+    public void testCreateFromSession() {
+        final HttpServletRequest request = mock(HttpServletRequest.class);
+        final HttpSession session = mock(HttpSession.class, RETURNS_DEEP_STUBS);
         
-        new Expectations() {{
-            request.getSession(false); result = session;
-        }};
+        when(request.getSession(false)).thenReturn(session);
         
         assertThat(creator.create(request), instanceOf(ServletContext.class));
     }
@@ -59,7 +60,8 @@ public class BasicServletContextCreatorTest {
      * リポジトリからサーブレットコンテキストを取得するケース。
      */
     @Test
-    public void testCreateFromRepository(@Mocked final HttpServletRequest request) {
+    public void testCreateFromRepository() {
+        final HttpServletRequest request = mock(HttpServletRequest.class);
 
         SystemRepository.load(new ObjectLoader() {
             @Override
@@ -72,9 +74,7 @@ public class BasicServletContextCreatorTest {
             }
         });
 
-        new Expectations() {{
-            request.getSession(false); result = null;
-        }};
+        when(request.getSession(false)).thenReturn(null);
 
         assertThat(creator.create(request), instanceOf(ServletContext.class));
     }
@@ -84,11 +84,10 @@ public class BasicServletContextCreatorTest {
      * サーブレットコンテキストを取得できないケース。
      */
     @Test
-    public void testCreateException(@Mocked final HttpServletRequest request) {
+    public void testCreateException() {
+        final HttpServletRequest request = mock(HttpServletRequest.class);
 
-        new Expectations() {{
-            request.getSession(false); result = null;
-        }};
+        when(request.getSession(false)).thenReturn(null);
 
         try {
             creator.create(request);

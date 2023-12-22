@@ -16,8 +16,8 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.activation.MimetypesFileTypeMap;
-import javax.servlet.http.Cookie;
+import jakarta.activation.MimetypesFileTypeMap;
+import jakarta.servlet.http.Cookie;
 
 import nablarch.common.web.WebConfig;
 import nablarch.common.web.WebConfigFinder;

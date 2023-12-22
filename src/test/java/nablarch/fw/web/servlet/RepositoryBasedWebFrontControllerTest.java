@@ -1,21 +1,26 @@
 package nablarch.fw.web.servlet;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.Enumeration;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-
-import mockit.Deencapsulation;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
 import nablarch.core.repository.SystemRepository;
 import nablarch.core.repository.di.DiContainer;
 import nablarch.core.repository.di.config.xml.XmlComponentDefinitionLoader;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.Handler;
+import nablarch.test.support.reflection.ReflectionUtil;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.util.Enumeration;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  * {@link RepositoryBasedWebFrontController}のテストクラス。
@@ -108,7 +113,7 @@ public class RepositoryBasedWebFrontControllerTest {
 
         repoController.init(config);
 
-        WebFrontController actualWebController = Deencapsulation.getField(repoController,"controller");
+        WebFrontController actualWebController = ReflectionUtil.getFieldValue(repoController,"controller");
 
         assertNotSame(defaultWebController,actualWebController);
 

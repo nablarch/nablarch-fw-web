@@ -1,10 +1,12 @@
 package nablarch.common.web.session.store;
 
-import nablarch.common.web.session.MockHttpServletRequest;
-import mockit.Mocked;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.xml.bind.DatatypeConverter;
 import nablarch.common.encryption.AesEncryptor;
 import nablarch.common.encryption.Encryptor;
 import nablarch.common.web.session.EncodeException;
+import nablarch.common.web.session.MockHttpServletRequest;
 import nablarch.common.web.session.SessionEntry;
 import nablarch.common.web.session.encoder.JavaSerializeEncryptStateEncoder;
 import nablarch.common.web.session.encoder.JavaSerializeStateEncoder;
@@ -14,18 +16,28 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.DatatypeConverter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 /**
  * {@link HiddenStore}のテスト。
@@ -37,11 +49,9 @@ import static org.junit.Assert.*;
  */
 public class HiddenStoreTest {
 
-    @Mocked
-    private ServletContext unusedHttpContext;
+    private final ServletContext unusedHttpContext = mock(ServletContext.class);
 
-    @Mocked
-    private HttpServletResponse unusedHttpResponse;
+    private final HttpServletResponse unusedHttpResponse = mock(HttpServletResponse.class);
 
     private HiddenStore store;
 

@@ -1,15 +1,15 @@
 package nablarch.fw.web.servlet;
 
-import mockit.Mocked;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 /**
  * {@link PreventSessionCreationHttpServletRequestWrapper} のテストクラス。
@@ -17,8 +17,7 @@ import static org.junit.Assert.*;
  * @author Tomoyuki Tanaka
  */
 public class PreventSessionCreationHttpServletRequestWrapperTest {
-    @Mocked
-    public HttpServletRequest request;
+    public HttpServletRequest request = mock(HttpServletRequest.class);
 
     private PreventSessionCreationHttpServletRequestWrapper sut;
 

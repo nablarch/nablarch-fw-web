@@ -1,6 +1,6 @@
 package nablarch.common.web.handler.threadcontext;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import nablarch.core.util.StringUtil;
 import nablarch.fw.ExecutionContext;
@@ -119,9 +119,7 @@ public class CookieSupport {
             httpCookie.setMaxAge(cookieMaxAge);
         }
         httpCookie.setSecure(secure);
-        if (httpCookie.supportsHttpOnly()) {
-            httpCookie.setHttpOnly(httpOnly);
-        }
+        httpCookie.setHttpOnly(httpOnly);
 
         return httpCookie.convertServletCookies().get(0);
     }

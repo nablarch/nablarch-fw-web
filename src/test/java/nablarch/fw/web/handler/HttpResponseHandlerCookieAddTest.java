@@ -1,10 +1,5 @@
 package nablarch.fw.web.handler;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
-
-import java.nio.charset.Charset;
-
 import nablarch.TestUtil;
 import nablarch.core.ThreadContext;
 import nablarch.core.repository.SystemRepository;
@@ -15,29 +10,42 @@ import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpRequestHandler;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.MockHttpRequest;
-
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
-import mockit.Expectations;
-import mockit.Verifications;
+import java.nio.charset.StandardCharsets;
+
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Answers.CALLS_REAL_METHODS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 
 /**
  * {@link HttpResponseHandler}のCookie追加のテスト。
  */
 public class HttpResponseHandlerCookieAddTest {
+    
+    private MockedStatic<HttpResponse> mocked;
 
     @Before
     public void setUp() throws Exception {
         SystemRepository.clear();
         ThreadContext.clear();
-        final HttpResponse unused = new HttpResponse();
-        new Expectations(unused) {{
-            HttpResponse.parse((byte[]) withNotNull());
-            minTimes = 0;
-            HttpResponse.parse(anyString);
-            minTimes = 0;
-        }};
+        mocked = Mockito.mockStatic(HttpResponse.class, CALLS_REAL_METHODS);
+        mocked.when(() -> HttpResponse.parse(anyString())).thenReturn(null);
+        mocked.when(() -> HttpResponse.parse(any(byte[].class))).thenReturn(null);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        mocked.close();
     }
 
     /**
@@ -68,23 +76,16 @@ public class HttpResponseHandlerCookieAddTest {
                 .startLocal()
                 .handle(new MockHttpRequest("GET / HTTP/1.1"), new ExecutionContext());
 
-        new Verifications() {{
-            byte[] bytes;
-            HttpResponse.parse(bytes = withCapture());
-            String messages = StringUtil.toString(bytes, Charset.forName("UTF-8"));
-            assertThat(messages, is(containsString("HTTP/1.1 200 OK")));
-            assertThat(messages, is(containsString("cookie add test")));
+        final ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+        mocked.verify(() -> HttpResponse.parse(captor.capture()), atLeastOnce());
 
-            if (TestUtil.isJetty9()) {
-                assertThat(messages, is(containsString("Set-Cookie: Test1-Name=Test1-Value; Path=/cookie1")));
-                assertThat(messages, is(containsString("Set-Cookie: Test2-Name=Test2-Value; Path=/cookie2")));
-                assertThat(messages, is(containsString("Set-Cookie: Test3-Name=Test3-Value; Path=/cookie2")));
-            } else {
-                assertThat(messages, is(containsString("Set-Cookie: Test1-Name=Test1-Value;Path=/cookie1")));
-                assertThat(messages, is(containsString("Set-Cookie: Test2-Name=Test2-Value;Path=/cookie2")));
-                assertThat(messages, is(containsString("Set-Cookie: Test3-Name=Test3-Value;Path=/cookie2")));
-            }
-        }};
+        final byte[] bytes = captor.getValue();
+        String messages = StringUtil.toString(bytes, StandardCharsets.UTF_8);
+        assertThat(messages, is(containsString("HTTP/1.1 200 OK")));
+        assertThat(messages, is(containsString("cookie add test")));
+        assertThat(messages, is(containsString("Set-Cookie: Test1-Name=Test1-Value; Path=/cookie1")));
+        assertThat(messages, is(containsString("Set-Cookie: Test2-Name=Test2-Value; Path=/cookie2")));
+        assertThat(messages, is(containsString("Set-Cookie: Test3-Name=Test3-Value; Path=/cookie2")));
     }
 
     /**
@@ -115,22 +116,15 @@ public class HttpResponseHandlerCookieAddTest {
                 .startLocal()
                 .handle(new MockHttpRequest("GET / HTTP/1.1"), new ExecutionContext());
 
-        new Verifications() {{
-            byte[] bytes;
-            HttpResponse.parse(bytes = withCapture());
-            String messages = StringUtil.toString(bytes, Charset.forName("UTF-8"));
-            assertThat(messages, is(containsString("HTTP/1.1 302 Found")));
-            assertThat(messages, is(containsString("Location: http://127.0.0.1/dummy")));
+        final ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+        mocked.verify(() -> HttpResponse.parse(captor.capture()), atLeastOnce());
 
-            if (TestUtil.isJetty9()) {
-                assertThat(messages, is(containsString("Set-Cookie: Test1-Name=Test1-Value; Path=/cookie1")));
-                assertThat(messages, is(containsString("Set-Cookie: Test2-Name=Test2-Value; Path=/cookie2")));
-                assertThat(messages, is(containsString("Set-Cookie: Test3-Name=Test3-Value; Path=/cookie2")));
-            } else {
-                assertThat(messages, is(containsString("Set-Cookie: Test1-Name=Test1-Value;Path=/cookie1")));
-                assertThat(messages, is(containsString("Set-Cookie: Test2-Name=Test2-Value;Path=/cookie2")));
-                assertThat(messages, is(containsString("Set-Cookie: Test3-Name=Test3-Value;Path=/cookie2")));
-            }
-        }};
+        final byte[] bytes = captor.getValue();
+        String messages = StringUtil.toString(bytes, StandardCharsets.UTF_8);
+        assertThat(messages, is(containsString("HTTP/1.1 302 Found")));
+        assertThat(messages, is(containsString("Location: http://127.0.0.1/dummy")));
+        assertThat(messages, is(containsString("Set-Cookie: Test1-Name=Test1-Value; Path=/cookie1")));
+        assertThat(messages, is(containsString("Set-Cookie: Test2-Name=Test2-Value; Path=/cookie2")));
+        assertThat(messages, is(containsString("Set-Cookie: Test3-Name=Test3-Value; Path=/cookie2")));
     }
 }
