@@ -1,7 +1,9 @@
 package nablarch.fw.web;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.lang.annotation.Annotation;
@@ -539,8 +541,12 @@ public class InterceptorTest {
             Interceptor.Factory.wrap(handler);
             fail();
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), is("interceptor is undefined in the interceptorsOrder."
-                    + " undefined interceptors=[@nablarch.fw.web.InterceptorTest$HyphenDecorator()]"));
+            assertThat(e.getMessage(), startsWith("interceptor is undefined in the interceptorsOrder."
+                + " undefined interceptors="));
+
+            String interceptorName = e.getMessage().replace("interceptor is undefined in the interceptorsOrder."
+                + " undefined interceptors=", "");
+            assertThat(interceptorName, containsString(HyphenDecorator.class.getSimpleName()));
         }
     }
 
