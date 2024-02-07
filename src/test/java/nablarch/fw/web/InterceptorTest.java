@@ -541,6 +541,7 @@ public class InterceptorTest {
             Interceptor.Factory.wrap(handler);
             fail();
         } catch (IllegalArgumentException e) {
+            // Java 21での検証時に内部クラスのオブジェクト文字列表現が $内部クラス から .内部クラス（&HyphenDecoratorから.HyphenDecorator）に変わっていたため、バージョンに影響を受けないようにクラス名だけで検証する。
             assertThat(e.getMessage(), startsWith("interceptor is undefined in the interceptorsOrder."
                 + " undefined interceptors="));
 
