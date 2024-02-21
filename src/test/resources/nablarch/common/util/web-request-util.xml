@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ../../../../../../Nablarch/resources/component-configuration.xsd">
+
+	<component name="messageInterpolator"
+			   class="nablarch.common.util.WebRequestUtilTest$CustomMessageInterpolator"/>
+
+	<component name="validatorFactoryBuilder" class="nablarch.common.util.WebRequestUtilTest$CustomValidationFactoryBuilder" />
+	
+</component-configuration>
