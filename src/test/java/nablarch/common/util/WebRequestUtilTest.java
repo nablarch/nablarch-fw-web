@@ -102,15 +102,11 @@ public class WebRequestUtilTest {
 
         @Override
         public String interpolate(String messageTemplate, Context context) {
-            System.out.println(
-                    "----------------------------------------------------------------------------------------------------");
             return interpolate(messageTemplate, context, Locale.getDefault());
         }
 
         @Override
         public String interpolate(String messageTemplate, Context context, Locale locale) {
-            System.out.println(
-                    "----------------------------------------------------------------------------------------------------" + messageTemplate);
             return messageTable.get(messageTemplate);
         }
     }
