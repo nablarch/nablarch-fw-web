@@ -1,10 +1,5 @@
 package nablarch.common.util;
 
-import nablarch.core.beans.BeanUtil;
-import nablarch.core.util.annotation.Published;
-import nablarch.core.validation.ee.ValidatorUtil;
-import nablarch.fw.web.HttpRequest;
-
 import java.util.List;
 import java.util.Map;
 
@@ -56,17 +51,4 @@ public final class WebRequestUtil {
         return PARAMS_CONVERTOR.convert(params);
     }
 
-    /**
-     * HTTPリクエストからBeanを生成し、Bean Validationを行う。
-     *
-     * @param beanClass 生成したいBeanクラス
-     * @param request HTTPリクエスト
-     * @return  プロパティに値が登録されたBeanオブジェクト
-     */
-    @Published
-    public static <T> T getValidatedBean(Class<T> beanClass, HttpRequest request) {
-        T bean = BeanUtil.createAndCopy(beanClass, request.getParamMap());
-        ValidatorUtil.validate(bean);
-        return bean;
-    }
 }
