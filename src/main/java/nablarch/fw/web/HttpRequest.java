@@ -108,6 +108,7 @@ public abstract class HttpRequest implements Request<String[]>, Validatable<Stri
      *
      * @return リクエストパラメータのMap
      */
+    @Published(tag = "architect")
     public abstract Map<String, String[]> getParamMap();
 
     /**
@@ -117,6 +118,7 @@ public abstract class HttpRequest implements Request<String[]>, Validatable<Stri
      * @return パラメータの値
      * @see #getParamMap()
      */
+    @Published(tag = "architect")
     public abstract String[] getParam(String name);
 
     /**
