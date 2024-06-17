@@ -39,10 +39,10 @@ import nablarch.fw.web.HttpRequest;
  * デプロイメントディスクリプタの記述例
  * -------------------------------------
  * &lt;?xml version="1.0" encoding="UTF-8"?>
- * &lt;web-app xmlns="http://java.sun.com/xml/ns/javaee"
+ * &lt;web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
  *          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- *          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
- *          version="2.5">
+ *          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+ *          version="6.0">
  *   &lt;display-name>w8&lt;/display-name>
  *   &lt;description>
  *     The default application-context for w8.http-based applications.
