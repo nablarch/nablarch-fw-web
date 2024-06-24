@@ -34,7 +34,7 @@ import nablarch.fw.web.HttpRequest;
  * オーバライドしたinit()メソッドの中で行う。
  * 本サーブレットフィルタに処理が委譲された場合、必ずレスポンスかフォーワードを行う。
  * このため、後続のサーブレットフィルタチェインに処理が委譲されることは無い。
- * 
+ *
  * -------------------------------------
  * デプロイメントディスクリプタの記述例
  * -------------------------------------
@@ -58,11 +58,12 @@ import nablarch.fw.web.HttpRequest;
  *    &lt;url-pattern>/*&lt;/url-pattern>
  *   &lt;/filter-mapping>
  * &lt;/web-app>
- * 
+ *
  * </pre>
  *
  * @author Iwauo Tajima <iwauo@tis.co.jp>
  */
+@SuppressWarnings("JavadocLinkAsPlainText")
 public class WebFrontController
 extends HandlerQueueManager<WebFrontController>
 implements Filter {
@@ -90,6 +91,7 @@ implements Filter {
      *      HTTPクライアントに対するレスポンス処理を行う。
      * </pre>
      */
+    @SuppressWarnings("RedundantThrows")
     @Published(tag = "architect")
     public void doFilter(ServletRequest  servletRequest,
                          ServletResponse servletResponse,
@@ -138,7 +140,7 @@ implements Filter {
     
     /** ハンドラキュー */
     @SuppressWarnings("rawtypes")
-    private List<Handler> handlerQueue = new ArrayList<Handler>();
+    private final List<Handler> handlerQueue = new ArrayList<>();
 
     /**
      * サーブレットフィルタの設定情報を設定する.
