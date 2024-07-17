@@ -3,6 +3,11 @@ package nablarch.fw.web.handler.secure;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import nablarch.fw.web.handler.SecureHandler;
+import nablarch.fw.web.servlet.MockServletContext;
+import nablarch.fw.web.servlet.MockServletRequest;
+import nablarch.fw.web.servlet.MockServletResponse;
+import nablarch.fw.web.servlet.ServletExecutionContext;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -66,5 +71,35 @@ public class ContentSecurityPolicyHeaderTest {
 
         sut.setPolicy("");
         sut.getValue();
+    }
+
+    /**
+     * リクエストスコープにnonceが設定されている場合、nonceのプレースホルダーが置換されてContent-Security-Policyヘッダーが構築されること
+     */
+    @Test
+    public void replaceCspNonceSourcePlaceHolder() {
+        sut.setPolicy("script-src 'self' '$cspNonceSource$'; style-src '$cspNonceSource$'");
+
+        assertThat(sut.getValue(), is("script-src 'self' '$cspNonceSource$'; style-src '$cspNonceSource$'"));
+
+        ServletExecutionContext context = new ServletExecutionContext(new MockServletRequest(), new MockServletResponse(), new MockServletContext());
+        context.setRequestScopedVar(SecureHandler.CSP_NONCE_KEY, "abcde");
+
+        assertThat(sut.getFormattedValue(context), is("script-src 'self' 'nonce-abcde'; style-src 'nonce-abcde'"));
+    }
+
+    /**
+     * リクエストスコープにnonceが設定されていない場合、nonceのプレースホルダーが置換されてContent-Security-Policyヘッダーが構築されないこと
+     */
+    @Test
+    public void notReplaceCspNonceSourcePlaceHolder() {
+        sut.setPolicy("script-src 'self' '$cspNonceSource$'; style-src '$cspNonceSource$'");
+
+        assertThat(sut.getValue(), is("script-src 'self' '$cspNonceSource$'; style-src '$cspNonceSource$'"));
+
+        ServletExecutionContext context = new ServletExecutionContext(new MockServletRequest(), new MockServletResponse(), new MockServletContext());
+
+        // getValueと同じ値になる
+        assertThat(sut.getValue(), is("script-src 'self' '$cspNonceSource$'; style-src '$cspNonceSource$'"));
     }
 }

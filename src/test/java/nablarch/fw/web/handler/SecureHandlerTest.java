@@ -11,7 +11,14 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import mockit.Verifications;
+import nablarch.core.util.Base64Util;
+import nablarch.fw.web.MockHttpRequest;
+import nablarch.fw.web.handler.secure.ContentSecurityPolicyHeader;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.Description;
+import org.hamcrest.Matchers;
+import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.collection.IsMapContaining;
 
 import nablarch.fw.ExecutionContext;
@@ -47,9 +54,6 @@ public class SecureHandlerTest {
     @Mocked
     private HttpRequest mockHttpRequest;
 
-    /** テスト対象 */
-    private SecureHandler sut = new SecureHandler();
-
     private ServletExecutionContext context;
 
     @Rule
@@ -70,6 +74,7 @@ public class SecureHandlerTest {
             mockServletRequest.getContextPath();
             result = "sampleapp";
         }};
+
         context = new ServletExecutionContext(mockServletRequest, mockServletResponse, mockServletContext);
         context.addHandler(handler);
     }
@@ -79,6 +84,7 @@ public class SecureHandlerTest {
      */
     @Test
     public void defaultSettings() {
+        final SecureHandler sut = new SecureHandler();
 
         final HttpResponse result = sut.handle(mockHttpRequest, context);
 
@@ -100,6 +106,7 @@ public class SecureHandlerTest {
      */
     @Test
     public void withoutFrameOptions() {
+        final SecureHandler sut = new SecureHandler();
 
         final FrameOptionsHeader frameOption = new FrameOptionsHeader();
         frameOption.setOption("NONE");
@@ -110,5 +117,45 @@ public class SecureHandlerTest {
         assertThat(response.getHeaderMap(), CoreMatchers.<Map<String, String>>allOf(
                 IsMapContaining.hasEntry("X-XSS-Protection", "1; mode=block"),
                 not(IsMapContaining.hasKey("X-Frame-Options"))));
+    }
+
+    @Test
+    public void enableGenerateCspNonce() {
+        new Expectations() {{
+            mockServletRequest.getAttribute(SecureHandler.CSP_NONCE_KEY);
+            result = "abcde";
+        }};
+
+        final SecureHandler sut = new SecureHandler();
+        sut.setGenerateCspNonce(true);
+
+        final ContentSecurityPolicyHeader contentSecurityPolicy = new ContentSecurityPolicyHeader();
+        contentSecurityPolicy.setPolicy("script-src 'self' '$cspNonceSource$'; style-src '$cspNonceSource$'");
+        sut.setSecureResponseHeaderList(Arrays.asList(new XssProtectionHeader(), contentSecurityPolicy));
+
+        final HttpResponse response = sut.handle(mockHttpRequest, context);
+
+        assertThat(response.getHeaderMap(), CoreMatchers.<Map<String, String>>allOf(
+                IsMapContaining.hasEntry("X-XSS-Protection", "1; mode=block"),
+                IsMapContaining.hasEntry("Content-Security-Policy", "script-src 'self' 'nonce-abcde'; style-src 'nonce-abcde'")
+        ));
+
+        new Verifications() {{
+            mockServletRequest.setAttribute(SecureHandler.CSP_NONCE_KEY, withArgThat(new TypeSafeMatcher<String>() {
+                @Override
+                protected boolean matchesSafely(String item) {
+                    byte[] binary = Base64Util.decode(item);
+                    assertThat(binary.length, is(16));
+
+                    return true;
+                }
+
+                @Override
+                public void describeTo(Description description) {
+                    description.appendText("Base64でエンコードされた16バイト（128ビット）の文字列をnonceとして指定する必要があります");
+                }
+            }));
+            times = 1;
+        }};
     }
 }

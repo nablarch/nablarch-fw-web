@@ -1,6 +1,8 @@
 package nablarch.fw.web.handler.secure;
 
+import nablarch.core.util.StringUtil;
 import nablarch.fw.web.HttpResponse;
+import nablarch.fw.web.handler.SecureHandler;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 
 /**
@@ -18,6 +20,8 @@ public class ContentSecurityPolicyHeader implements SecureResponseHeader {
     private String policy;
     /** report-onlyモード */
     private boolean reportOnly;
+
+    private String cspNonceSourcePlaceHolder = "$cspNonceSource$";
 
     /**
      * Content-Security-Policyを設定する。
@@ -52,7 +56,20 @@ public class ContentSecurityPolicyHeader implements SecureResponseHeader {
         } else if (policy.isEmpty()) {
             throw new IllegalStateException("invalid Content-Security-Policy. policy is empty");
         }
+
         return policy;
+    }
+
+    public String getFormattedValue(ServletExecutionContext context) {
+        String rawPolicy = getValue();
+
+        String nonce = context.getRequestScopedVar(SecureHandler.CSP_NONCE_KEY);
+
+        if (StringUtil.isNullOrEmpty(nonce)) {
+            return rawPolicy;
+        }
+
+        return rawPolicy.replace(cspNonceSourcePlaceHolder, "nonce-" + nonce);
     }
 
     /**
