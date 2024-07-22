@@ -75,10 +75,6 @@ public class SecureHandler implements HttpRequestHandler {
         this.generateCspNonce = generateCspNonce;
     }
 
-    public List<? extends SecureResponseHeader> getSecureResponseHeaderList() {
-        return secureResponseHeaderList;
-    }
-
     @Override
     public HttpResponse handle(final HttpRequest request, final ExecutionContext context) {
         if (generateCspNonce) {
