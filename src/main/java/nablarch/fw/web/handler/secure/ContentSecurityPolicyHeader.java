@@ -20,7 +20,7 @@ public class ContentSecurityPolicyHeader implements SecureResponseHeader {
     private String policy;
     /** report-onlyモード */
     private boolean reportOnly;
-
+    /** プレースホルダー文字列 */
     private String cspNonceSourcePlaceHolder = "$cspNonceSource$";
 
     /**
@@ -60,6 +60,13 @@ public class ContentSecurityPolicyHeader implements SecureResponseHeader {
         return policy;
     }
 
+    /**
+     * セキュアハンドラでnonceが自動生成されている場合は、プレースホルダーをnonceに置換する。
+     * 自動生成されていない場合は、プレースホルダーをそのまま返す。
+     *
+     * @param context 実行コンテキスト
+     * @return レスポンスヘッダの値
+     */
     public String getFormattedValue(ServletExecutionContext context) {
         String rawPolicy = getValue();
 

@@ -28,6 +28,10 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
  * @author Hisaaki Shioiri
  */
 public class SecureHandler implements HttpRequestHandler {
+
+    /**
+     * CSP nonce生成の要求を表す値をリクエストスコープに設定する際に使用するキー
+     */
     public static String CSP_NONCE_KEY = ExecutionContext.FW_PREFIX + "csp_nonce";
 
     /**
@@ -41,14 +45,32 @@ public class SecureHandler implements HttpRequestHandler {
                     new ReferrerPolicyHeader(),
                     new CacheControlHeader());
 
+    /**
+     * nonceを自動生成するかどうか
+     */
     private boolean generateCspNonce = false;
 
+    /**
+     * nonceの生成用の 乱数ジェネレータ
+     */
     private SecureRandom random = new SecureRandom();
 
+    /**
+     * nonceを自動生成するかどうか。
+     *
+     * @return trueの場合は、自動生成する
+     */
     public boolean isGenerateCspNonce() {
         return generateCspNonce;
     }
 
+    /**
+     * nonceを自動生成するかどうかの設定
+     * デフォルト値はfalseである。
+     *
+     * @param generateCspNonce nonceを自動生成するかどうか
+     *
+     */
     public void setGenerateCspNonce(boolean generateCspNonce) {
         this.generateCspNonce = generateCspNonce;
     }
