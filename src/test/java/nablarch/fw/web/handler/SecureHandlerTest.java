@@ -95,9 +95,11 @@ public class SecureHandlerTest {
                 IsMapContaining.hasEntry("X-XSS-Protection", "1; mode=block"),
                 IsMapContaining.hasEntry("X-Content-Type-Options", "nosniff"),
                 IsMapContaining.hasEntry("Referrer-Policy", "strict-origin-when-cross-origin"),
-                IsMapContaining.hasEntry("Cache-Control", "no-store")
+                IsMapContaining.hasEntry("Cache-Control", "no-store"),
+                not(IsMapContaining.hasKey("Content-Security-Policy"))
         ));
         assertNull(result.getHeaderMap().get("Content-Type"));
+
 
     }
 
@@ -119,6 +121,9 @@ public class SecureHandlerTest {
                 not(IsMapContaining.hasKey("X-Frame-Options"))));
     }
 
+    /**
+     * generateCspNonceをtrueに設定した場合、nonceが生成されContent-Security-Policyヘッダーに出力されること
+     */
     @Test
     public void enableGenerateCspNonce() {
         new Expectations() {{
@@ -157,5 +162,26 @@ public class SecureHandlerTest {
             }));
             times = 1;
         }};
+    }
+
+    /**
+     * デフォルト設定の場合、nonceが生成されないこと
+     */
+    @Test
+    public void disableGenerateCspNonce(){
+
+        final SecureHandler sut = new SecureHandler();
+        assertThat(sut.isGenerateCspNonce(), is(false));
+
+        final ContentSecurityPolicyHeader contentSecurityPolicy = new ContentSecurityPolicyHeader();
+        contentSecurityPolicy.setPolicy("script-src 'self' '$cspNonceSource$'; style-src '$cspNonceSource$'");
+        sut.setSecureResponseHeaderList(Arrays.asList(new XssProtectionHeader(), contentSecurityPolicy));
+
+        final HttpResponse response = sut.handle(mockHttpRequest, context);
+
+        assertThat(response.getHeaderMap(), CoreMatchers.<Map<String, String>>allOf(
+                IsMapContaining.hasEntry("X-XSS-Protection", "1; mode=block"),
+                IsMapContaining.hasEntry("Content-Security-Policy", "script-src 'self' '$cspNonceSource$'; style-src '$cspNonceSource$'")
+        ));
     }
 }
