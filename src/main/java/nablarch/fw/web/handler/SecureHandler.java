@@ -53,7 +53,7 @@ public class SecureHandler implements HttpRequestHandler {
     /**
      * nonceの生成用の 乱数ジェネレータ
      */
-    private SecureRandom random = new SecureRandom();
+    private final SecureRandom random = new SecureRandom();
 
     /**
      * nonceを自動生成するかどうか。

@@ -7,7 +7,7 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
 
 /**
  * Content-Security-Policyレスポンスヘッダを設定するクラス。
- *
+ * <p>
  * {@link #setReportOnly(boolean)} に{@code true}を設定した場合は、
  * Content-Security-Policy-Report-Onlyレスポンスヘッダを出力する。
  * 
@@ -21,7 +21,7 @@ public class ContentSecurityPolicyHeader implements SecureResponseHeader {
     /** report-onlyモード */
     private boolean reportOnly;
     /** プレースホルダー文字列 */
-    private String cspNonceSourcePlaceHolder = "$cspNonceSource$";
+    private final String cspNonceSourcePlaceHolder = "$cspNonceSource$";
 
     /**
      * Content-Security-Policyを設定する。
