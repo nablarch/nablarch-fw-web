@@ -2,7 +2,7 @@ package nablarch.fw.web.handler;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -13,11 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import mockit.Verifications;
 import nablarch.core.util.Base64Util;
-import nablarch.fw.web.MockHttpRequest;
 import nablarch.fw.web.handler.secure.ContentSecurityPolicyHeader;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
-import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.collection.IsMapContaining;
 
@@ -59,7 +57,7 @@ public class SecureHandlerTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private Handler<HttpRequest, HttpResponse> handler = new Handler<HttpRequest, HttpResponse>() {
+    private final Handler<HttpRequest, HttpResponse> handler = new Handler<HttpRequest, HttpResponse>() {
         @Override
         public HttpResponse handle(final HttpRequest request, final ExecutionContext context) {
             return new HttpResponse(200);
