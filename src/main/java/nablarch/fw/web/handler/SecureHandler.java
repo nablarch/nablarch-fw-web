@@ -20,7 +20,7 @@ import nablarch.fw.web.handler.secure.XssProtectionHeader;
 import nablarch.fw.web.servlet.ServletExecutionContext;
 
 /**
- * セキュリティ関連のレスポンスヘッダを設定するハンドラ。
+ * Webアプリケーションのセキュリティに関する処理やヘッダ設定を行うハンドラ。
  * <p>
  * レスポンスヘッダに設定する値は、{@link #setSecureResponseHeaderList(List)}に設定された、値から取得する。
  * 特定条件の場合に出力を抑制する場合は、{@link SecureResponseHeader#isOutput(HttpResponse, ServletExecutionContext)}で、{@code false}を返すこと。
@@ -51,7 +51,7 @@ public class SecureHandler implements HttpRequestHandler {
     private boolean generateCspNonce = false;
 
     /**
-     * nonceの生成用の 乱数ジェネレータ
+     * nonceの生成用の乱数ジェネレータ
      */
     private final SecureRandom random = new SecureRandom();
 
