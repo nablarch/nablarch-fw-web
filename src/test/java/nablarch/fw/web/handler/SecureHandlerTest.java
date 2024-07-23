@@ -102,7 +102,7 @@ public class SecureHandlerTest {
     }
 
     /**
-     * 出力対象外の場合、そのヘッダは出力されないこと
+     * 出力対象外の場合、そのヘッダは出力されないこと。
      */
     @Test
     public void withoutFrameOptions() {
@@ -120,7 +120,8 @@ public class SecureHandlerTest {
     }
 
     /**
-     * generateCspNonceをtrueに設定した場合、nonceが生成されContent-Security-Policyヘッダーに出力されること
+     * generateCspNonceをtrueにしている場合、リクエストスコープに生成されたnonceが保存されること。
+     * またContentSecurityPolicyHeaderを設定している場合は、プレースホルダーが生成されたnonceで置換されること。
      */
     @Test
     public void enableGenerateCspNonce() {
@@ -163,7 +164,7 @@ public class SecureHandlerTest {
     }
 
     /**
-     * デフォルト設定の場合、nonceが生成されないこと
+     * デフォルト設定の場合、nonceが生成されないこと。
      */
     @Test
     public void disableGenerateCspNonce(){
@@ -181,5 +182,10 @@ public class SecureHandlerTest {
                 IsMapContaining.hasEntry("X-XSS-Protection", "1; mode=block"),
                 IsMapContaining.hasEntry("Content-Security-Policy", "script-src 'self' '$cspNonceSource$'; style-src '$cspNonceSource$'")
         ));
+
+        new Verifications() {{
+            mockServletRequest.setAttribute(SecureHandler.CSP_NONCE_KEY, any);
+            times = 0;
+        }};
     }
 }
