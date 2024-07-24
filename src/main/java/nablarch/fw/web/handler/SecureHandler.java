@@ -65,7 +65,7 @@ public class SecureHandler implements HttpRequestHandler {
     }
 
     /**
-     * nonceを自動生成するかどうかの設定
+     * nonceを自動生成するかどうかの設定。
      * デフォルト値はfalseである。
      *
      * @param generateCspNonce nonceを自動生成するかどうか
