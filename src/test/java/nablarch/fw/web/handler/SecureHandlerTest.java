@@ -149,9 +149,7 @@ public class SecureHandlerTest {
                 @Override
                 protected boolean matchesSafely(String item) {
                     byte[] binary = Base64Util.decode(item);
-                    assertThat(binary.length, is(16));
-
-                    return true;
+                    return binary.length == 16;
                 }
 
                 @Override
