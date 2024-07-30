@@ -140,6 +140,8 @@ public class SecureHandlerTest {
                 IsMapContaining.hasEntry("Content-Security-Policy", "script-src 'self' 'nonce-abcde'; style-src 'nonce-abcde'")
         ));
 
+        verify(mockServletRequest, times(2)).getAttribute(SecureHandler.CSP_NONCE_KEY);
+
         verify(mockServletRequest, times(1)).setAttribute(eq(SecureHandler.CSP_NONCE_KEY), argThat(new TypeSafeMatcher<String>() {
             @Override
             public boolean matchesSafely(String item) {
