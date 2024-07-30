@@ -176,6 +176,8 @@ public class SecureHandlerTest {
                 IsMapContaining.hasEntry("Content-Security-Policy", "script-src 'self' '$cspNonceSource$'; style-src '$cspNonceSource$'")
         ));
 
+        verify(mockServletRequest, times(1)).getAttribute(SecureHandler.CSP_NONCE_KEY);
+
         verify(mockServletRequest, never()).setAttribute(eq(SecureHandler.CSP_NONCE_KEY), any());
     }
 }
