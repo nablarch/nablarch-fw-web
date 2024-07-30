@@ -13,8 +13,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import nablarch.core.util.Base64Util;
 import nablarch.fw.web.handler.secure.ContentSecurityPolicyHeader;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.collection.IsMapContaining;
 
 import nablarch.fw.ExecutionContext;
@@ -33,7 +31,7 @@ import org.junit.rules.ExpectedException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.hamcrest.MockitoHamcrest.argThat;
+import static org.mockito.ArgumentMatchers.assertArg;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -139,20 +137,9 @@ public class SecureHandlerTest {
                 IsMapContaining.hasEntry("X-XSS-Protection", "1; mode=block"),
                 IsMapContaining.hasEntry("Content-Security-Policy", "script-src 'self' 'nonce-abcde'; style-src 'nonce-abcde'")
         ));
-
         verify(mockServletRequest, times(2)).getAttribute(SecureHandler.CSP_NONCE_KEY);
-
-        verify(mockServletRequest, times(1)).setAttribute(eq(SecureHandler.CSP_NONCE_KEY), argThat(new TypeSafeMatcher<String>() {
-            @Override
-            public boolean matchesSafely(String item) {
-                byte[] binary = Base64Util.decode(item);
-                return binary.length == 16;
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("Base64でエンコードされた16バイト（128ビット）の文字列をnonceとして指定する必要があります");
-            }
+        verify(mockServletRequest, times(1)).setAttribute(eq(SecureHandler.CSP_NONCE_KEY), assertArg(item -> {
+            assertThat("Base64でエンコードされた16バイト（128ビット）の文字列をnonceとして指定する必要があります", Base64Util.decode(item.toString()).length, is(16));
         }));
     }
 
@@ -175,9 +162,7 @@ public class SecureHandlerTest {
                 IsMapContaining.hasEntry("X-XSS-Protection", "1; mode=block"),
                 IsMapContaining.hasEntry("Content-Security-Policy", "script-src 'self' '$cspNonceSource$'; style-src '$cspNonceSource$'")
         ));
-
         verify(mockServletRequest, times(1)).getAttribute(SecureHandler.CSP_NONCE_KEY);
-
         verify(mockServletRequest, never()).setAttribute(eq(SecureHandler.CSP_NONCE_KEY), any());
     }
 }
