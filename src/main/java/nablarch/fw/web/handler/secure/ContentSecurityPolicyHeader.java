@@ -21,7 +21,7 @@ public class ContentSecurityPolicyHeader implements SecureResponseHeader {
     /** report-onlyモード */
     private boolean reportOnly;
     /** プレースホルダー文字列 */
-    private final String cspNonceSourcePlaceHolder = "$cspNonceSource$";
+    private static final String CSP_NONCE_SOURCE_PLACE_HOLDER = "$cspNonceSource$";
 
     /**
      * Content-Security-Policyを設定する。
@@ -76,7 +76,7 @@ public class ContentSecurityPolicyHeader implements SecureResponseHeader {
             return rawPolicy;
         }
 
-        return rawPolicy.replace(cspNonceSourcePlaceHolder, "nonce-" + nonce);
+        return rawPolicy.replace(CSP_NONCE_SOURCE_PLACE_HOLDER, "nonce-" + nonce);
     }
 
     /**
