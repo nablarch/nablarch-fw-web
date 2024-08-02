@@ -32,7 +32,7 @@ public class SecureHandler implements HttpRequestHandler {
     /**
      * CSP nonce生成の要求を表す値をリクエストスコープに設定する際に使用するキー
      */
-    public static String CSP_NONCE_KEY = ExecutionContext.FW_PREFIX + "csp_nonce";
+    public static final String CSP_NONCE_KEY = ExecutionContext.FW_PREFIX + "csp_nonce";
 
     /**
      * セキュリティ関連のレスポンスヘッダを構築するオブジェクト
