@@ -91,7 +91,7 @@ public class BeanValidationStrategy implements ValidationStrategy {
      * @return ソートしたメッセージリスト
      */
     @Published(tag = "architect")
-    protected static List<Message> sortMessages(
+    protected List<Message> sortMessages(
             final List<Message> messages, final ServletExecutionContext context, final InjectForm injectForm) {
         final ServletRequest request = context.getServletRequest()
                                               .getRequest();
