@@ -40,6 +40,7 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
  *
  * @author sumida
  */
+@Published(tag = "architect")
 public class BeanValidationStrategy implements ValidationStrategy {
 
     /** バリデーションエラー時にBeanをリクエストスコープにコピーするかどうか */
@@ -54,7 +55,6 @@ public class BeanValidationStrategy implements ValidationStrategy {
     /**
      * {@code BeanValidationStrategy}を生成する。
      */
-    @Published(tag = "architect")
     public BeanValidationStrategy() {   // NOP
     }
 
@@ -90,7 +90,6 @@ public class BeanValidationStrategy implements ValidationStrategy {
      * @param injectForm {@code InjectForm}アノテーション
      * @return ソートしたメッセージリスト
      */
-    @Published(tag = "architect")
     protected List<Message> sortMessages(
             final List<Message> messages, final ServletExecutionContext context, final InjectForm injectForm) {
         final ServletRequest request = context.getServletRequest()
