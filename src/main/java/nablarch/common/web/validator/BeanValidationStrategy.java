@@ -58,14 +58,26 @@ public class BeanValidationStrategy implements ValidationStrategy {
     public BeanValidationStrategy() {   // NOP
     }
 
-    public Serializable validate(HttpRequest request, InjectForm annotation, boolean notUse,
-            ServletExecutionContext context) {
-
+    /**
+     * リクエストパラメータからBeanオブジェクトを生成する。
+     *
+     * @param request パラメータを含むHTTPリクエスト
+     * @param annotation {@code InjectForm}アノテーション
+     * @return プロパティに値が登録されたBeanオブジェクト
+     */
+    public Serializable createBean(HttpRequest request, InjectForm annotation) {
         Map<String, String[]> rawRequestParamMap = request.getParamMap();
         Map<String, String[]> requestParamMap = getMapWithConvertedKey(annotation.prefix(), rawRequestParamMap);
 
         Serializable bean = formFactory.create(annotation.form());
         BeanUtil.copy(annotation.form(), bean, requestParamMap, CopyOptions.empty());
+        return bean;
+    }
+
+    public Serializable validate(HttpRequest request, InjectForm annotation, boolean notUse,
+            ServletExecutionContext context) {
+
+        Serializable bean = createBean(request, annotation);
         Validator validator = ValidatorUtil.getValidator();
         Set<ConstraintViolation<Serializable>> results = validator.validate(bean, annotation.validationGroup());
         if (!results.isEmpty()) {
