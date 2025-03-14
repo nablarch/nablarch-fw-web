@@ -40,6 +40,7 @@ import nablarch.fw.web.servlet.ServletExecutionContext;
  *
  * @author sumida
  */
+@Published(tag = "architect")
 public class BeanValidationStrategy implements ValidationStrategy {
 
     /** バリデーションエラー時にBeanをリクエストスコープにコピーするかどうか */
@@ -54,29 +55,40 @@ public class BeanValidationStrategy implements ValidationStrategy {
     /**
      * {@code BeanValidationStrategy}を生成する。
      */
-    @Published(tag = "architect")
     public BeanValidationStrategy() {   // NOP
+    }
+
+    /**
+     * {@link InjectForm}のform属性で指定された型のフォームを生成する。
+     *
+     * @param request リクエスト
+     * @param annotation InjectFormアノテーション
+     * @return リクエストパラメータが登録されたフォーム
+     */
+    protected Serializable createForm(HttpRequest request, InjectForm annotation) {
+        Map<String, String[]> rawRequestParamMap = request.getParamMap();
+        Map<String, String[]> requestParamMap = getMapWithConvertedKey(annotation.prefix(), rawRequestParamMap);
+
+        Serializable form = formFactory.create(annotation.form());
+        BeanUtil.copy(annotation.form(), form, requestParamMap, CopyOptions.empty());
+        return form;
     }
 
     public Serializable validate(HttpRequest request, InjectForm annotation, boolean notUse,
             ServletExecutionContext context) {
 
-        Map<String, String[]> rawRequestParamMap = request.getParamMap();
-        Map<String, String[]> requestParamMap = getMapWithConvertedKey(annotation.prefix(), rawRequestParamMap);
-
-        Serializable bean = formFactory.create(annotation.form());
-        BeanUtil.copy(annotation.form(), bean, requestParamMap, CopyOptions.empty());
+        Serializable form = createForm(request, annotation);
         Validator validator = ValidatorUtil.getValidator();
-        Set<ConstraintViolation<Serializable>> results = validator.validate(bean, annotation.validationGroup());
+        Set<ConstraintViolation<Serializable>> results = validator.validate(form, annotation.validationGroup());
         if (!results.isEmpty()) {
             if (copyBeanToRequestScopeOnError) {
                 // エラーのとき、リクエストスコープにbeanを設定する
-                context.setRequestScopedVar(annotation.name(), bean);
+                context.setRequestScopedVar(annotation.name(), form);
             }
             List<Message> messages = new ConstraintViolationConverterFactory().create(annotation.prefix()).convert(results);
             throw new ApplicationException(sortMessages(messages, context, annotation));
         }
-        return bean;
+        return form;
     }
 
     /**
@@ -90,8 +102,7 @@ public class BeanValidationStrategy implements ValidationStrategy {
      * @param injectForm {@code InjectForm}アノテーション
      * @return ソートしたメッセージリスト
      */
-    @Published(tag = "architect")
-    protected static List<Message> sortMessages(
+    protected List<Message> sortMessages(
             final List<Message> messages, final ServletExecutionContext context, final InjectForm injectForm) {
         final ServletRequest request = context.getServletRequest()
                                               .getRequest();
