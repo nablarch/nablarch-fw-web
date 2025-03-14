@@ -59,11 +59,11 @@ public class BeanValidationStrategy implements ValidationStrategy {
     }
 
     /**
-     * リクエスト内容をバリデーションするために、{@link InjectForm}のform属性で指定された型のオブジェクトを生成して返す。
+     * {@link InjectForm}のform属性で指定された型のフォームを生成する。
      *
      * @param request リクエスト
      * @param annotation InjectFormアノテーション
-     * @return プロパティに値が登録されたフォーム
+     * @return リクエストパラメータが登録されたフォーム
      */
     protected Serializable createForm(HttpRequest request, InjectForm annotation) {
         Map<String, String[]> rawRequestParamMap = request.getParamMap();
