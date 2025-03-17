@@ -110,7 +110,7 @@ public class BeanValidationStrategy implements ValidationStrategy {
         final List<String> parameterNames = Collections.list(request.getParameterNames());
 
         final List<Message> sortedMessage = new ArrayList<>(messages);
-        Collections.sort(sortedMessage, (m1, m2) -> {
+        sortedMessage.sort((m1, m2) -> {
             final int index1 = getParameterIndex(parameterNames, m1);
             final int index2 = getParameterIndex(parameterNames, m2);
 
