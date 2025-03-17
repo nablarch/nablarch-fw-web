@@ -3,7 +3,6 @@ package nablarch.common.web.validator;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,26 +106,22 @@ public class BeanValidationStrategy implements ValidationStrategy {
         final ServletRequest request = context.getServletRequest()
                                               .getRequest();
 
-        @SuppressWarnings("unchecked")
         final List<String> parameterNames = Collections.list(request.getParameterNames());
 
-        final List<Message> sortedMessage = new ArrayList<Message>(messages);
-        Collections.sort(sortedMessage, new Comparator<Message>() {
-            @Override
-            public int compare(final Message m1, final Message m2) {
-                final int index1 = getParameterIndex(parameterNames, m1);
-                final int index2 = getParameterIndex(parameterNames, m2);
-                
-                if (index1 < index2) {
-                    // m1のほうが小さい場合
-                    return -1;
-                } else if (index2 < index1) {
-                    // m2のほうが小さい場合
-                    return 1;
-                } else {
-                    // それ以外は同じと扱う
-                    return 0;
-                }
+        final List<Message> sortedMessage = new ArrayList<>(messages);
+        sortedMessage.sort((m1, m2) -> {
+            final int index1 = getParameterIndex(parameterNames, m1);
+            final int index2 = getParameterIndex(parameterNames, m2);
+
+            if (index1 < index2) {
+                // m1のほうが小さい場合
+                return -1;
+            } else if (index2 < index1) {
+                // m2のほうが小さい場合
+                return 1;
+            } else {
+                // それ以外は同じと扱う
+                return 0;
             }
         });
         return sortedMessage;
@@ -158,12 +153,12 @@ public class BeanValidationStrategy implements ValidationStrategy {
     private Map<String, String[]> getMapWithConvertedKey(String prefix, Map<String, String[]> reqParamMap) {
         if (StringUtil.isNullOrEmpty(prefix)) {
             // プレフィックスが指定されない場合、全てが対象とする
-            return new HashMap<String, String[]>(reqParamMap);
+            return new HashMap<>(reqParamMap);
         }
 
         final String prefixName = prefix + '.';
         final int prefixLength = prefixName.length();
-        Map<String, String[]> convertedMap = new HashMap<String, String[]>();
+        Map<String, String[]> convertedMap = new HashMap<>();
         for (Map.Entry<String, String[]> entry : reqParamMap.entrySet()) {
             final String key = entry.getKey();
             final String[] value = entry.getValue();
