@@ -111,22 +111,19 @@ public class BeanValidationStrategy implements ValidationStrategy {
         final List<String> parameterNames = Collections.list(request.getParameterNames());
 
         final List<Message> sortedMessage = new ArrayList<Message>(messages);
-        Collections.sort(sortedMessage, new Comparator<Message>() {
-            @Override
-            public int compare(final Message m1, final Message m2) {
-                final int index1 = getParameterIndex(parameterNames, m1);
-                final int index2 = getParameterIndex(parameterNames, m2);
-                
-                if (index1 < index2) {
-                    // m1のほうが小さい場合
-                    return -1;
-                } else if (index2 < index1) {
-                    // m2のほうが小さい場合
-                    return 1;
-                } else {
-                    // それ以外は同じと扱う
-                    return 0;
-                }
+        Collections.sort(sortedMessage, (m1, m2) -> {
+            final int index1 = getParameterIndex(parameterNames, m1);
+            final int index2 = getParameterIndex(parameterNames, m2);
+
+            if (index1 < index2) {
+                // m1のほうが小さい場合
+                return -1;
+            } else if (index2 < index1) {
+                // m2のほうが小さい場合
+                return 1;
+            } else {
+                // それ以外は同じと扱う
+                return 0;
             }
         });
         return sortedMessage;
