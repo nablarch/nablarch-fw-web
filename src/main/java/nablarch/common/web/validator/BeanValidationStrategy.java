@@ -106,7 +106,6 @@ public class BeanValidationStrategy implements ValidationStrategy {
         final ServletRequest request = context.getServletRequest()
                                               .getRequest();
 
-        @SuppressWarnings("unchecked")
         final List<String> parameterNames = Collections.list(request.getParameterNames());
 
         final List<Message> sortedMessage = new ArrayList<>(messages);
